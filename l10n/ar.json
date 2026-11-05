@@ -1525,7 +1525,6 @@
         "Add and enable a shelf in Library settings before sharing.": "أضف رفًا وفعّله من إعدادات المكتبة قبل مشاركته.",
         "Waiting for the recipient to accept the Files share": "بانتظار قبول المستلِم مشاركة الملفات",
         "Accept the Files share to browse this shelf.": "اقبل مشاركة الملفات لتصفح هذا الرف.",
-        "Before disabling or uninstalling Library, remove this access here or remove the Files share in Nextcloud Files. Disabling Library does not remove the Files share.": "قبل تعطيل Library أو إلغاء تثبيته، أزل هذا الوصول هنا أو أزل مشاركة الملفات في ملفات Nextcloud. تعطيل Library لا يزيل مشاركة الملفات.",
         "Library-managed Files shares can remain active after disabling Library. Remove access here first, or remove them in Nextcloud Files.": "قد تظل مشاركات الملفات التي يديرها Library نشطة بعد تعطيله. أزل الوصول هنا أولًا، أو أزلها من ملفات Nextcloud.",
         "This share no longer has the expected Files access. Remove access below, then share the shelf again.": "لم تعد هذه المشاركة تملك الوصول المتوقع إلى الملفات. أزل الوصول أدناه، ثم شارك الرف مجددًا.",
         "Files access changed. Review the share in Nextcloud Files.": "تغيّر الوصول إلى الملفات. راجع المشاركة في ملفات Nextcloud.",
@@ -1544,7 +1543,6 @@
         "ISBN match": "تطابق ISBN",
         "Library access is hidden, but Files share cleanup is pending. Retry Remove access.": "أُخفي الوصول إلى المكتبة، لكن إزالة مشاركة الملفات ما زالت معلّقة. أعد محاولة إزالة الوصول.",
         "Library access was removed.": "تمت إزالة الوصول إلى المكتبة.",
-        "Library access was shared. The recipient may need to accept the Files share first.": "تمت مشاركة الوصول إلى المكتبة. قد يحتاج المستلِم إلى قبول مشاركة الملفات أولًا.",
         "Manage shared libraries": "إدارة المكتبات المشتركة",
         "Matching editions": "الطبعات المطابقة",
         "Next books": "الكتب التالية",
@@ -1610,11 +1608,12 @@
         "Confirm access": "تأكيد الوصول",
         "Nextcloud user": "مستخدم Nextcloud",
         "Files access": "الوصول إلى الملفات",
-        "Create a read-only Files share for this shelf. The recipient may need to accept it.": "ستُنشأ مشاركة ملفات للقراءة فقط لهذا الرف. قد يحتاج المستلِم إلى قبولها.",
-        "Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.": "سيُستخدم وصول المستلِم الحالي للملفات للقراءة فقط. لن تزيل المكتبة مشاركة الملفات هذه لاحقًا.",
-        "Share a Library shelf read-only with one Nextcloud user. When needed, this creates a read-only Files share of the entire folder, including files Library has not indexed.": "شارك رفًا من المكتبة للقراءة فقط مع مستخدم واحد في Nextcloud. عند الحاجة، ستُنشأ مشاركة ملفات للقراءة فقط تشمل المجلد بالكامل، بما في ذلك الملفات التي لم تفهرسها المكتبة.",
-        "Library shows only indexed books and their publication details. The Files share also gives the recipient access to every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.": "تعرض Library الكتب المفهرسة وبيانات نشرها فقط. تتيح مشاركة الملفات للمستلِم أيضًا الوصول إلى كل ملف ومجلد فرعي في هذا الرف، بما في ذلك الملفات غير المفهرسة. تبقى تفاصيل القراءة الشخصية والقوائم خاصة.",
-        "Sharing needs cleanup. Use Remove access below to retry. Check Nextcloud Files if cleanup remains pending.": "تحتاج المشاركة إلى تنظيف. أعد محاولة إزالة الوصول أدناه. تحقّق من ملفات Nextcloud إذا بقي التنظيف معلّقًا."
+        "Sharing needs cleanup. Use Remove access below to retry. Check Nextcloud Files if cleanup remains pending.": "تحتاج المشاركة إلى تنظيف. أعد محاولة إزالة الوصول أدناه. تحقّق من ملفات Nextcloud إذا بقي التنظيف معلّقًا.",
+        "Library access was shared. The recipient can browse while their read-only Files access remains active.": "تمت مشاركة الوصول إلى المكتبة. يمكن للمستلِم تصفح الكتب ما دام وصوله للملفات للقراءة فقط نشطًا.",
+        "Use the recipient’s existing read-only Files access. Library will not remove that Files share later.": "سيُستخدم وصول المستلِم الحالي للملفات للقراءة فقط. لن تزيل Library مشاركة الملفات هذه لاحقًا.",
+        "First share the shelf folder read-only with the user in Nextcloud Files and have them accept it. Then grant access to its indexed books here. Library does not create or change Files shares.": "شارك مجلد الرف أولًا مع المستخدم للقراءة فقط في ملفات Nextcloud واطلب منه قبول المشاركة. ثم امنحه هنا الوصول إلى الكتب المفهرسة. لا ينشئ Library مشاركات الملفات ولا يغيّرها.",
+        "Library shows only indexed books and their publication details. Existing Files access may also expose every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.": "يعرض Library الكتب المفهرسة وبيانات نشرها فقط. وقد يتيح الوصول الحالي للملفات رؤية كل الملفات والمجلدات الفرعية في هذا الرف، بما فيها غير المفهرسة. تبقى بيانات القراءة والقوائم الشخصية خاصة.",
+        "Share this folder read-only with the user in Nextcloud Files, ask them to accept it, then review Library sharing again.": "شارك هذا المجلد مع المستخدم للقراءة فقط في ملفات Nextcloud، واطلب منه قبول المشاركة، ثم راجع مشاركة Library مرة أخرى."
     },
     "pluralForm": "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 }

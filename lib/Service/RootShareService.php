@@ -18,7 +18,7 @@ use OCP\Lock\ILockingProvider;
 use OCP\Share\IManager as IShareManager;
 use OCP\Share\IShare;
 
-/** A Library grant is useful only while the recipient can read the underlying Files root. */
+/** A Library grant requires an existing read-only Files root; Library never creates one. */
 final class RootShareService {
     private const MANAGED_NOTE_PREFIX = 'Library managed share: ';
 
@@ -75,6 +75,9 @@ final class RootShareService {
             throw new \InvalidArgumentException('invalid_recipient');
         }
         $recipientRoots = $this->recipientRootNodes($recipient, (int)$node->getId());
+        if ($recipientRoots === []) {
+            throw new \InvalidArgumentException('files_access_required');
+        }
         foreach ($recipientRoots as $visible) {
             if (($visible->getPermissions() & (Constants::PERMISSION_UPDATE | Constants::PERMISSION_CREATE | Constants::PERMISSION_DELETE)) !== 0) {
                 throw new \InvalidArgumentException('recipient_has_writable_access');
@@ -86,7 +89,7 @@ final class RootShareService {
             'rootFileId' => (int)$node->getId(),
             'recipientId' => $recipient,
             'recipientName' => $recipientUser->getDisplayName(),
-            'filesMode' => $recipientRoots === [] ? 'create' : 'reuse',
+            'filesMode' => 'reuse',
         ];
     }
 
@@ -187,24 +190,22 @@ final class RootShareService {
             throw new \InvalidArgumentException('invalid_recipient');
         }
         $recipientRoots = $this->recipientRootNodes($recipient, $rootFileId);
+        if ($recipientRoots === []) {
+            throw new \InvalidArgumentException('files_access_required');
+        }
         foreach ($recipientRoots as $visible) {
             if (($visible->getPermissions() & (Constants::PERMISSION_UPDATE | Constants::PERMISSION_CREATE | Constants::PERMISSION_DELETE)) !== 0) {
                 throw new \InvalidArgumentException('recipient_has_writable_access');
             }
         }
-        if ($rootFileId !== $expectedRootFileId || ($recipientRoots === [] ? 'create' : 'reuse') !== $expectedFilesMode) {
+        if ($rootFileId !== $expectedRootFileId || $expectedFilesMode !== 'reuse') {
             throw new \InvalidArgumentException('share_changed');
         }
-        // Reserve a hidden row before the external Files write. An interrupted
-        // create remains visible to the owner as cleanup-pending, and its note
-        // identifies only the share created for this exact attempt.
-        $recoveryToken = $recipientRoots === [] ? bin2hex(random_bytes(16)) : null;
-        $pending = $recoveryToken !== null;
         try {
             $this->db->executeStatement('INSERT INTO *PREFIX*library_root_shares '
                 . '(owner_user_id,recipient_user_id,root_id,root_file_id,managed_share_id,recovery_token,revoked_at,created_at) '
                 . 'VALUES (?,?,?,?,?,?,?,?)', [$owner, $recipient, $rootId, $rootFileId,
-                    null, $recoveryToken, $pending ? time() : null, time()]);
+                    null, null, null, time()]);
         } catch (\Throwable $e) {
             $concurrent = $this->findOwnedGrant($owner, $rootId, $recipient);
             if ($concurrent !== null && $concurrent['revoked_at'] === null) {
@@ -227,54 +228,6 @@ final class RootShareService {
         $created = $this->findOwnedGrant($owner, $rootId, $recipient);
         if ($created === null) {
             throw new \RuntimeException('grant_failed');
-        }
-        if ($recoveryToken !== null) {
-            try {
-                $share = $this->shares->newShare();
-                $share->setShareType(IShare::TYPE_USER)
-                    ->setSharedBy($owner)
-                    ->setShareOwner($owner)
-                    ->setSharedWith($recipient)
-                    ->setNode($node)
-                    ->setPermissions(Constants::PERMISSION_READ)
-                    ->setNote(self::MANAGED_NOTE_PREFIX . $recoveryToken);
-                $managedShare = $this->shares->createShare($share);
-            } catch (\Throwable $e) {
-                // createShare can throw after its Files write. Keep the marker
-                // and hidden row until the owner retries cleanup.
-                throw new \RuntimeException('file_share_cleanup_pending', 0, $e);
-            }
-            try {
-                $updated = $this->db->executeStatement('UPDATE *PREFIX*library_root_shares '
-                    . 'SET managed_share_id=?,revoked_at=NULL WHERE id=? AND owner_user_id=? AND recovery_token=? AND revoked_at IS NOT NULL',
-                    [$managedShare->getFullId(), (int)$created['id'], $owner, $recoveryToken]);
-                if ($updated !== 1) {
-                    throw new \RuntimeException('grant_changed');
-                }
-            } catch (\Throwable $e) {
-                try {
-                    $this->shares->deleteShare($managedShare);
-                } catch (\Throwable $cleanupError) {
-                    throw new \RuntimeException('file_share_cleanup_pending', 0, $cleanupError);
-                }
-                try {
-                    $cleared = $this->db->executeStatement('DELETE FROM *PREFIX*library_root_shares '
-                        . 'WHERE id=? AND owner_user_id=? AND recovery_token=? AND revoked_at IS NOT NULL',
-                        [(int)$created['id'], $owner, $recoveryToken]);
-                    if ($cleared !== 1) {
-                        throw new \RuntimeException('reservation_changed');
-                    }
-                } catch (\Throwable $reservationError) {
-                    // Keep the hidden row so the owner can retry an uncertain
-                    // cleanup. A changed reservation is never reported as clean.
-                    throw new \RuntimeException('file_share_cleanup_pending', 0, $reservationError);
-                }
-                throw new \RuntimeException('grant_failed', 0, $e);
-            }
-            $created = $this->findOwnedGrant($owner, $rootId, $recipient);
-            if ($created === null || $created['revoked_at'] !== null) {
-                throw new \RuntimeException('file_share_cleanup_pending');
-            }
         }
         return $this->presentGrant($created);
     }

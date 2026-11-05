@@ -1437,7 +1437,6 @@
         "Add and enable a shelf in Library settings before sharing.": "Add and enable a shelf in Library settings before sharing.",
         "Waiting for the recipient to accept the Files share": "Waiting for the recipient to accept the Files share",
         "Accept the Files share to browse this shelf.": "Accept the Files share to browse this shelf.",
-        "Before disabling or uninstalling Library, remove this access here or remove the Files share in Nextcloud Files. Disabling Library does not remove the Files share.": "Before disabling or uninstalling Library, remove this access here or remove the Files share in Nextcloud Files. Disabling Library does not remove the Files share.",
         "Library-managed Files shares can remain active after disabling Library. Remove access here first, or remove them in Nextcloud Files.": "Library-managed Files shares can remain active after disabling Library. Remove access here first, or remove them in Nextcloud Files.",
         "This share no longer has the expected Files access. Remove access below, then share the shelf again.": "This share no longer has the expected Files access. Remove access below, then share the shelf again.",
         "Files access changed. Review the share in Nextcloud Files.": "Files access changed. Review the share in Nextcloud Files.",
@@ -1456,7 +1455,6 @@
         "ISBN match": "ISBN match",
         "Library access is hidden, but Files share cleanup is pending. Retry Remove access.": "Library access is hidden, but Files share cleanup is pending. Retry Remove access.",
         "Library access was removed.": "Library access was removed.",
-        "Library access was shared. The recipient may need to accept the Files share first.": "Library access was shared. The recipient may need to accept the Files share first.",
         "Manage shared libraries": "Manage shared libraries",
         "Matching editions": "Matching editions",
         "Next books": "Next books",
@@ -1514,11 +1512,12 @@
         "Confirm access": "Confirm access",
         "Nextcloud user": "Nextcloud user",
         "Files access": "Files access",
-        "Create a read-only Files share for this shelf. The recipient may need to accept it.": "Create a read-only Files share for this shelf. The recipient may need to accept it.",
-        "Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.": "Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.",
-        "Share a Library shelf read-only with one Nextcloud user. When needed, this creates a read-only Files share of the entire folder, including files Library has not indexed.": "Share a Library shelf read-only with one Nextcloud user. When needed, this creates a read-only Files share of the entire folder, including files Library has not indexed.",
-        "Library shows only indexed books and their publication details. The Files share also gives the recipient access to every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.": "Library shows only indexed books and their publication details. The Files share also gives the recipient access to every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.",
-        "Sharing needs cleanup. Use Remove access below to retry. Check Nextcloud Files if cleanup remains pending.": "Sharing needs cleanup. Use Remove access below to retry. Check Nextcloud Files if cleanup remains pending."
+        "Sharing needs cleanup. Use Remove access below to retry. Check Nextcloud Files if cleanup remains pending.": "Sharing needs cleanup. Use Remove access below to retry. Check Nextcloud Files if cleanup remains pending.",
+        "Library access was shared. The recipient can browse while their read-only Files access remains active.": "Library access was shared. The recipient can browse while their read-only Files access remains active.",
+        "Use the recipient’s existing read-only Files access. Library will not remove that Files share later.": "Use the recipient’s existing read-only Files access. Library will not remove that Files share later.",
+        "First share the shelf folder read-only with the user in Nextcloud Files and have them accept it. Then grant access to its indexed books here. Library does not create or change Files shares.": "First share the shelf folder read-only with the user in Nextcloud Files and have them accept it. Then grant access to its indexed books here. Library does not create or change Files shares.",
+        "Library shows only indexed books and their publication details. Existing Files access may also expose every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.": "Library shows only indexed books and their publication details. Existing Files access may also expose every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.",
+        "Share this folder read-only with the user in Nextcloud Files, ask them to accept it, then review Library sharing again.": "Share this folder read-only with the user in Nextcloud Files, ask them to accept it, then review Library sharing again."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

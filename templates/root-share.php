@@ -10,10 +10,11 @@ $grantId = (int)($_['grantId'] ?? 0);
 $notice = (string)($_['notice'] ?? '');
 $displayShelf = static fn (string $name): string => $name === 'Shared shelf' ? $l->t('Shared shelf') : $name;
 $messages = [
-    'shared' => $l->t('Library access was shared. The recipient may need to accept the Files share first.'),
+    'shared' => $l->t('Library access was shared. The recipient can browse while their read-only Files access remains active.'),
     'revoked' => $l->t('Library access was removed.'),
     'invalid_recipient' => $l->t('Choose an existing, enabled Nextcloud user.'),
     'invalid_root' => $l->t('This shelf cannot be shared. Choose an enabled folder you own.'),
+    'files_access_required' => $l->t('Share this folder read-only with the user in Nextcloud Files, ask them to accept it, then review Library sharing again.'),
     'recipient_has_writable_access' => $l->t('This user already has write access to that folder. Read-only Library sharing cannot override Files permissions.'),
     'share_limit_reached' => $l->t('This library has reached the current 100-share limit.'),
     'already_shared' => $l->t('This shelf is already shared with that user.'),
@@ -51,7 +52,7 @@ $messages = [
         </section>
         <section class="library-panel" aria-labelledby="library-sharing-heading">
             <h2 id="library-sharing-heading"><?php p($l->t('Share one of my shelves')); ?></h2>
-            <p class="library-muted"><?php p($l->t('Share a Library shelf read-only with one Nextcloud user. When needed, this creates a read-only Files share of the entire folder, including files Library has not indexed.')); ?></p>
+            <p class="library-muted"><?php p($l->t('First share the shelf folder read-only with the user in Nextcloud Files and have them accept it. Then grant access to its indexed books here. Library does not create or change Files shares.')); ?></p>
             <?php if (empty($_['roots'])): ?><p><?php p($l->t('Add and enable a shelf in Library settings before sharing.')); ?></p><?php else: ?>
                 <form method="post" action="<?php p((string)$_['previewUrl']); ?>" class="library-shared-form">
                     <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>">
@@ -88,12 +89,9 @@ $messages = [
             <dl class="library-shared-facts">
                 <dt><?php p($l->t('Shelf')); ?></dt><dd><bdi dir="auto"><?php p((string)$grant['rootLabel']); ?></bdi></dd>
                 <dt><?php p($l->t('Nextcloud user')); ?></dt><dd><bdi dir="auto"><?php p((string)$grant['recipientName']); ?></bdi> (<bdi dir="auto"><?php p((string)$grant['recipientId']); ?></bdi>)</dd>
-                <dt><?php p($l->t('Files access')); ?></dt><dd><?php p($grant['filesMode'] === 'create'
-                    ? $l->t('Create a read-only Files share for this shelf. The recipient may need to accept it.')
-                    : $l->t('Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.')); ?></dd>
+                <dt><?php p($l->t('Files access')); ?></dt><dd><?php p($l->t('Use the recipient’s existing read-only Files access. Library will not remove that Files share later.')); ?></dd>
             </dl>
-            <p class="library-muted"><?php p($l->t('Library shows only indexed books and their publication details. The Files share also gives the recipient access to every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.')); ?></p>
-            <?php if ($grant['filesMode'] === 'create'): ?><p class="library-muted"><?php p($l->t('Before disabling or uninstalling Library, remove this access here or remove the Files share in Nextcloud Files. Disabling Library does not remove the Files share.')); ?></p><?php endif; ?>
+            <p class="library-muted"><?php p($l->t('Library shows only indexed books and their publication details. Existing Files access may also expose every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.')); ?></p>
             <form method="post" action="<?php p((string)$_['grantUrl']); ?>" class="library-shared-form">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>">
                 <input type="hidden" name="rootId" value="<?php p((string)$grant['rootId']); ?>">

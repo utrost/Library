@@ -112,7 +112,7 @@ final class RootShareController extends Controller {
             } catch (\InvalidArgumentException) {
                 throw new \InvalidArgumentException('share_changed');
             }
-            if ($this->request->getParam('confirmed', '') !== '1' || !is_string($mode) || !in_array($mode, ['create', 'reuse'], true)) {
+            if ($this->request->getParam('confirmed', '') !== '1' || $mode !== 'reuse') {
                 throw new \InvalidArgumentException('share_changed');
             }
             $grant = $this->sharing->grant($uid, $rootId, $recipient, $fileId, $mode);
@@ -288,7 +288,7 @@ final class RootShareController extends Controller {
     }
 
     private function grantErrorCode(string $message): string {
-        return in_array($message, ['recipient_has_writable_access', 'invalid_root', 'share_limit_reached', 'already_shared', 'existing_share_changed', 'revocation_pending', 'share_changed'], true)
+        return in_array($message, ['files_access_required', 'recipient_has_writable_access', 'invalid_root', 'share_limit_reached', 'already_shared', 'existing_share_changed', 'revocation_pending', 'share_changed'], true)
             ? $message : 'invalid_recipient';
     }
 }

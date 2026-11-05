@@ -1438,7 +1438,6 @@ OC.L10N.register(
         "Add and enable a shelf in Library settings before sharing.": "Fügen Sie vor dem Teilen in den Bibliothekseinstellungen ein Regal hinzu und aktivieren Sie es.",
         "Waiting for the recipient to accept the Files share": "Warten darauf, dass die empfangende Person die Dateifreigabe annimmt",
         "Accept the Files share to browse this shelf.": "Nehmen Sie die Dateifreigabe an, um dieses Regal zu durchsuchen.",
-        "Before disabling or uninstalling Library, remove this access here or remove the Files share in Nextcloud Files. Disabling Library does not remove the Files share.": "Entfernen Sie vor dem Deaktivieren oder Deinstallieren von Library diesen Zugriff hier oder die Dateifreigabe in Nextcloud Dateien. Das Deaktivieren von Library entfernt die Dateifreigabe nicht.",
         "Library-managed Files shares can remain active after disabling Library. Remove access here first, or remove them in Nextcloud Files.": "Von Library verwaltete Dateifreigaben können nach dem Deaktivieren aktiv bleiben. Entfernen Sie den Zugriff zuerst hier oder löschen Sie diese Freigaben in Nextcloud Dateien.",
         "This share no longer has the expected Files access. Remove access below, then share the shelf again.": "Diese Freigabe hat nicht mehr den erwarteten Dateizugriff. Entfernen Sie unten den Zugriff und teilen Sie das Regal erneut.",
         "Files access changed. Review the share in Nextcloud Files.": "Der Dateizugriff hat sich geändert. Prüfen Sie die Freigabe in Nextcloud Dateien.",
@@ -1457,7 +1456,6 @@ OC.L10N.register(
         "ISBN match": "ISBN stimmt überein",
         "Library access is hidden, but Files share cleanup is pending. Retry Remove access.": "Der Bibliothekszugriff ist ausgeblendet, aber die Bereinigung der Dateifreigabe steht noch aus. Versuchen Sie „Zugriff entfernen“ erneut.",
         "Library access was removed.": "Der Bibliothekszugriff wurde entfernt.",
-        "Library access was shared. The recipient may need to accept the Files share first.": "Der Bibliothekszugriff wurde geteilt. Die empfangende Person muss die Dateifreigabe möglicherweise erst annehmen.",
         "Manage shared libraries": "Geteilte Bibliotheken verwalten",
         "Matching editions": "Passende Ausgaben",
         "Next books": "Weitere Bücher",
@@ -1515,11 +1513,12 @@ OC.L10N.register(
         "Confirm access": "Zugriff bestätigen",
         "Nextcloud user": "Nextcloud-Benutzer",
         "Files access": "Dateizugriff",
-        "Create a read-only Files share for this shelf. The recipient may need to accept it.": "Für dieses Regal wird eine schreibgeschützte Dateifreigabe erstellt. Die empfangende Person muss sie möglicherweise annehmen.",
-        "Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.": "Der vorhandene schreibgeschützte Dateizugriff wird verwendet. Library entfernt diese Dateifreigabe später nicht.",
-        "Share a Library shelf read-only with one Nextcloud user. When needed, this creates a read-only Files share of the entire folder, including files Library has not indexed.": "Teilen Sie ein Bibliotheksregal schreibgeschützt mit einer Person in Nextcloud. Bei Bedarf wird der gesamte Ordner als schreibgeschützte Dateifreigabe geteilt, einschließlich der Dateien, die Library nicht indiziert hat.",
-        "Library shows only indexed books and their publication details. The Files share also gives the recipient access to every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.": "Library zeigt nur indizierte Bücher und ihre Publikationsdaten. Über die Dateifreigabe kann die empfangende Person jedoch auf alle Dateien und Unterordner dieses Regals zugreifen, auch auf nicht indizierte Dateien. Persönliche Lesedaten und Listen bleiben privat.",
-        "Sharing needs cleanup. Use Remove access below to retry. Check Nextcloud Files if cleanup remains pending.": "Die Freigabe muss bereinigt werden. Versuchen Sie unten erneut „Zugriff entfernen“. Bleibt die Bereinigung ausstehend, prüfen Sie Nextcloud Dateien."
+        "Sharing needs cleanup. Use Remove access below to retry. Check Nextcloud Files if cleanup remains pending.": "Die Freigabe muss bereinigt werden. Versuchen Sie unten erneut „Zugriff entfernen“. Bleibt die Bereinigung ausstehend, prüfen Sie Nextcloud Dateien.",
+        "Library access was shared. The recipient can browse while their read-only Files access remains active.": "Der Library-Zugriff wurde geteilt. Die empfangende Person kann die Bücher ansehen, solange ihr schreibgeschützter Dateizugriff aktiv ist.",
+        "Use the recipient’s existing read-only Files access. Library will not remove that Files share later.": "Der vorhandene schreibgeschützte Dateizugriff wird verwendet. Library entfernt diese Dateifreigabe später nicht.",
+        "First share the shelf folder read-only with the user in Nextcloud Files and have them accept it. Then grant access to its indexed books here. Library does not create or change Files shares.": "Teilen Sie den Regalordner zuerst in Nextcloud Dateien schreibgeschützt mit der Person und lassen Sie die Freigabe annehmen. Geben Sie dann hier den Zugriff auf die indizierten Bücher frei. Library erstellt oder ändert keine Dateifreigaben.",
+        "Library shows only indexed books and their publication details. Existing Files access may also expose every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.": "Library zeigt nur indizierte Bücher und deren Publikationsdaten. Der vorhandene Dateizugriff kann auch alle Dateien und Unterordner dieses Regals sichtbar machen, einschließlich nicht indizierter Dateien. Persönliche Lesedaten und Listen bleiben privat.",
+        "Share this folder read-only with the user in Nextcloud Files, ask them to accept it, then review Library sharing again.": "Teilen Sie diesen Ordner in Nextcloud Dateien schreibgeschützt mit der Person, lassen Sie die Freigabe annehmen und prüfen Sie die Library-Freigabe erneut."
     },
     "nplurals=2; plural=(n != 1);"
 );

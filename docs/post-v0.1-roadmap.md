@@ -18,7 +18,7 @@ Each release has one major feature family, delivered in small usable slices. Ver
 
 #### First read-only sharing slice
 
-An owner grants one enabled, owned Library shelf to a named local Nextcloud user. Library creates a read-only Files share if the user cannot already read that folder. Recipients browse and search a permission-filtered catalogue, open files through Nextcloud, and see only publication metadata and covers from files they can currently read. Paths, ratings, reading status, lists, notes and diagnostics remain private. Revoking a Library grant hides the catalogue immediately and removes only the Files share that Library created. Groups, public links, shared corrections and admin-managed roots are later work. See [the first-iteration contract](v0.4-first-iteration.md) and [the tracking epic](https://github.com/utrost/Library/issues/180).
+An owner first shares one enabled, owned Library shelf read-only with a named local Nextcloud user in Files. Once the recipient accepts the Files share, the owner grants Library access. Recipients browse and search a permission-filtered catalogue, open files through Nextcloud, and see only publication metadata and covers from files they can currently read. Paths, ratings, reading status, lists, notes and diagnostics remain private. Revoking a Library grant hides the catalogue; the owner removes the separate Files share in Nextcloud Files if file access should end too. Groups, public links, shared corrections and admin-managed roots are later work. See [the first-iteration contract](v0.4-first-iteration.md) and [the tracking epic](https://github.com/utrost/Library/issues/180).
 
 #### First slice: Improve book details
 
