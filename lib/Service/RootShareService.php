@@ -139,10 +139,11 @@ final class RootShareService {
         }
         $existing = $this->findOwnedGrant($owner, $rootId, $recipient);
         if ($existing !== null && $existing['revoked_at'] === null) {
-            if (!$this->rootStillMatches($existing)) {
-                throw new \RuntimeException('revocation_pending');
+            $current = $this->presentGrant($existing);
+            if (!in_array($current['status'], ['ready', 'awaiting-acceptance'], true)) {
+                throw new \InvalidArgumentException('share_changed');
             }
-            return $this->presentGrant($existing);
+            return $current;
         }
         if ($existing !== null) {
             throw new \RuntimeException('revocation_pending');
@@ -190,7 +191,11 @@ final class RootShareService {
         } catch (\Throwable $e) {
             $concurrent = $this->findOwnedGrant($owner, $rootId, $recipient);
             if ($concurrent !== null && $concurrent['revoked_at'] === null) {
-                return $this->presentGrant($concurrent);
+                $current = $this->presentGrant($concurrent);
+                if (in_array($current['status'], ['ready', 'awaiting-acceptance'], true)) {
+                    return $current;
+                }
+                throw new \InvalidArgumentException('share_changed', 0, $e);
             }
             if ($concurrent !== null) {
                 throw new \RuntimeException('revocation_pending', 0, $e);
