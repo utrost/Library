@@ -212,7 +212,10 @@ final class OpenLibraryLookupService {
         try {
             $response = $this->clients->newClient()->get($url, [
                 'timeout' => 6,
+                'read_timeout' => 6,
                 'allow_redirects' => false,
+                'http_errors' => false,
+                'stream' => true,
                 'headers' => ['Accept' => 'application/json', 'User-Agent' => 'Nextcloud-Library/0.4 (+https://github.com/utrost/Library)'],
             ]);
             if ($response->getStatusCode() === 429) {
@@ -229,7 +232,15 @@ final class OpenLibraryLookupService {
                 && (float)$length > self::MAX_BODY) {
                 throw new \RuntimeException('provider_unavailable');
             }
-            $body = $response->getBody();
+            $stream = $response->getBody();
+            if (!is_resource($stream)) {
+                throw new \RuntimeException('provider_unavailable');
+            }
+            try {
+                $body = stream_get_contents($stream, self::MAX_BODY + 1);
+            } finally {
+                fclose($stream);
+            }
             if (!is_string($body) || strlen($body) > self::MAX_BODY) {
                 throw new \RuntimeException('provider_unavailable');
             }
