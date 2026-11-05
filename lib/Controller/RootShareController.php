@@ -98,6 +98,10 @@ final class RootShareController extends Controller {
             return $this->redirect($this->grantErrorCode($error->getMessage()));
         } catch (\Throwable $error) {
             $this->logger->error('Could not grant Library access', ['exception' => $error]);
+            if ($error instanceof \RuntimeException && $error->getMessage() === 'file_share_cleanup_pending') {
+                $this->audit->warning('library.root_share.grant', $uid, 'grant', 'root_share', 'partial', ['reason' => 'file_share_cleanup_pending']);
+                return $this->redirect('files_share_cleanup_pending');
+            }
             $this->audit->warning('library.root_share.grant', $uid, 'grant', 'root_share', 'failure', ['reason' => 'operation_failed']);
             return $this->redirect('share_failed');
         }

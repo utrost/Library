@@ -20,6 +20,7 @@ $messages = [
     'revocation_pending' => $l->t('This share is awaiting Files cleanup. Remove access again before creating it.'),
     'share_changed' => $l->t('The shelf or Files access changed. Review sharing again before confirming.'),
     'share_failed' => $l->t('Could not share this shelf. Try again.'),
+    'files_share_cleanup_pending' => $l->t('Library could not confirm this share. A Files share may still exist. Check and remove unintended access in Nextcloud Files.'),
     'share_not_found' => $l->t('This share is no longer available.'),
     'cleanup_pending' => $l->t('Library access is hidden, but Files share cleanup is pending. Retry Remove access.'),
 ];
