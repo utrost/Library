@@ -9,6 +9,7 @@ const props = defineProps({
   form: { type: Object, required: true },
 })
 const query = ref('')
+const selected = ref(null)
 const users = ref([])
 const open = ref(false)
 const busy = ref(false)
@@ -27,6 +28,7 @@ function reset() {
   controller?.abort()
   props.recipientField.value = ''
   query.value = ''
+  selected.value = null
   users.value = []
   open.value = false
   busy.value = false
@@ -42,6 +44,7 @@ function changed() {
   clearTimeout(timer)
   controller?.abort()
   props.recipientField.value = ''
+  selected.value = null
   users.value = []
   active.value = -1
   error.value = ''
@@ -83,7 +86,8 @@ function choose(user) {
   clearTimeout(timer)
   controller?.abort()
   props.recipientField.value = user.id
-  query.value = `${user.label} (${user.id})`
+  query.value = user.label
+  selected.value = user
   users.value = []
   open.value = false
   busy.value = false
@@ -130,6 +134,7 @@ onBeforeUnmount(() => {
       role="combobox" aria-autocomplete="list" aria-controls="library-share-recipient-options"
       :aria-expanded="open && users.length > 0" :aria-activedescendant="open && active >= 0 ? `library-share-recipient-${active}` : undefined"
       :placeholder="t('library', 'Enter at least three letters')" @input="onInput" @focus="open = true" @blur="onBlur" @keydown="keydown">
+    <small v-if="selected" role="status">{{ t('library', 'Nextcloud username') }}: <bdi dir="auto">{{ selected.id }}</bdi></small>
     <small v-if="busy" role="status">{{ t('library', 'Searching…') }}</small>
     <p v-if="error" role="alert">{{ error }}</p>
     <small v-if="searched && !busy && !users.length && !recipientField.value" role="status">{{ t('library', 'No shareable users found.') }}</small>
@@ -145,6 +150,7 @@ onBeforeUnmount(() => {
 .library-share-recipient-picker { position: relative; flex: 1 1 15rem; display: grid; gap: .25rem; min-width: 0; }
 .library-share-recipient-picker > label { display: block; }
 .library-share-recipient-picker input { width: 100%; box-sizing: border-box; }
+.library-share-recipient-picker > small { min-width: 0; overflow-wrap: anywhere; }
 .library-share-recipient-picker p { margin: 0; color: var(--color-error); }
 .library-share-recipient-picker ul { position: absolute; top: 100%; z-index: 25; box-sizing: border-box; width: 100%; max-height: 16rem; overflow: auto; margin: .2rem 0 0; padding: .25rem; list-style: none; background: var(--color-main-background); border: 1px solid var(--color-border); border-radius: var(--border-radius-large); box-shadow: 0 6px 20px #0003; }
 .library-share-recipient-picker li button { width: 100%; min-width: 0; min-height: 2.75rem; display: grid; gap: .1rem; text-align: start; overflow-wrap: anywhere; padding: .4rem .6rem; background: transparent; border: 0; border-radius: var(--border-radius); }

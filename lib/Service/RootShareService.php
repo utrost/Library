@@ -90,7 +90,8 @@ final class RootShareService {
     /** @return array<int, array{id: string, label: string}> */
     public function recipientSuggestions(string $owner, int $rootId, string $search): array {
         $search = trim($search);
-        if (mb_strlen($search) < 3 || mb_strlen($search) > 64) {
+        if (!mb_check_encoding($search, 'UTF-8') || preg_match('/[\p{Cc}]/u', $search)
+            || mb_strlen($search) < 3 || mb_strlen($search) > 160) {
             throw new \InvalidArgumentException('invalid_query');
         }
         $root = $this->roots->findRoot($owner, $rootId);
