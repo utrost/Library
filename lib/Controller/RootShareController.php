@@ -55,6 +55,24 @@ final class RootShareController extends Controller {
     }
 
     #[NoAdminRequired]
+    public function preview(): TemplateResponse|RedirectResponse {
+        $uid = $this->session->getUser()?->getUID() ?? '';
+        try {
+            $rootId = $this->positiveId($this->request->getParam('rootId', ''));
+            $recipient = $this->request->getParam('recipient', '');
+            if (!is_string($recipient) || mb_strlen($recipient) > 64) {
+                throw new \InvalidArgumentException('invalid_recipient');
+            }
+            return $this->page(['view' => 'confirm', 'grantPreview' => $this->sharing->previewGrant($uid, $rootId, $recipient)]);
+        } catch (\InvalidArgumentException $error) {
+            return $this->redirect($this->grantErrorCode($error->getMessage()));
+        } catch (\Throwable $error) {
+            $this->logger->error('Could not review Library access', ['exception' => $error]);
+            return $this->redirect('share_failed');
+        }
+    }
+
+    #[NoAdminRequired]
     public function grant(): RedirectResponse {
         $uid = $this->session->getUser()?->getUID() ?? '';
         try {
@@ -63,12 +81,21 @@ final class RootShareController extends Controller {
             if (!is_string($recipient) || mb_strlen($recipient) > 64) {
                 throw new \InvalidArgumentException('invalid_recipient');
             }
-            $grant = $this->sharing->grant($uid, $rootId, $recipient);
+            $mode = $this->request->getParam('filesMode', '');
+            try {
+                $fileId = $this->positiveId($this->request->getParam('rootFileId', ''));
+            } catch (\InvalidArgumentException) {
+                throw new \InvalidArgumentException('share_changed');
+            }
+            if ($this->request->getParam('confirmed', '') !== '1' || !is_string($mode) || !in_array($mode, ['create', 'reuse'], true)) {
+                throw new \InvalidArgumentException('share_changed');
+            }
+            $grant = $this->sharing->grant($uid, $rootId, $recipient, $fileId, $mode);
             $this->audit->info('library.root_share.grant', $uid, 'grant', 'root_share', 'success', ['target_id' => (int)$grant['id']]);
             return $this->redirect('shared');
         } catch (\InvalidArgumentException $error) {
             $this->audit->warning('library.root_share.grant', $uid, 'grant', 'root_share', 'rejected', ['reason' => $error->getMessage()]);
-            return $this->redirect(in_array($error->getMessage(), ['recipient_has_writable_access', 'invalid_root', 'share_limit_reached'], true) ? $error->getMessage() : 'invalid_recipient');
+            return $this->redirect($this->grantErrorCode($error->getMessage()));
         } catch (\Throwable $error) {
             $this->logger->error('Could not grant Library access', ['exception' => $error]);
             $this->audit->warning('library.root_share.grant', $uid, 'grant', 'root_share', 'failure', ['reason' => 'operation_failed']);
@@ -167,6 +194,7 @@ final class RootShareController extends Controller {
             'catalogueUrl' => $this->urls->linkToRoute('library.page.index'),
             'indexUrl' => $this->urls->linkToRoute('library.root_share.index'),
             'grantUrl' => $this->urls->linkToRoute('library.root_share.grant'),
+            'previewUrl' => $this->urls->linkToRoute('library.root_share.preview'),
             'languageUrl' => $this->urls->linkToRoute('library.language_review.index'),
             'valueMappingsUrl' => $this->urls->linkToRoute('library.value_mapping.index'),
             'settingsUrl' => $this->urls->linkToRoute('settings.PersonalSettings.index', ['section' => 'library']),
@@ -187,5 +215,10 @@ final class RootShareController extends Controller {
             throw new \InvalidArgumentException('invalid_id');
         }
         return (int)$value;
+    }
+
+    private function grantErrorCode(string $message): string {
+        return in_array($message, ['recipient_has_writable_access', 'invalid_root', 'share_limit_reached', 'already_shared', 'revocation_pending', 'share_changed'], true)
+            ? $message : 'invalid_recipient';
     }
 }

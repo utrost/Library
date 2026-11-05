@@ -51,6 +51,7 @@ return [
         ['name' => 'root#toggle', 'url' => '/roots/{rootId}/toggle', 'verb' => 'POST'],
         ['name' => 'root#delete', 'url' => '/roots/{rootId}/delete', 'verb' => 'POST'],
         ['name' => 'root_share#index', 'url' => '/shares', 'verb' => 'GET'],
+        ['name' => 'root_share#preview', 'url' => '/shares/preview', 'verb' => 'POST'],
         ['name' => 'root_share#grant', 'url' => '/shares', 'verb' => 'POST'],
         ['name' => 'root_share#revoke', 'url' => '/shares/{grantId}/revoke', 'verb' => 'POST', 'requirements' => ['grantId' => '[1-9][0-9]*']],
         ['name' => 'root_share#show', 'url' => '/shares/{grantId}', 'verb' => 'GET', 'requirements' => ['grantId' => '[1-9][0-9]*']],

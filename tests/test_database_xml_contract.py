@@ -5,6 +5,11 @@ ROOT = Path(__file__).resolve().parents[1]
 DATABASE_XML = ROOT / "appinfo" / "database.xml"
 
 EXPECTED_TABLES = {
+    '*dbprefix*library_lookup_quota': {'fields': {'provider', 'next_at_ms'}, 'indexes': {'library_lookup_quota_pk'}},
+    '*dbprefix*library_root_shares': {
+        'fields': {'id', 'owner_user_id', 'recipient_user_id', 'root_id', 'root_file_id', 'managed_share_id', 'revoked_at', 'created_at'},
+        'indexes': {'library_root_shares_pk', 'library_root_shares_owner_unique', 'library_root_shares_recipient', 'library_root_shares_root'},
+    },
     "*dbprefix*library_thumbnail_users": {"fields": {"user_id"}, "indexes": {"library_thumbnail_user_pk"}},
     '*dbprefix*library_scan_schedule': {'fields': {'user_id', 'interval_seconds', 'next_run_at', 'last_job_id', 'last_full_at', 'last_full_revision', 'last_full_roots_hash'}, 'indexes': {'library_scan_schedule_pk', 'library_scan_schedule_due'}},
     '*dbprefix*library_scan_changes': {'fields': {'user_id', 'path_hash', 'target_path', 'is_directory', 'generation'}, 'indexes': {'library_scan_changes_pk'}},

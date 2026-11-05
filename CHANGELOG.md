@@ -3,7 +3,7 @@
 ## 0.4.0-alpha.1 — development, unreleased
 
 - Add explicit one-book Open Library lookup and comparison in Book Details. Selected suggestions enter the existing draft and require Save. ISBN edition matching, account-scoped caching and cross-worker request pacing guard the external requests.
-- Add an additive grant schema and a separate read-only shared-library surface for named Nextcloud users. Recipients browse/search a permission-filtered shelf, view guarded covers and open readable files; owners can revoke access.
+- Add an additive grant schema and a separate read-only shared-library surface for named Nextcloud users. Owners review the recipient and Files access mode before confirming. Recipients browse/search a permission-filtered shelf, view guarded covers and open readable files; owners can revoke access.
 - This branch has not passed the multi-user, database, browser or signed-package release gates. Provider provenance, Google Books, conditional reversal and selected-book batch work remain open.
 
 ## 0.3.0 — 2026-11-04

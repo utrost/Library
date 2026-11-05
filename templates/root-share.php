@@ -16,6 +16,9 @@ $messages = [
     'invalid_root' => $l->t('This shelf cannot be shared. Choose an enabled folder you own.'),
     'recipient_has_writable_access' => $l->t('This user already has write access to that folder. Read-only Library sharing cannot override Files permissions.'),
     'share_limit_reached' => $l->t('This library has reached the current 100-share limit.'),
+    'already_shared' => $l->t('This shelf is already shared with that user.'),
+    'revocation_pending' => $l->t('This share is awaiting Files cleanup. Remove access again before creating it.'),
+    'share_changed' => $l->t('The shelf or Files access changed. Review sharing again before confirming.'),
     'share_failed' => $l->t('Could not share this shelf. Try again.'),
     'share_not_found' => $l->t('This share is no longer available.'),
     'cleanup_pending' => $l->t('Library access is hidden, but Files share cleanup is pending. Retry Remove access.'),
@@ -44,13 +47,13 @@ $messages = [
             <h2 id="library-sharing-heading"><?php p($l->t('Share one of my shelves')); ?></h2>
             <p class="library-muted"><?php p($l->t('Share a Library shelf read-only with one Nextcloud user. This also creates a read-only Files share when needed. Only indexed books in that shelf appear.')); ?></p>
             <?php if (empty($_['roots'])): ?><p><?php p($l->t('Add and enable a shelf in Library settings before sharing.')); ?></p><?php else: ?>
-                <form method="post" action="<?php p((string)$_['grantUrl']); ?>" class="library-shared-form">
+                <form method="post" action="<?php p((string)$_['previewUrl']); ?>" class="library-shared-form">
                     <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>">
                     <label><?php p($l->t('Shelf')); ?><select name="rootId" required>
                         <?php foreach ($_['roots'] as $root): ?><option value="<?php p((string)$root['id']); ?>"><?php p((string)($root['label'] ?: $root['path'])); ?></option><?php endforeach; ?>
                     </select></label>
                     <label><?php p($l->t('Nextcloud username')); ?><input name="recipient" maxlength="64" required autocomplete="off"></label>
-                    <button class="button primary" type="submit"><?php p($l->t('Share read-only')); ?></button>
+                    <button class="button primary" type="submit"><?php p($l->t('Review sharing')); ?></button>
                 </form>
             <?php endif; ?>
             <?php if (!empty($_['owned'])): ?>
@@ -64,6 +67,29 @@ $messages = [
                     <?php endforeach; ?>
                 </ul>
             <?php endif; ?>
+        </section>
+    <?php elseif ($view === 'confirm'): $grant = $_['grantPreview']; ?>
+        <h1><?php p($l->t('Review read-only sharing')); ?></h1>
+        <section class="library-panel" aria-labelledby="library-shared-confirm-heading">
+            <h2 id="library-shared-confirm-heading"><?php p($l->t('Confirm access')); ?></h2>
+            <dl class="library-shared-facts">
+                <dt><?php p($l->t('Shelf')); ?></dt><dd><bdi dir="auto"><?php p((string)$grant['rootLabel']); ?></bdi></dd>
+                <dt><?php p($l->t('Nextcloud user')); ?></dt><dd><bdi dir="auto"><?php p((string)$grant['recipientName']); ?></bdi> (<bdi dir="auto"><?php p((string)$grant['recipientId']); ?></bdi>)</dd>
+                <dt><?php p($l->t('Files access')); ?></dt><dd><?php p($grant['filesMode'] === 'create'
+                    ? $l->t('Create a read-only Files share for this shelf. The recipient may need to accept it.')
+                    : $l->t('Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.')); ?></dd>
+            </dl>
+            <p class="library-muted"><?php p($l->t('Only indexed books in this shelf and their publication details will appear. Personal reading details and lists remain private.')); ?></p>
+            <form method="post" action="<?php p((string)$_['grantUrl']); ?>" class="library-shared-form">
+                <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>">
+                <input type="hidden" name="rootId" value="<?php p((string)$grant['rootId']); ?>">
+                <input type="hidden" name="recipient" value="<?php p((string)$grant['recipientId']); ?>">
+                <input type="hidden" name="rootFileId" value="<?php p((string)$grant['rootFileId']); ?>">
+                <input type="hidden" name="filesMode" value="<?php p((string)$grant['filesMode']); ?>">
+                <input type="hidden" name="confirmed" value="1">
+                <button class="button primary" type="submit"><?php p($l->t('Share read-only')); ?></button>
+                <a class="button secondary" href="<?php p($indexUrl); ?>"><?php p($l->t('Cancel')); ?></a>
+            </form>
         </section>
     <?php elseif ($view === 'shelf'): ?>
         <h1><bdi dir="auto"><?php p($displayShelf((string)$_['rootLabel'])); ?></bdi></h1>

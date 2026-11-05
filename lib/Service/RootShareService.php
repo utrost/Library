@@ -24,8 +24,53 @@ final class RootShareService {
     ) {
     }
 
+    /** Inspect the exact folder and Files access before the owner confirms a grant. */
+    public function previewGrant(string $owner, int $rootId, string $recipient): array {
+        $recipientUser = $this->users->get(trim($recipient));
+        if ($recipientUser === null || !$recipientUser->isEnabled() || $recipientUser->getUID() === $owner) {
+            throw new \InvalidArgumentException('invalid_recipient');
+        }
+        $recipient = $recipientUser->getUID();
+        $root = $this->roots->findRoot($owner, $rootId);
+        if ($root === null || !$root['enabled'] || $root['path'] === '/') {
+            throw new \InvalidArgumentException('invalid_root');
+        }
+        $existing = $this->findOwnedGrant($owner, $rootId, $recipient);
+        if ($existing !== null) {
+            throw new \InvalidArgumentException($existing['revoked_at'] === null ? 'already_shared' : 'revocation_pending');
+        }
+        $countResult = $this->db->executeQuery('SELECT COUNT(*) FROM *PREFIX*library_root_shares WHERE owner_user_id=?', [$owner]);
+        $grantCount = (int)$countResult->fetchOne();
+        $countResult->closeCursor();
+        if ($grantCount >= 100) {
+            throw new \InvalidArgumentException('share_limit_reached');
+        }
+        try {
+            $node = $this->files->getUserFolder($owner)->get(ltrim($root['path'], '/'));
+        } catch (\Throwable) {
+            throw new \InvalidArgumentException('invalid_root');
+        }
+        if (!$node instanceof Folder || !$node->isReadable() || $node->getMountPoint()->getMountType() === 'shared' || (int)$node->getId() <= 0) {
+            throw new \InvalidArgumentException('invalid_root');
+        }
+        $recipientRoots = $this->recipientRootNodes($recipient, (int)$node->getId());
+        foreach ($recipientRoots as $visible) {
+            if (($visible->getPermissions() & (Constants::PERMISSION_UPDATE | Constants::PERMISSION_CREATE | Constants::PERMISSION_DELETE)) !== 0) {
+                throw new \InvalidArgumentException('recipient_has_writable_access');
+            }
+        }
+        return [
+            'rootId' => $rootId,
+            'rootLabel' => trim((string)$root['label']) ?: $root['path'],
+            'rootFileId' => (int)$node->getId(),
+            'recipientId' => $recipient,
+            'recipientName' => $recipientUser->getDisplayName(),
+            'filesMode' => $recipientRoots === [] ? 'create' : 'reuse',
+        ];
+    }
+
     /** @return array<string, mixed> */
-    public function grant(string $owner, int $rootId, string $recipient): array {
+    public function grant(string $owner, int $rootId, string $recipient, int $expectedRootFileId, string $expectedFilesMode): array {
         $recipient = trim($recipient);
         $recipientUser = $this->users->get($recipient);
         if ($recipient === '' || $recipientUser === null || !$recipientUser->isEnabled()) {
@@ -72,6 +117,9 @@ final class RootShareService {
             if (($visible->getPermissions() & (Constants::PERMISSION_UPDATE | Constants::PERMISSION_CREATE | Constants::PERMISSION_DELETE)) !== 0) {
                 throw new \InvalidArgumentException('recipient_has_writable_access');
             }
+        }
+        if ($rootFileId !== $expectedRootFileId || ($recipientRoots === [] ? 'create' : 'reuse') !== $expectedFilesMode) {
+            throw new \InvalidArgumentException('share_changed');
         }
         $managedShare = null;
         if ($recipientRoots === []) {

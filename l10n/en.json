@@ -1466,6 +1466,7 @@
         "Remove access for %s to %s": "Remove access for %s to %s",
         "Search Open Library": "Search Open Library",
         "Searching Open Library…": "Searching Open Library…",
+        "Suggested details staged. Review them and save your book changes.": "Suggested details staged. Review them and save your book changes.",
         "Search Open Library for this book. Your ISBN or title and author will be sent to Open Library only when you choose Search. Results are suggestions; nothing changes until you review and save.": "Search Open Library for this book. Your ISBN or title and author will be sent to Open Library only when you choose Search. Results are suggestions; nothing changes until you review and save.",
         "Search by": "Search by",
         "Search titles and authors": "Search titles and authors",
@@ -1497,7 +1498,18 @@
             "%n suggested field staged. Review and save your book changes.",
             "%n suggested fields staged. Review and save your book changes."
         ],
-        "Shared shelf": "Shared shelf"
+        "Shared shelf": "Shared shelf",
+        "This shelf is already shared with that user.": "This shelf is already shared with that user.",
+        "This share is awaiting Files cleanup. Remove access again before creating it.": "This share is awaiting Files cleanup. Remove access again before creating it.",
+        "The shelf or Files access changed. Review sharing again before confirming.": "The shelf or Files access changed. Review sharing again before confirming.",
+        "Review sharing": "Review sharing",
+        "Review read-only sharing": "Review read-only sharing",
+        "Confirm access": "Confirm access",
+        "Nextcloud user": "Nextcloud user",
+        "Files access": "Files access",
+        "Create a read-only Files share for this shelf. The recipient may need to accept it.": "Create a read-only Files share for this shelf. The recipient may need to accept it.",
+        "Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.": "Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.",
+        "Only indexed books in this shelf and their publication details will appear. Personal reading details and lists remain private.": "Only indexed books in this shelf and their publication details will appear. Personal reading details and lists remain private."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

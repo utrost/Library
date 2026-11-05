@@ -1466,6 +1466,7 @@
         "Remove access for %s to %s": "Zugriff von %s auf %s entfernen",
         "Search Open Library": "Open Library durchsuchen",
         "Searching Open Library…": "Open Library wird durchsucht…",
+        "Suggested details staged. Review them and save your book changes.": "Vorgeschlagene Angaben sind vorgemerkt. Prüfen und speichern Sie Ihre Buchänderungen.",
         "Search Open Library for this book. Your ISBN or title and author will be sent to Open Library only when you choose Search. Results are suggestions; nothing changes until you review and save.": "Suchen Sie dieses Buch in Open Library. ISBN oder Titel und Autor werden erst nach einem Klick auf „Suchen“ dorthin gesendet. Ergebnisse sind Vorschläge; erst nach Prüfung und Speichern ändern sich Ihre Buchdaten.",
         "Search by": "Suchen nach",
         "Search titles and authors": "Titel und Autoren durchsuchen",
@@ -1497,7 +1498,18 @@
             "%n vorgeschlagenes Feld vorgemerkt. Prüfen und speichern Sie Ihre Buchänderungen.",
             "%n vorgeschlagene Felder vorgemerkt. Prüfen und speichern Sie Ihre Buchänderungen."
         ],
-        "Shared shelf": "Geteiltes Regal"
+        "Shared shelf": "Geteiltes Regal",
+        "This shelf is already shared with that user.": "Dieses Regal ist bereits mit dieser Person geteilt.",
+        "This share is awaiting Files cleanup. Remove access again before creating it.": "Die Freigabe wartet auf die Bereinigung in Dateien. Entfernen Sie den Zugriff erneut, bevor Sie sie neu erstellen.",
+        "The shelf or Files access changed. Review sharing again before confirming.": "Das Regal oder der Dateizugriff hat sich geändert. Prüfen Sie die Freigabe erneut, bevor Sie sie bestätigen.",
+        "Review sharing": "Freigabe prüfen",
+        "Review read-only sharing": "Schreibgeschützte Freigabe prüfen",
+        "Confirm access": "Zugriff bestätigen",
+        "Nextcloud user": "Nextcloud-Benutzer",
+        "Files access": "Dateizugriff",
+        "Create a read-only Files share for this shelf. The recipient may need to accept it.": "Für dieses Regal wird eine schreibgeschützte Dateifreigabe erstellt. Die empfangende Person muss sie möglicherweise annehmen.",
+        "Reuse the recipient’s existing read-only Files access. Library will not remove that Files share later.": "Der vorhandene schreibgeschützte Dateizugriff wird verwendet. Library entfernt diese Dateifreigabe später nicht.",
+        "Only indexed books in this shelf and their publication details will appear. Personal reading details and lists remain private.": "Nur indizierte Bücher dieses Regals und ihre Publikationsdaten werden angezeigt. Persönliche Lesedaten und Listen bleiben privat."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }
