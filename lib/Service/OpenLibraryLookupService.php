@@ -73,7 +73,13 @@ final class OpenLibraryLookupService {
                 if ($id === null) {
                     continue;
                 }
-                $editionIsbns = array_slice(array_values(array_filter(is_array($edition['isbn'] ?? null) ? $edition['isbn'] : [], 'is_string')), 0, 12);
+                $editionIsbns = [];
+                foreach ($this->boundedStrings($edition['isbn'] ?? null, 12, 32) as $value) {
+                    $normalized = IdentifierService::normalizeIdentifier('isbn', $value);
+                    if ($normalized !== null && $normalized['valid']) {
+                        $editionIsbns[] = $normalized['displayValue'];
+                    }
+                }
                 $normalizedEditionIsbns = array_map(static fn (string $value): string => strtoupper(preg_replace('/[^0-9Xx]/', '', $value) ?? ''), $editionIsbns);
                 if ($isbn !== '' && !in_array(strtoupper($isbn), $normalizedEditionIsbns, true)) {
                     continue;
@@ -93,11 +99,11 @@ final class OpenLibraryLookupService {
                 $results[$id] = [
                     'editionId' => $id,
                     'title' => mb_substr($candidateTitle, 0, 300),
-                    'authors' => array_slice(array_values(array_filter(is_array($work['author_name'] ?? null) ? $work['author_name'] : [], 'is_string')), 0, 5),
+                    'authors' => $this->boundedStrings($work['author_name'] ?? null, 5, 160),
                     'year' => mb_substr(is_scalar($published) ? (string)$published : '', 0, 80),
                     'publisher' => mb_substr(is_string($publisher) ? $publisher : '', 0, 200),
                     'isbn' => array_slice($editionIsbns, 0, 4),
-                    'languages' => array_slice(array_values(array_filter(is_array($edition['language'] ?? null) ? $edition['language'] : [], 'is_string')), 0, 4),
+                    'languages' => $this->boundedStrings($edition['language'] ?? null, 4, 16),
                     'match' => $isbn !== '' ? 'isbn' : 'title_author',
                     'url' => self::BASE . '/books/' . $id,
                 ];
@@ -176,6 +182,24 @@ final class OpenLibraryLookupService {
         return preg_match('/^OL[1-9][0-9]*M$/D', $value) ? $value : null;
     }
 
+    /** @return array<int, string> */
+    private function boundedStrings(mixed $values, int $count, int $length): array {
+        if (!is_array($values)) {
+            return [];
+        }
+        $result = [];
+        foreach ($values as $value) {
+            if (!is_string($value) || trim($value) === '') {
+                continue;
+            }
+            $result[] = mb_substr(trim($value), 0, $length);
+            if (count($result) >= $count) {
+                break;
+            }
+        }
+        return $result;
+    }
+
     private function ensureEnabled(): void {
         if ($this->config->getAppValue('library', 'openlibrary_lookup_enabled', 'yes') !== 'yes') {
             throw new \RuntimeException('provider_disabled');
@@ -195,6 +219,14 @@ final class OpenLibraryLookupService {
                 throw new \RuntimeException('rate_limited');
             }
             if ($response->getStatusCode() !== 200) {
+                throw new \RuntimeException('provider_unavailable');
+            }
+            $length = $response->getHeader('content-length');
+            if (is_array($length)) {
+                $length = $length[0] ?? '';
+            }
+            if (is_string($length) && preg_match('/^[0-9]+$/D', $length)
+                && (float)$length > self::MAX_BODY) {
                 throw new \RuntimeException('provider_unavailable');
             }
             $body = $response->getBody();

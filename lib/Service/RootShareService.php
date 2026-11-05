@@ -140,7 +140,7 @@ final class RootShareService {
             $this->db->executeStatement('INSERT INTO *PREFIX*library_root_shares '
                 . '(owner_user_id,recipient_user_id,root_id,root_file_id,managed_share_id,revoked_at,created_at) '
                 . 'VALUES (?,?,?,?,?,?,?)', [$owner, $recipient, $rootId, $rootFileId,
-                    $managedShare === null ? null : $this->managedShareId($managedShare->getId()), null, time()]);
+                    $managedShare?->getFullId(), null, time()]);
         } catch (\Throwable $e) {
             if ($managedShare !== null) {
                 try {
@@ -354,7 +354,7 @@ final class RootShareService {
         return $nodes;
     }
 
-    /** Nextcloud's manager routes internal user shares by provider-prefixed ID. */
+    /** Support early development rows that stored an internal user-share ID. */
     private function managedShareId(string $id): string {
         return str_contains($id, ':') ? $id : 'ocinternal:' . $id;
     }
