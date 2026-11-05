@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace OCA\Library\Service;
 
 use OCP\Constants;
+use OCP\Collaboration\AutoComplete\AutoCompleteFilterEvent;
+use OCP\Collaboration\Collaborators\ISearch as ICollaboratorSearch;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
@@ -25,6 +28,8 @@ final class RootShareService {
         private IUserManager $users,
         private IShareManager $shares,
         private ILockingProvider $locks,
+        private ICollaboratorSearch $collaborators,
+        private IEventDispatcher $events,
     ) {
     }
 
@@ -56,6 +61,9 @@ final class RootShareService {
         }
         if (!$node instanceof Folder || !$node->isReadable() || $node->getMountPoint()->getMountType() === 'shared' || (int)$node->getId() <= 0) {
             throw new \InvalidArgumentException('invalid_root');
+        }
+        if (!$this->recipientDiscoverable($recipient, (int)$node->getId())) {
+            throw new \InvalidArgumentException('invalid_recipient');
         }
         $recipientRoots = $this->recipientRootNodes($recipient, (int)$node->getId());
         foreach ($recipientRoots as $visible) {
@@ -121,6 +129,9 @@ final class RootShareService {
         $rootFileId = (int)$node->getId();
         if ($rootFileId <= 0) {
             throw new \InvalidArgumentException('invalid_root');
+        }
+        if (!$this->recipientDiscoverable($recipient, $rootFileId)) {
+            throw new \InvalidArgumentException('invalid_recipient');
         }
         $recipientRoots = $this->recipientRootNodes($recipient, $rootFileId);
         foreach ($recipientRoots as $visible) {
@@ -451,6 +462,27 @@ final class RootShareService {
         } finally {
             $this->locks->releaseLock($key, ILockingProvider::LOCK_EXCLUSIVE);
         }
+    }
+
+    /** Use Nextcloud's own sharee visibility rules, including third-party filters. */
+    private function recipientDiscoverable(string $recipient, int $rootFileId): bool {
+        if (method_exists($this->collaborators, 'filteredSearch')) {
+            [$results] = $this->collaborators->filteredSearch($recipient, [IShare::TYPE_USER], false,
+                'folder', (string)$rootFileId, 20, 0);
+        } else {
+            [$results] = $this->collaborators->search($recipient, [IShare::TYPE_USER], false, 20, 0);
+            $event = new AutoCompleteFilterEvent($results, $recipient, 'folder', (string)$rootFileId,
+                null, [IShare::TYPE_USER], 20);
+            $this->events->dispatchTyped($event);
+            $results = $event->getResults();
+        }
+        foreach (array_merge($results['users'] ?? [], $results['exact']['users'] ?? []) as $result) {
+            if (is_array($result) && ($result['value']['shareType'] ?? null) === IShare::TYPE_USER
+                && ($result['value']['shareWith'] ?? null) === $recipient) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Serialize the Files grant lifecycle with path, disable and delete changes. */
