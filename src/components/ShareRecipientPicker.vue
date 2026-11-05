@@ -69,6 +69,15 @@ function changed() {
   }, 220)
 }
 
+function onInput() {
+  open.value = true
+  changed()
+}
+
+function onBlur() {
+  blurTimer = setTimeout(() => { open.value = false }, 150)
+}
+
 function choose(user) {
   generation++
   clearTimeout(timer)
@@ -120,7 +129,7 @@ onBeforeUnmount(() => {
     <input id="library-share-recipient-search" ref="input" v-model="query" type="search" autocomplete="off" maxlength="160"
       role="combobox" aria-autocomplete="list" aria-controls="library-share-recipient-options"
       :aria-expanded="open && users.length > 0" :aria-activedescendant="open && active >= 0 ? `library-share-recipient-${active}` : undefined"
-      :placeholder="t('library', 'Enter at least three letters')" @input="open = true; changed()" @focus="open = true" @blur="blurTimer = setTimeout(() => { open = false }, 150)" @keydown="keydown">
+      :placeholder="t('library', 'Enter at least three letters')" @input="onInput" @focus="open = true" @blur="onBlur" @keydown="keydown">
     <small v-if="busy" role="status">{{ t('library', 'Searching…') }}</small>
     <p v-if="error" role="alert">{{ error }}</p>
     <small v-if="searched && !busy && !users.length && !recipientField.value" role="status">{{ t('library', 'No shareable users found.') }}</small>

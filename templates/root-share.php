@@ -40,7 +40,11 @@ $messages = [
             <?php if (empty($_['received'])): ?><p><?php p($l->t('No shared libraries yet.')); ?></p><?php endif; ?>
             <ul class="library-shared-list">
                 <?php foreach (($_['received'] ?? []) as $grant): ?>
-                    <li><a href="<?php p($indexUrl . '/' . (int)$grant['id']); ?>"><strong><bdi dir="auto"><?php p($displayShelf((string)$grant['rootLabel'])); ?></bdi></strong></a><span class="library-muted"><?php p($l->t('Shared by')); ?> <bdi dir="auto"><?php p((string)$grant['ownerId']); ?></bdi></span></li>
+                    <li>
+                        <?php if ($grant['status'] === 'ready'): ?><a href="<?php p($indexUrl . '/' . (int)$grant['id']); ?>"><strong><bdi dir="auto"><?php p($displayShelf((string)$grant['rootLabel'])); ?></bdi></strong></a><?php else: ?><strong><bdi dir="auto"><?php p($displayShelf((string)$grant['rootLabel'])); ?></bdi></strong><?php endif; ?>
+                        <span class="library-muted"><?php p($l->t('Shared by')); ?> <bdi dir="auto"><?php p((string)$grant['ownerId']); ?></bdi></span>
+                        <?php if ($grant['status'] === 'awaiting-acceptance'): ?><span class="library-muted"><?php p($l->t('Accept the Files share to browse this shelf.')); ?></span><?php endif; ?>
+                    </li>
                 <?php endforeach; ?>
             </ul>
         </section>

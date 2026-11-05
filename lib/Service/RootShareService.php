@@ -317,8 +317,12 @@ final class RootShareService {
         $result->closeCursor();
         $visible = [];
         foreach (array_slice($rows, 0, 100) as $row) {
-            if ($this->rootStillMatches($row) && $this->recipientReadOnlyRootNodes($recipient, (int)$row['root_file_id']) !== []) {
-                $visible[] = $this->presentGrant($row);
+            if (!$this->rootStillMatches($row)) {
+                continue;
+            }
+            $grant = $this->presentGrant($row);
+            if (in_array($grant['status'], ['ready', 'awaiting-acceptance'], true)) {
+                $visible[] = $grant;
             }
         }
         return $visible;

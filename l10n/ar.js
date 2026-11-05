@@ -1525,6 +1525,7 @@ OC.L10N.register(
         "Could not load summary. Try again.": "تعذّر تحميل الملخص. حاول مرة أخرى.",
         "Add and enable a shelf in Library settings before sharing.": "أضف رفًا وفعّله من إعدادات المكتبة قبل مشاركته.",
         "Waiting for the recipient to accept the Files share": "بانتظار قبول المستلِم مشاركة الملفات",
+        "Accept the Files share to browse this shelf.": "اقبل مشاركة الملفات لتصفح هذا الرف.",
         "Files access changed. Review the share in Nextcloud Files.": "تغيّر الوصول إلى الملفات. راجع المشاركة في ملفات Nextcloud.",
         "Browse books that another Nextcloud user has shared with you. Your own reading lists and book details are separate.": "تصفّح الكتب التي شاركها معك مستخدم آخر في Nextcloud. تبقى قوائم قراءتك وبيانات كتبك منفصلة.",
         "Choose an existing, enabled Nextcloud user.": "اختر مستخدمًا موجودًا ومفعّلًا في Nextcloud.",
