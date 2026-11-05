@@ -30,6 +30,7 @@ final class RootShareService {
         private ILockingProvider $locks,
         private ICollaboratorSearch $collaborators,
         private IEventDispatcher $events,
+        private AuthorDisplayService $authorDisplay,
     ) {
     }
 
@@ -329,9 +330,6 @@ final class RootShareService {
         $result->closeCursor();
         $visible = [];
         foreach (array_slice($rows, 0, 100) as $row) {
-            if (!$this->rootStillMatches($row)) {
-                continue;
-            }
             $grant = $this->presentGrant($row);
             if (in_array($grant['status'], ['ready', 'awaiting-acceptance'], true)) {
                 $visible[] = $grant;
@@ -372,7 +370,7 @@ final class RootShareService {
         $result = $this->db->executeQuery($query . 'ORDER BY i.id ASC LIMIT 81', $params);
         $rows = $result->fetchAll();
         $result->closeCursor();
-        $items = [];
+        $authorized = [];
         $lastId = $cursor;
         $rootNodes = $this->recipientReadOnlyRootNodes($recipient, (int)$grant['root_file_id']);
         foreach (array_slice($rows, 0, 80) as $row) {
@@ -380,8 +378,10 @@ final class RootShareService {
             if ($this->recipientFile($recipient, $grant, $row, $rootNodes) === null) {
                 continue;
             }
-            $items[] = $this->bookProjection($row);
+            $authorized[] = $row;
         }
+        $items = array_map(fn (array $row): array => $this->bookProjection($row),
+            $this->authorDisplay->decorate((string)$grant['owner_user_id'], $authorized));
         return ['items' => $items, 'nextCursor' => count($rows) > 80 ? $lastId : null];
     }
 
@@ -400,6 +400,7 @@ final class RootShareService {
         if (!is_array($row) || $this->recipientFile($recipient, $grant, $row) === null) {
             return null;
         }
+        $row = $this->authorDisplay->decorate((string)$grant['owner_user_id'], [$row])[0];
         return $this->bookProjection($row) + [
             'description' => (string)($row['description'] ?? ''),
             'language' => (string)($row['language'] ?? ''),
@@ -679,7 +680,7 @@ final class RootShareService {
             'id' => (int)$row['id'],
             'title' => (string)($row['title'] ?? ''),
             'subtitle' => (string)($row['subtitle'] ?? ''),
-            'creators' => (string)($row['creators'] ?? ''),
+            'creators' => (string)($row['displayCreators'] ?? $row['creators'] ?? ''),
             'publisher' => (string)($row['publisher'] ?? ''),
             'publicationDate' => (string)($row['publication_date'] ?? ''),
             'format' => strtoupper((string)($row['extension'] ?? '')),
