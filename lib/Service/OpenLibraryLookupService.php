@@ -25,18 +25,22 @@ final class OpenLibraryLookupService {
     /** @return array<int, array<string, mixed>> */
     public function search(string $userId, string $isbn, string $title, string $author): array {
         $this->ensureEnabled();
-        if (mb_strlen($isbn) > 50) {
+        if (!mb_check_encoding($isbn, 'UTF-8') || mb_strlen($isbn) > 50) {
             throw new \InvalidArgumentException('invalid_isbn');
         }
-        $isbn = preg_replace('/^ISBN(?:-1[03])?\s*:?\s*/i', '', trim($isbn)) ?? '';
-        $isbn = preg_replace('/[^0-9Xx]/', '', $isbn) ?? '';
+        $isbnInput = trim($isbn);
+        $isbn = $isbnInput === '' ? '' : (preg_replace('/^ISBN(?:-1[03])?\s*:?\s*/i', '', $isbnInput) ?? '');
         $title = trim($title);
         $author = trim($author);
         if (!mb_check_encoding($title . $author, 'UTF-8') || preg_match('/[\p{Cc}]/u', $title . $author)) {
             throw new \InvalidArgumentException('invalid_query');
         }
-        if ($isbn !== '' && !(IdentifierService::normalizeIdentifier('isbn', $isbn)['valid'] ?? false)) {
-            throw new \InvalidArgumentException('invalid_isbn');
+        if ($isbnInput !== '') {
+            $normalized = IdentifierService::normalizeIdentifier('isbn', $isbn);
+            if ($normalized === null || !$normalized['valid']) {
+                throw new \InvalidArgumentException('invalid_isbn');
+            }
+            $isbn = $normalized['normalizedValue'];
         }
         if ($isbn === '' && (mb_strlen($title) < 3 || mb_strlen($title) > 200 || mb_strlen($author) > 200)) {
             throw new \InvalidArgumentException('invalid_query');
@@ -147,8 +151,7 @@ final class OpenLibraryLookupService {
                 $isbns[$normalized['normalizedValue']] = $normalized['displayValue'];
             }
         }
-        $requested = strtoupper(preg_replace('/[^0-9Xx]/', '', $isbn) ?? '');
-        if (!in_array($requested, array_map(static fn (string $value): string => strtoupper(preg_replace('/[^0-9Xx]/', '', $value) ?? ''), array_values($isbns)), true)) {
+        if (!isset($isbns[$isbn])) {
             return [];
         }
         $publishers = $this->boundedStrings($edition['publishers'] ?? null, 1, 200);

@@ -157,7 +157,12 @@ final class RootShareController extends Controller {
         $cursor = $this->cursor();
         $requestedSearch = $this->request->getParam('search', '');
         $search = is_string($requestedSearch) ? trim($requestedSearch) : '';
-        $searchError = !is_string($requestedSearch) || mb_strlen($search) > 100 || ($search !== '' && mb_strlen($search) < 3);
+        $searchError = !is_string($requestedSearch) || !mb_check_encoding($search, 'UTF-8')
+            || preg_match('/[\p{Cc}]/u', $search) === 1
+            || mb_strlen($search) > 100 || ($search !== '' && mb_strlen($search) < 3);
+        if ($searchError) {
+            $search = '';
+        }
         $page = $searchError ? ['items' => [], 'nextCursor' => null] : $this->sharing->books($uid, $grantId, $cursor, $search);
         $books = $page['items'];
         foreach ($books as &$book) {
@@ -185,7 +190,9 @@ final class RootShareController extends Controller {
             return $this->notFound();
         }
         $search = $this->request->getParam('search', '');
-        $search = is_string($search) && mb_strlen($search) <= 100 && ($search === '' || mb_strlen($search) >= 3) ? $search : '';
+        $search = is_string($search) && mb_check_encoding($search, 'UTF-8')
+            && preg_match('/[\p{Cc}]/u', $search) !== 1
+            && mb_strlen($search) <= 100 && ($search === '' || mb_strlen($search) >= 3) ? $search : '';
         return $this->page([
             'view' => 'book', 'grantId' => $grantId, 'book' => $book,
             'backUrl' => $this->shelfUrl($grantId, $this->cursor(), $search),

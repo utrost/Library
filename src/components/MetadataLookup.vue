@@ -120,7 +120,7 @@ function stage() {
       <p>{{ t('library', 'Search Open Library for this book. Your ISBN or title and author will be sent to Open Library only when you choose Search. Results are suggestions; nothing changes until you review and save.') }}</p>
       <form class="library-metadata-lookup-form" @submit.prevent="search">
         <label>{{ t('library', 'Search by') }} <select v-model="mode" :disabled="busy || disabled"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="title">{{ t('library', 'Title and author') }}</option></select></label>
-        <label v-if="mode === 'isbn'">{{ t('library', 'ISBN') }} <input v-model="isbn" inputmode="text" maxlength="24" :disabled="busy || disabled"></label>
+        <label v-if="mode === 'isbn'">{{ t('library', 'ISBN') }} <input v-model="isbn" inputmode="text" maxlength="50" :disabled="busy || disabled"></label>
         <template v-else><label>{{ t('library', 'Title') }} <input v-model="title" maxlength="200" :disabled="busy || disabled"></label><label>{{ t('library', 'Author') }} <input v-model="author" maxlength="200" :disabled="busy || disabled"></label></template>
         <button type="submit" class="button secondary" :disabled="busy || disabled || (mode === 'isbn' ? !isbn.trim() : title.trim().length < 3)">{{ busy ? t('library', 'Searching…') : t('library', 'Search Open Library') }}</button>
       </form>

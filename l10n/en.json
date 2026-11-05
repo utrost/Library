@@ -1451,7 +1451,7 @@
         "Compare this edition with your current book details. Select only fields you want to stage.": "Compare this edition with your current book details. Select only fields you want to stage.",
         "Could not share this shelf. Try again.": "Could not share this shelf. Try again.",
         "Enter a valid ISBN or at least three title characters.": "Enter a valid ISBN or at least three title characters.",
-        "Enter at least three letters": "Enter at least three letters",
+        "Enter at least three characters": "Enter at least three characters",
         "Find book details": "Find book details",
         "ISBN match": "ISBN match",
         "Library access is hidden, but Files share cleanup is pending. Retry Remove access.": "Library access is hidden, but Files share cleanup is pending. Retry Remove access.",
@@ -1494,7 +1494,7 @@
         "This shelf cannot be shared. Choose an enabled folder you own.": "This shelf cannot be shared. Choose an enabled folder you own.",
         "This user already has write access to that folder. Read-only Library sharing cannot override Files permissions.": "This user already has write access to that folder. Read-only Library sharing cannot override Files permissions.",
         "This library has reached the current 100-share limit.": "This library has reached the current 100-share limit.",
-        "Enter at least three letters to search shared books.": "Enter at least three letters to search shared books.",
+        "Enter at least three characters to search shared books.": "Enter at least three characters to search shared books.",
         "Title and author": "Title and author",
         "View source at Open Library": "View source at Open Library",
         "_%n matching edition found. Choose one to compare._::_%n matching editions found. Choose one to compare._": [

@@ -149,6 +149,11 @@ final class RootShareService {
             if (!in_array($current['status'], ['ready', 'awaiting-acceptance'], true)) {
                 throw new \InvalidArgumentException('existing_share_changed');
             }
+            $existingMode = !empty($existing['managed_share_id']) ? 'create' : 'reuse';
+            if ((int)$existing['root_file_id'] !== $expectedRootFileId
+                || $existingMode !== $expectedFilesMode) {
+                throw new \InvalidArgumentException('share_changed');
+            }
             return $current;
         }
         if ($existing !== null) {
@@ -199,6 +204,11 @@ final class RootShareService {
             if ($concurrent !== null && $concurrent['revoked_at'] === null) {
                 $current = $this->presentGrant($concurrent);
                 if (in_array($current['status'], ['ready', 'awaiting-acceptance'], true)) {
+                    $concurrentMode = !empty($concurrent['managed_share_id']) ? 'create' : 'reuse';
+                    if ((int)$concurrent['root_file_id'] !== $expectedRootFileId
+                        || $concurrentMode !== $expectedFilesMode) {
+                        throw new \InvalidArgumentException('share_changed', 0, $e);
+                    }
                     return $current;
                 }
                 throw new \InvalidArgumentException('existing_share_changed', 0, $e);
@@ -365,7 +375,8 @@ final class RootShareService {
             throw new \OutOfBoundsException('share_not_found');
         }
         $search = trim($search);
-        if ($search !== '' && (mb_strlen($search) < 3 || mb_strlen($search) > 100)) {
+        if (!mb_check_encoding($search, 'UTF-8') || preg_match('/[\p{Cc}]/u', $search) === 1
+            || ($search !== '' && (mb_strlen($search) < 3 || mb_strlen($search) > 100))) {
             throw new \InvalidArgumentException('invalid_search');
         }
         $pattern = '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower($search)) . '%';

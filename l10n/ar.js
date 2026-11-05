@@ -1540,7 +1540,7 @@ OC.L10N.register(
         "Compare this edition with your current book details. Select only fields you want to stage.": "قارن هذه الطبعة ببيانات كتابك الحالية. اختر الحقول التي تريد إضافتها إلى المسودة فقط.",
         "Could not share this shelf. Try again.": "تعذّرت مشاركة هذا الرف. حاول مرة أخرى.",
         "Enter a valid ISBN or at least three title characters.": "أدخل رقم ISBN صالحًا أو ثلاثة أحرف على الأقل من العنوان.",
-        "Enter at least three letters": "أدخل ثلاثة أحرف على الأقل",
+        "Enter at least three characters": "أدخل ثلاثة أحرف على الأقل",
         "Find book details": "البحث عن بيانات الكتاب",
         "ISBN match": "تطابق ISBN",
         "Library access is hidden, but Files share cleanup is pending. Retry Remove access.": "أُخفي الوصول إلى المكتبة، لكن إزالة مشاركة الملفات ما زالت معلّقة. أعد محاولة إزالة الوصول.",
@@ -1583,7 +1583,7 @@ OC.L10N.register(
         "This shelf cannot be shared. Choose an enabled folder you own.": "لا يمكن مشاركة هذا الرف. اختر مجلدًا مفعّلًا تملكه.",
         "This user already has write access to that folder. Read-only Library sharing cannot override Files permissions.": "لدى هذا المستخدم إذن كتابة في المجلد بالفعل. لا يمكن لمشاركة المكتبة للقراءة فقط تجاوز أذونات الملفات.",
         "This library has reached the current 100-share limit.": "وصلت هذه المكتبة إلى الحد الحالي البالغ 100 مشاركة.",
-        "Enter at least three letters to search shared books.": "أدخل ثلاثة أحرف على الأقل للبحث في الكتب المشتركة.",
+        "Enter at least three characters to search shared books.": "أدخل ثلاثة أحرف على الأقل للبحث في الكتب المشتركة.",
         "Title and author": "العنوان والمؤلف",
         "View source at Open Library": "عرض المصدر في Open Library",
         "_%n matching edition found. Choose one to compare._::_%n matching editions found. Choose one to compare._": [

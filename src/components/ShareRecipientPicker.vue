@@ -49,8 +49,9 @@ function changed() {
   active.value = -1
   error.value = ''
   searched.value = false
-  busy.value = value.length >= 3
-  if (value.length < 3) return
+  const length = Array.from(value).length
+  busy.value = length >= 3
+  if (length < 3) return
   timer = setTimeout(async () => {
     controller = new AbortController()
     try {
@@ -133,7 +134,7 @@ onBeforeUnmount(() => {
     <input id="library-share-recipient-search" ref="input" v-model="query" type="search" autocomplete="off" maxlength="160"
       role="combobox" aria-autocomplete="list" aria-controls="library-share-recipient-options"
       :aria-expanded="open && users.length > 0" :aria-activedescendant="open && active >= 0 ? `library-share-recipient-${active}` : undefined"
-      :placeholder="t('library', 'Enter at least three letters')" @input="onInput" @focus="open = true" @blur="onBlur" @keydown="keydown">
+      :placeholder="t('library', 'Enter at least three characters')" @input="onInput" @focus="open = true" @blur="onBlur" @keydown="keydown">
     <small v-if="selected" role="status">{{ t('library', 'Nextcloud username') }}: <bdi dir="auto">{{ selected.id }}</bdi></small>
     <small v-if="busy" role="status">{{ t('library', 'Searching…') }}</small>
     <p v-if="error" role="alert">{{ error }}</p>
