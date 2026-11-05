@@ -1439,6 +1439,7 @@ OC.L10N.register(
         "Waiting for the recipient to accept the Files share": "Waiting for the recipient to accept the Files share",
         "Accept the Files share to browse this shelf.": "Accept the Files share to browse this shelf.",
         "Before disabling or uninstalling Library, remove this access here or remove the Files share in Nextcloud Files. Disabling Library does not remove the Files share.": "Before disabling or uninstalling Library, remove this access here or remove the Files share in Nextcloud Files. Disabling Library does not remove the Files share.",
+        "Library-managed Files shares can remain active after disabling Library. Remove access here first, or remove them in Nextcloud Files.": "Library-managed Files shares can remain active after disabling Library. Remove access here first, or remove them in Nextcloud Files.",
         "This share no longer has the expected Files access. Remove access below, then share the shelf again.": "This share no longer has the expected Files access. Remove access below, then share the shelf again.",
         "Files access changed. Review the share in Nextcloud Files.": "Files access changed. Review the share in Nextcloud Files.",
         "Browse books that another Nextcloud user has shared with you. Your own reading lists and book details are separate.": "Browse books that another Nextcloud user has shared with you. Your own reading lists and book details are separate.",

@@ -22,6 +22,7 @@ const edition = ref(null)
 const selectedFields = ref([])
 const notice = ref('')
 let generation = 0
+let requestController = null
 const labels = {
   title: t('library', 'Title'), subtitle: t('library', 'Subtitle'),
   publisher: t('library', 'Publisher'), publicationDate: t('library', 'Publication date'),
@@ -29,6 +30,8 @@ const labels = {
 }
 watch(() => props.item.id, () => {
   generation += 1
+  requestController?.abort()
+  requestController = null
   busy.value = false
   error.value = ''
   selectedFields.value = []
@@ -42,14 +45,14 @@ watch(() => props.item.id, () => {
   searched.value = false
   notice.value = ''
 }, { immediate: true })
-onBeforeUnmount(() => { generation += 1 })
+onBeforeUnmount(() => { generation += 1; requestController?.abort() })
 
-async function request(path, values) {
+async function request(path, values, signal) {
   const body = new FormData()
   body.set('requesttoken', props.requestToken)
   Object.entries(values).forEach(([key, value]) => body.set(key, value))
   const response = await fetch(`${props.baseUrl}/metadata-lookup${path}`, {
-    method: 'POST', credentials: 'same-origin', cache: 'no-store', body,
+    method: 'POST', credentials: 'same-origin', cache: 'no-store', body, signal,
   })
   if (!response.ok) throw new Error(response.status === 429
     ? t('library', 'Open Library is busy. Wait a moment and try again.')
@@ -69,14 +72,15 @@ async function search() {
   results.value = []
   edition.value = null
   searched.value = false
+  requestController = new AbortController()
   try {
     const values = mode.value === 'isbn' ? { isbn: isbn.value } : { title: title.value, author: author.value }
-    const response = await request('', values)
+    const response = await request('', values, requestController.signal)
     if (current !== generation) return
     results.value = response.results || []
     searched.value = true
-  } catch (cause) { if (current === generation) error.value = cause.message }
-  finally { if (current === generation) busy.value = false }
+  } catch (cause) { if (current === generation && cause.name !== 'AbortError') error.value = cause.message }
+  finally { if (current === generation) { busy.value = false; requestController = null } }
 }
 async function choose(candidate) {
   if (busy.value || props.disabled) return
@@ -85,9 +89,10 @@ async function choose(candidate) {
   error.value = ''
   edition.value = null
   selectedFields.value = []
-  try { const result = await request('/edition', { editionId: candidate.editionId }); if (current === generation) edition.value = result }
-  catch (cause) { if (current === generation) error.value = cause.message }
-  finally { if (current === generation) busy.value = false }
+  requestController = new AbortController()
+  try { const result = await request('/edition', { editionId: candidate.editionId }, requestController.signal); if (current === generation) edition.value = result }
+  catch (cause) { if (current === generation && cause.name !== 'AbortError') error.value = cause.message }
+  finally { if (current === generation) { busy.value = false; requestController = null } }
 }
 function display(value) { return Array.isArray(value) ? value.join('\n') : String(value ?? '') }
 const fields = computed(() => Object.entries(edition.value?.fields || {}).filter(([key, value]) =>

@@ -65,16 +65,17 @@ $messages = [
             <?php endif; ?>
             <?php if (!empty($_['owned'])): ?>
                 <h3><?php p($l->t('People with access')); ?></h3>
+                <?php if (array_filter($_['owned'], static fn (array $grant): bool => !empty($grant['managedFilesShare']) || $grant['status'] === 'cleanup-pending')): ?><p class="library-muted"><?php p($l->t('Library-managed Files shares can remain active after disabling Library. Remove access here first, or remove them in Nextcloud Files.')); ?></p><?php endif; ?>
                 <ul class="library-shared-list">
                     <?php foreach ($_['owned'] as $grant): ?>
                         <li>
-                            <div><strong><bdi dir="auto"><?php p($displayShelf((string)$grant['rootLabel'])); ?></bdi></strong><span><bdi dir="auto"><?php p((string)$grant['recipientName']); ?></bdi> · <?php p(match ($grant['status']) {
+                            <div><strong><bdi dir="auto"><?php p($displayShelf((string)$grant['rootLabel'])); ?></bdi></strong><span><bdi dir="auto"><?php p((string)$grant['recipientName']); ?></bdi> (<bdi dir="auto"><?php p((string)$grant['recipientId']); ?></bdi>) · <?php p(match ($grant['status']) {
                                 'ready' => $l->t('Ready'),
                                 'cleanup-pending' => $l->t('Cleanup pending'),
                                 'awaiting-acceptance' => $l->t('Waiting for the recipient to accept the Files share'),
                                 default => $l->t('Files access changed. Review the share in Nextcloud Files.'),
                             }); ?></span></div>
-                            <form method="post" action="<?php p($indexUrl . '/' . (int)$grant['id'] . '/revoke'); ?>"><input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>"><button class="button secondary" type="submit" aria-label="<?php p($l->t('Remove access for %s to %s', [(string)$grant['recipientName'], (string)$grant['rootLabel']])); ?>"><?php p($l->t('Remove access')); ?></button></form>
+                            <form method="post" action="<?php p($indexUrl . '/' . (int)$grant['id'] . '/revoke'); ?>"><input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>"><button class="button secondary" type="submit" aria-label="<?php p($l->t('Remove access for %s to %s', [(string)$grant['recipientName'] . ' (' . (string)$grant['recipientId'] . ')', (string)$grant['rootLabel']])); ?>"><?php p($l->t('Remove access')); ?></button></form>
                         </li>
                     <?php endforeach; ?>
                 </ul>

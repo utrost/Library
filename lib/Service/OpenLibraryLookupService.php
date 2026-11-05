@@ -54,6 +54,19 @@ final class OpenLibraryLookupService {
         if (is_array($cached)) {
             return $cached;
         }
+        if ($isbn !== '') {
+            // Work search exposes only one selected edition per work. Resolve
+            // an ISBN through Open Library's edition endpoint instead.
+            $edition = $this->fetchJson(self::BASE . '/isbn/' . rawurlencode($isbn) . '.json', true, true);
+            $results = $this->isbnResult($edition, $isbn);
+            if ($results !== []) {
+                $editionId = $results[0]['editionId'];
+                $editionKey = hash('sha256', $userId . "\0edition\0" . $editionId);
+                $cache->set($editionKey, $this->editionResult($edition, $editionId), 900);
+            }
+            $cache->set($key, $results, 900);
+            return $results;
+        }
         $data = $this->fetchJson(self::BASE . '/search.json?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986));
         $results = [];
         foreach (array_slice(is_array($data['docs'] ?? null) ? $data['docs'] : [], 0, 6) as $work) {
@@ -114,6 +127,55 @@ final class OpenLibraryLookupService {
         return $results;
     }
 
+    /** @return array<int, array<string, mixed>> */
+    private function isbnResult(array $edition, string $isbn): array {
+        $id = $this->editionId(is_string($edition['key'] ?? null) ? $edition['key'] : '');
+        $title = $edition['title'] ?? null;
+        if ($id === null || !is_string($title) || trim($title) === '') {
+            return [];
+        }
+        $isbns = [];
+        foreach (array_merge(
+            is_array($edition['isbn_13'] ?? null) ? $edition['isbn_13'] : [],
+            is_array($edition['isbn_10'] ?? null) ? $edition['isbn_10'] : [],
+        ) as $value) {
+            if (!is_string($value)) {
+                continue;
+            }
+            $normalized = IdentifierService::normalizeIdentifier('isbn', $value);
+            if ($normalized !== null && $normalized['valid']) {
+                $isbns[$normalized['normalizedValue']] = $normalized['displayValue'];
+            }
+        }
+        $requested = strtoupper(preg_replace('/[^0-9Xx]/', '', $isbn) ?? '');
+        if (!in_array($requested, array_map(static fn (string $value): string => strtoupper(preg_replace('/[^0-9Xx]/', '', $value) ?? ''), array_values($isbns)), true)) {
+            return [];
+        }
+        $publishers = $this->boundedStrings($edition['publishers'] ?? null, 1, 200);
+        $date = $edition['publish_date'] ?? '';
+        $languages = [];
+        foreach (is_array($edition['languages'] ?? null) ? $edition['languages'] : [] as $language) {
+            if (is_array($language) && is_string($language['key'] ?? null)
+                && preg_match('~^/languages/([a-z]{3})$~D', $language['key'], $match)) {
+                $languages[] = $match[1];
+            }
+            if (count($languages) >= 4) {
+                break;
+            }
+        }
+        return [[
+            'editionId' => $id,
+            'title' => mb_substr($title, 0, 300),
+            'authors' => [],
+            'year' => mb_substr(is_string($date) ? $date : '', 0, 80),
+            'publisher' => $publishers[0] ?? '',
+            'isbn' => array_slice(array_values($isbns), 0, 4),
+            'languages' => $languages,
+            'match' => 'isbn',
+            'url' => self::BASE . '/books/' . $id,
+        ]];
+    }
+
     /** @return array<string, mixed> */
     public function edition(string $userId, string $editionId): array {
         $this->ensureEnabled();
@@ -128,6 +190,13 @@ final class OpenLibraryLookupService {
             return $cached;
         }
         $data = $this->fetchJson(self::BASE . '/books/' . $id . '.json');
+        $result = $this->editionResult($data, $id);
+        $cache->set($key, $result, 900);
+        return $result;
+    }
+
+    /** @return array<string, mixed> */
+    private function editionResult(array $data, string $id): array {
         $description = $data['description'] ?? '';
         if (is_array($description)) {
             $description = $description['value'] ?? '';
@@ -173,7 +242,6 @@ final class OpenLibraryLookupService {
         }
         $result = ['provider' => 'Open Library', 'editionId' => $id, 'url' => self::BASE . '/books/' . $id, 'fields' => $fields,
             'isbn' => array_values($identifiers), 'languages' => array_slice($languages, 0, 4)];
-        $cache->set($key, $result, 900);
         return $result;
     }
 
@@ -207,7 +275,7 @@ final class OpenLibraryLookupService {
     }
 
     /** @return array<string, mixed> */
-    private function fetchJson(string $url): array {
+    private function fetchJson(string $url, bool $allowEditionRedirect = false, bool $allowNotFound = false): array {
         $this->reserveRequestSlot();
         try {
             $response = $this->clients->newClient()->get($url, [
@@ -220,6 +288,20 @@ final class OpenLibraryLookupService {
             ]);
             if ($response->getStatusCode() === 429) {
                 throw new \RuntimeException('rate_limited');
+            }
+            if ($allowEditionRedirect && in_array($response->getStatusCode(), [301, 302, 303, 307, 308], true)) {
+                $location = $response->getHeader('location');
+                if (is_array($location)) {
+                    $location = $location[0] ?? '';
+                }
+                if (!is_string($location)
+                    || !preg_match('~^(?:https://openlibrary\.org)?/books/(OL[1-9][0-9]*M)\.json$~D', $location, $match)) {
+                    throw new \RuntimeException('provider_unavailable');
+                }
+                return $this->fetchJson(self::BASE . '/books/' . $match[1] . '.json', false, $allowNotFound);
+            }
+            if ($allowNotFound && $response->getStatusCode() === 404) {
+                return [];
             }
             if ($response->getStatusCode() !== 200) {
                 throw new \RuntimeException('provider_unavailable');
