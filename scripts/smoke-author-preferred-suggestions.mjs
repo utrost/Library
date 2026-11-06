@@ -8,9 +8,16 @@ const base = process.env.NC_URL || 'http://localhost:8088'
 const out = process.env.EVIDENCE_DIR || '/tmp/library-author-preferred-suggestions'
 mkdirSync(out, { recursive: true, mode: 0o700 })
 const docker = (...args) => execFileSync('docker', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
-for (const name of ['author_directory_fixture', 'author_preferred_suggestions_integration', 'author_search_bounds_integration']) docker('cp', `tests/php/${name}.php`, `${container}:/tmp/${name}.php`)
+for (const name of ['author_directory_fixture', 'author_preferred_suggestions_integration', 'author_search_bounds_integration']) {
+  docker('exec', '-u', 'root', container, 'rm', '-rf', `/tmp/${name}.php`)
+  docker('cp', `tests/php/${name}.php`, `${container}:/tmp/${name}.php`)
+  docker('exec', '-u', 'root', container, 'chmod', '0644', `/tmp/${name}.php`)
+  docker('exec', '-u', 'www-data', container, 'test', '-f', `/tmp/${name}.php`)
+}
+let fixtureCreated = false
 try {
   docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_directory_fixture.php', 'setup')
+  fixtureCreated = true
   const result = JSON.parse(docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_preferred_suggestions_integration.php'))
   const bounds = JSON.parse(docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_search_bounds_integration.php'))
   if (!bounds.passed) throw new Error('Author search bounds failed')
@@ -50,6 +57,6 @@ try {
   }
   console.log(JSON.stringify({ passed: true, preferredFromSortName: true, filteredSuggestions: true, sourceCreditsPreserved: true, engines: ['chromium', 'firefox'] }))
 } finally {
-  docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_directory_fixture.php', 'cleanup')
+  if (fixtureCreated) docker('exec', '-u', 'www-data', container, 'php', '/tmp/author_directory_fixture.php', 'cleanup')
   for (const name of ['author_directory_fixture', 'author_preferred_suggestions_integration', 'author_search_bounds_integration']) docker('exec', container, 'rm', '-f', `/tmp/${name}.php`)
 }
