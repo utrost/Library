@@ -488,6 +488,14 @@ function stageLookup(fields) {
       known.add(normalized)
     }
   }
+  if (Array.isArray(fields.ggkey)) {
+    const known = new Set((draft.identifiers || []).filter(row => row.scheme === 'ggkey').map(row => String(row.displayValue || '')))
+    for (const value of fields.ggkey) {
+      if (known.has(value)) continue
+      draft.identifiers.push({ scheme: 'ggkey', displayValue: value })
+      known.add(value)
+    }
+  }
   feedback.value = t('library', 'Suggested details staged. Review them and save your book changes.')
 }
 

@@ -10,6 +10,8 @@ const props = defineProps({
   disabled: { type: Boolean, default: false },
 })
 const emit = defineEmits(['stage'])
+const provider = ref('openlibrary')
+const providerName = computed(() => provider.value === 'googlebooks' ? t('library', 'Google Books') : t('library', 'Open Library'))
 const mode = ref('title')
 const isbn = ref('')
 const title = ref('')
@@ -45,22 +47,40 @@ watch(() => props.item.id, () => {
   searched.value = false
   notice.value = ''
 }, { immediate: true })
+watch(provider, () => {
+  generation += 1
+  requestController?.abort()
+  requestController = null
+  busy.value = false
+  error.value = ''
+  notice.value = ''
+  results.value = []
+  edition.value = null
+  selectedFields.value = []
+  searched.value = false
+})
 onBeforeUnmount(() => { generation += 1; requestController?.abort() })
 
 async function request(path, values, signal) {
   const body = new FormData()
   body.set('requesttoken', props.requestToken)
+  body.set('provider', provider.value)
   Object.entries(values).forEach(([key, value]) => body.set(key, value))
   const response = await fetch(`${props.baseUrl}/metadata-lookup${path}`, {
     method: 'POST', credentials: 'same-origin', cache: 'no-store', body, signal,
   })
-  if (!response.ok) throw new Error(response.status === 429
-    ? t('library', 'Open Library is busy. Wait a moment and try again.')
+  if (!response.ok) {
+    const failure = await response.json().catch(() => ({}))
+    throw new Error(response.status === 429
+    ? t('library', '{provider} is busy. Wait a moment and try again.', { provider: providerName.value })
     : response.status === 400
     ? t('library', 'Enter a valid ISBN or at least three title characters.')
+    : failure.error === 'provider_unconfigured'
+    ? t('library', 'Google Books needs a server API key. Ask your Nextcloud administrator to configure it.')
     : response.status === 503
-    ? t('library', 'Open Library lookup is disabled on this Nextcloud server.')
-    : t('library', 'Open Library is unavailable. Try again later or edit the book directly.'))
+    ? t('library', '{provider} lookup is disabled on this Nextcloud server.', { provider: providerName.value })
+    : t('library', '{provider} is unavailable. Try again later or edit the book directly.', { provider: providerName.value }))
+  }
   return response.json()
 }
 async function search() {
@@ -100,12 +120,17 @@ const fields = computed(() => Object.entries(edition.value?.fields || {}).filter
 ).map(([key, value]) => ({ key, label: labels[key], current: display(props.draft[key]), suggested: display(value) })).concat(
   (edition.value?.isbn || []).filter(code => !((props.draft.identifiers || []).some(row => row.scheme === 'isbn' && String(row.displayValue || '').replace(/[\s-]/g, '').toUpperCase() === String(code).replace(/[\s-]/g, '').toUpperCase())))
     .map(code => ({ key: `isbn:${code}`, label: t('library', 'ISBN'), current: '', suggested: code })),
+  edition.value?.ggkey && !(props.draft.identifiers || []).some(row => row.scheme === 'ggkey' && row.displayValue === edition.value.ggkey)
+    ? [{ key: `ggkey:${edition.value.ggkey}`, label: t('library', 'GGKEY'), current: '', suggested: edition.value.ggkey }]
+    : [],
 ))
 function stage() {
   const rows = fields.value.filter(row => selectedFields.value.includes(row.key))
-  const selected = Object.fromEntries(rows.filter(row => !row.key.startsWith('isbn:')).map(row => [row.key, row.suggested]))
+  const selected = Object.fromEntries(rows.filter(row => !row.key.startsWith('isbn:') && !row.key.startsWith('ggkey:')).map(row => [row.key, row.suggested]))
   const isbns = rows.filter(row => row.key.startsWith('isbn:')).map(row => row.suggested)
   if (isbns.length) selected.isbn = isbns
+  const ggkeys = rows.filter(row => row.key.startsWith('ggkey:')).map(row => row.suggested)
+  if (ggkeys.length) selected.ggkey = ggkeys
   if (!rows.length) return
   emit('stage', selected)
   notice.value = n('library', '%n suggested field staged. Review and save your book changes.', '%n suggested fields staged. Review and save your book changes.', rows.length)
@@ -117,14 +142,15 @@ function stage() {
   <details class="library-metadata-lookup library-full-details-card">
     <summary>{{ t('library', 'Find book details') }}</summary>
     <div class="library-metadata-lookup-content">
-      <p>{{ t('library', 'Search Open Library for this book. Your ISBN or title and author will be sent to Open Library only when you choose Search. Results are suggestions; nothing changes until you review and save.') }}</p>
+      <p>{{ t('library', 'Choose a provider, then search explicitly. Your ISBN or title and author are sent only to the selected provider when you choose Search. Suggestions change nothing until you review and save.') }}</p>
       <form class="library-metadata-lookup-form" @submit.prevent="search">
+        <label>{{ t('library', 'Provider') }} <select v-model="provider" :disabled="disabled"><option value="openlibrary">{{ t('library', 'Open Library') }}</option><option value="googlebooks">{{ t('library', 'Google Books') }}</option></select></label>
         <label>{{ t('library', 'Search by') }} <select v-model="mode" :disabled="busy || disabled"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="title">{{ t('library', 'Title and author') }}</option></select></label>
         <label v-if="mode === 'isbn'">{{ t('library', 'ISBN') }} <input v-model="isbn" inputmode="text" maxlength="50" :disabled="busy || disabled"></label>
         <template v-else><label>{{ t('library', 'Title') }} <input v-model="title" maxlength="200" :disabled="busy || disabled"></label><label>{{ t('library', 'Author') }} <input v-model="author" maxlength="200" :disabled="busy || disabled"></label></template>
-        <button type="submit" class="button secondary" :disabled="busy || disabled || (mode === 'isbn' ? !isbn.trim() : title.trim().length < 3)">{{ busy ? t('library', 'Searching…') : t('library', 'Search Open Library') }}</button>
+        <button type="submit" class="button secondary" :disabled="busy || disabled || (mode === 'isbn' ? !isbn.trim() : title.trim().length < 3)">{{ busy ? t('library', 'Searching…') : t('library', 'Search {provider}', { provider: providerName }) }}</button>
       </form>
-      <p v-if="busy" role="status" aria-live="polite">{{ t('library', 'Searching Open Library…') }}</p>
+      <p v-if="busy" role="status" aria-live="polite">{{ t('library', 'Searching {provider}…', { provider: providerName }) }}</p>
       <p v-if="error" role="alert" class="library-full-details-error">{{ error }}</p>
       <p v-if="notice" role="status" class="library-full-details-feedback">{{ notice }}</p>
       <p v-if="searched && !results.length" role="status">{{ t('library', 'No matching editions found. Try the title and author search or edit the book directly.') }}</p>
@@ -134,10 +160,10 @@ function stage() {
       </ul>
       <div v-if="edition" class="library-metadata-lookup-review">
         <h3>{{ t('library', 'Selected edition') }} · {{ edition.editionId }}</h3>
-        <p>{{ t('library', 'Compare this edition with your current book details. Select only fields you want to stage.') }} <a :href="edition.url" target="_blank" rel="noopener noreferrer">{{ t('library', 'View source at Open Library') }}</a></p>
+        <p>{{ t('library', 'Compare this edition with your current book details. Select only fields you want to stage.') }} <a :href="edition.url" target="_blank" rel="noopener noreferrer">{{ t('library', 'View source at {provider}', { provider: providerName }) }}</a></p>
         <p class="library-muted">{{ [edition.isbn?.length ? `ISBN ${edition.isbn.join(', ')}` : '', edition.languages?.length ? `${t('library', 'Language')}: ${edition.languages.join(', ')}` : ''].filter(Boolean).join(' · ') }}</p>
         <p v-if="!fields.length" role="status">{{ t('library', 'This edition has no different supported details to suggest.') }}</p>
-        <div v-for="row in fields" :key="row.key" class="library-metadata-lookup-field"><label><input v-model="selectedFields" type="checkbox" :value="row.key" :disabled="disabled"><strong>{{ row.label }}<template v-if="row.key.startsWith('isbn:')"> {{ row.suggested }}</template></strong></label><div><small>{{ t('library', 'Current draft') }}</small><p>{{ row.current || '—' }}</p></div><div><small>{{ t('library', 'Suggested') }}</small><p>{{ row.suggested }}</p></div></div>
+        <div v-for="row in fields" :key="row.key" class="library-metadata-lookup-field"><label><input v-model="selectedFields" type="checkbox" :value="row.key" :disabled="disabled"><strong>{{ row.label }}<template v-if="row.key.startsWith('isbn:') || row.key.startsWith('ggkey:')"> {{ row.suggested }}</template></strong></label><div><small>{{ t('library', 'Current draft') }}</small><p>{{ row.current || '—' }}</p></div><div><small>{{ t('library', 'Suggested') }}</small><p>{{ row.suggested }}</p></div></div>
         <button v-if="fields.length" type="button" class="button secondary" :disabled="disabled || !selectedFields.length" @click="stage">{{ t('library', 'Stage selected details') }}</button>
       </div>
     </div>

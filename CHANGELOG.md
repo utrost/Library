@@ -1,10 +1,15 @@
 # Changelog
 
-## 0.4.0-alpha.1 — development, unreleased
+## 0.4.0-alpha.2 — development, unreleased
+
+- Add optional Google Books volume lookup beside Open Library in Book Details. A server-side API key is required; owners explicitly choose the provider and review selected fields and ISBN/GGKEY identifiers before Save.
+- Keep requests account-scoped, bounded, paced and separate from scans and shared-library browsing. Goodreads and Amazon remain feasibility investigations.
+
+## 0.4.0-alpha.1 — 2026-11-05, developer instance
 
 - Add explicit one-book Open Library lookup and comparison in Book Details. Selected suggestions enter the existing draft and require Save. ISBN edition matching, account-scoped caching and cross-worker request pacing guard the external requests.
 - Add an additive grant schema and a separate read-only shared-library surface for named Nextcloud users. Owners review the recipient and Files access mode before confirming. Recipients browse/search a permission-filtered shelf, view guarded covers and open readable files; owners can revoke access.
-- This branch has not passed the multi-user, database, browser or signed-package release gates. Provider provenance, Google Books, conditional reversal and selected-book batch work remain open.
+- The signed package passed source and schema checks and was installed on developer NC34. Full multi-user release certification, provider provenance, conditional reversal and selected-book batch work remain open.
 
 ## 0.3.0 — 2026-11-04
 

@@ -2,6 +2,10 @@
 
 **Current acceptance target: 0.3.0.** The signed stable archive, checksum and certification are recorded in the [release verification record](release-verification.md). Earlier RC checksums and results do not certify 0.3.0.
 
+### 0.4 provider lookup preview
+
+On an alpha.2 development build, open a disposable book's **Find book details** section. Select Open Library, search by a valid ISBN, compare an edition and stage one field, then Discard. Repeat with Google Books after the administrator has configured a server-side API key; check that the query is sent only after Search, the volume link identifies Google Books, and a matching ISBN is shown for an ISBN search. Select the GGKEY separately, Save on a disposable book and confirm it survives reload. Try a wrong ISBN, missing Google key, provider switch during a pending search, sparse results and provider failure; none should change saved book data. Check keyboard, mobile and screen-reader labels. Never place the API key in screenshots or session notes. These checks do not certify provider terms, attribution or the full NC33–35 matrix.
+
 This is the current working checklist. H03-01–H03-26 are arranged by case number, not release history. Record one result per case. The [v0.1 archive](human-test-handbook-v0.1-archive.md) preserves older A16x and LIB-HARDEN evidence; it is not an additional acceptance checklist.
 
 Use disposable accounts and books for saved edits, imports, merges, scans and deletion. Read-only browsing or staging followed by Discard is suitable for a personal collection. Exact signed NC33–35 fresh-install/upgrade certification and manual assistive-technology testing remain separate release gates.
