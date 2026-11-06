@@ -2,7 +2,7 @@
 
 **Current stable release: 0.3.0.** The accepted RC3 functionality is unchanged. The exact signed package passed NC33–35 certification and is published in the App Store Stable channel; see the [release verification record](release-verification.md).
 
-**Developer instance: signed 0.4.0-alpha.1.** Google Books support is prepared on the alpha.2 development branch and is not deployed or published.
+**Developer instance: signed 0.4.0-alpha.2.** Google Books lookup and its administrator key settings are deployed for testing. This development build is not an App Store release; provider acceptance and the full compatibility matrix remain open.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical; those features are retained in stable 0.3.0.
 

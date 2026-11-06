@@ -540,16 +540,16 @@ Current support: partial.
 
 Acceptance checks:
 
-- Library routes are user-scoped and do not introduce a separate global permission model.
-- Users configure roots under their own account.
-- The scanner resolves roots through the current user's Nextcloud folder view.
+- The owner enables a shelf in Library settings, shares its folder read-only with a named user in Nextcloud Files, and waits for that user to accept the Files share.
+- In **Shared libraries**, the owner chooses that shelf and user, reviews the access summary, and grants Library browsing. The recipient then sees the shelf under **Shared with me**, can search indexed titles/authors, open a book in Nextcloud and view its cover.
+- Library rechecks current read-only Files access for shared books and covers. The recipient cannot edit the owner's Library metadata, lists or reading state through this view.
+- **Remove access** revokes Library browsing. It leaves a pre-existing Files share in place; remove that separately in Nextcloud Files when Files access should end too.
 
 Visible gaps:
 
 - no admin-managed shared library root provisioning;
-- no explicit multi-user catalogue sharing layer;
-- no role distinction inside Library beyond Nextcloud access;
-- no UI explaining what another user must do after a folder is shared with them.
+- sharing is limited to a named user and one owner shelf; groups, public links and Library-only access without folder-wide Files access remain future work;
+- the shared shelf uses simple book-ID paging rather than the owner's full catalogue sorting and filters.
 
 ### Story 5: Finding a document in a large archive
 

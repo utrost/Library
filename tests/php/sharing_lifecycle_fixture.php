@@ -77,6 +77,18 @@ if ($mode === 'seed') {
     $shares->acceptShare($created, $recipient);
     echo json_encode(['manualRootShare' => $created->getFullId(),
         'rootShares' => fileShares('LibraryLifecycle')], JSON_THROW_ON_ERROR), "\n";
+} elseif ($mode === 'unshare-root') {
+    foreach ($shares->getSharesBy($owner, IShare::TYPE_USER, folder('LibraryLifecycle'), false, 100, 0, false) as $share) {
+        if ($share->getSharedWith() === $recipient) {
+            $shares->deleteShare($share);
+        }
+    }
+    $grant = grants()[0] ?? null;
+    if ($grant === null) throw new RuntimeException('missing Library grant');
+    $visible = \OC::$server->get(RootShareService::class)->visibleGrant($recipient, (int)$grant['id']);
+    if ($visible !== null) throw new RuntimeException('Library access survived Files share removal');
+    echo json_encode(['grantId' => (int)$grant['id'], 'rootShares' => fileShares('LibraryLifecycle'),
+        'manual' => fileShares('ManualControl'), 'libraryVisible' => false], JSON_THROW_ON_ERROR), "\n";
 } elseif ($mode === 'inspect') {
     echo json_encode(['grants' => grants(), 'rootShares' => fileShares('LibraryLifecycle'),
         'manual' => fileShares('ManualControl')], JSON_THROW_ON_ERROR), "\n";

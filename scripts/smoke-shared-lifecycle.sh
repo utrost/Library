@@ -23,6 +23,8 @@ for version in ${NC_VERSIONS:-33.0.9 34.0.4 35.0.0}; do
         bash "$repo_dir/scripts/dev-lists-instance.sh" start > "$work_dir/start-$version.log"
     docker exec -u www-data -e OC_PASS=Disposable-recipient-2026 "$container" \
         php occ user:add --password-from-env library-recipient >/dev/null
+    docker exec -u www-data -e OC_PASS=Disposable-outsider-2026 "$container" \
+        php occ user:add --password-from-env library-outsider >/dev/null
     docker cp "$repo_dir/tests/php/sharing_lifecycle_fixture.php" \
         "$container:/tmp/library-sharing-lifecycle-fixture.php" >/dev/null
     docker exec "$container" chmod 0644 /tmp/library-sharing-lifecycle-fixture.php
@@ -48,6 +50,32 @@ for version in ${NC_VERSIONS:-33.0.9 34.0.4 35.0.0}; do
         python3 -c 'import json,sys; d=json.load(sys.stdin); assert d["review"]["filesMode"]=="reuse" and d["grant"]["status"]=="ready" and d["grant"]["managedFilesShare"] is False and len(d["rootShares"])==1, d'
     docker exec -u www-data "$container" php /tmp/library-sharing-lifecycle-fixture.php search |
         python3 -c 'import json,sys; d=json.load(sys.stdin); assert d["canonicalSearch"] and d["sourceCreditExcluded"] and d["matchingBooks"]==1, d'
+    if [[ "$version" == 34.0.4 && "${RUN_SHARING_PLAYWRIGHT:-1}" == 1 ]]; then
+        # The browser check uses only this disposable catalogue and three disposable users.
+        source "$work_dir/$version.env"
+        export PW_RECIPIENT_USER=library-recipient PW_RECIPIENT_PASSWORD=Disposable-recipient-2026
+        export PW_OUTSIDER_USER=library-outsider PW_OUTSIDER_PASSWORD=Disposable-outsider-2026
+        (cd "$repo_dir" && PLAYWRIGHT_HTML_OUTPUT_DIR="$work_dir/reports/$version" \
+            npx playwright test tests/gui/sharing/shared-library.spec.ts --output="$work_dir/results/$version")
+        (cd "$repo_dir" && PLAYWRIGHT_HTML_OUTPUT_DIR="$work_dir/reports/owner-$version" \
+            npx playwright test tests/gui/sharing/shared-library-owner.spec.ts --project=desktop-chromium \
+                --output="$work_dir/results/owner-$version")
+        docker exec -u www-data "$container" php /tmp/library-sharing-lifecycle-fixture.php inspect |
+            python3 -c 'import json,sys; d=json.load(sys.stdin); assert len(d["grants"])==1 and len(d["rootShares"])==1 and len(d["manual"])==1, d'
+    fi
+    docker exec -u www-data "$container" php /tmp/library-sharing-lifecycle-fixture.php unshare-root |
+        python3 -c 'import json,sys; d=json.load(sys.stdin); assert not d["rootShares"] and len(d["manual"])==1 and not d["libraryVisible"], d'
+    if [[ "$version" == 34.0.4 && "${RUN_SHARING_PLAYWRIGHT:-1}" == 1 ]]; then
+        export PW_SHARE_GRANT_ID PW_SHARE_BOOK_ID
+        PW_SHARE_GRANT_ID="$(docker exec -u www-data "$container" php /tmp/library-sharing-lifecycle-fixture.php inspect |
+            python3 -c 'import json,sys; print(json.load(sys.stdin)["grants"][0]["id"])')"
+        PW_SHARE_BOOK_ID="$(docker exec -u www-data "$container" php -r 'require "/var/www/html/lib/base.php"; $db=\OC::$server->get(\OCP\IDBConnection::class); echo $db->executeQuery("SELECT id FROM *PREFIX*library_items WHERE user_id=? ORDER BY id LIMIT 1", ["library-smoke"])->fetchOne();')"
+        (cd "$repo_dir" && PLAYWRIGHT_HTML_OUTPUT_DIR="$work_dir/reports/access-$version" \
+            npx playwright test tests/gui/sharing/shared-access-change.spec.ts --project=desktop-chromium \
+                --output="$work_dir/results/access-$version")
+    fi
+    docker exec -u www-data "$container" php /tmp/library-sharing-lifecycle-fixture.php share-root |
+        python3 -c 'import json,sys; d=json.load(sys.stdin); assert len(d["rootShares"])==1 and d["rootShares"][0]["permissions"]==1, d'
     docker exec -u www-data "$container" php /tmp/library-sharing-lifecycle-fixture.php revoke |
         python3 -c 'import json,sys; d=json.load(sys.stdin); assert d["removed"] is True and not d["grants"] and len(d["rootShares"])==1, d'
     docker exec -u www-data "$container" php /tmp/library-sharing-lifecycle-fixture.php seed >/dev/null

@@ -1,4 +1,22 @@
 scripts:
+  shared-library-browse:
+    description: Browse a read-only shared shelf as a recipient, search its canonical author, inspect the cover and deny an outsider on desktop and mobile.
+    tags: [sharing, ownership, mobile, smoke]
+    file: tests/gui/sharing/shared-library.spec.ts
+    command: NC_VERSIONS=34.0.4 bash scripts/smoke-shared-lifecycle.sh
+
+  shared-library-owner:
+    description: Revoke and regrant Library access through the owner interface while preserving the existing Files share.
+    tags: [sharing, ownership, mutation, smoke]
+    file: tests/gui/sharing/shared-library-owner.spec.ts
+    command: NC_VERSIONS=34.0.4 bash scripts/smoke-shared-lifecycle.sh
+
+  shared-access-change:
+    description: Removing the underlying Files share hides the recipient shelf and denies book and cover URLs.
+    tags: [sharing, ownership, security, smoke]
+    file: tests/gui/sharing/shared-access-change.spec.ts
+    command: NC_VERSIONS=34.0.4 bash scripts/smoke-shared-lifecycle.sh
+
   author-destination:
     description: Search after three letters, select or explicitly create a destination, review and cancel without moving books; repeat on mobile.
     tags: [authors, smoke, mobile]
