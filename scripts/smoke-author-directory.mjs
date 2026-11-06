@@ -9,15 +9,24 @@ const base = process.env.NC_URL || 'http://localhost:8088'
 const out = createEvidenceDirectory('library-author-directory')
 
 const docker = args => execFileSync('docker', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
-docker(['cp', 'tests/php/author_directory_fixture.php', `${container}:/tmp/library-author-directory-fixture.php`])
+for (const [source, target] of [
+  ['tests/php/author_directory_fixture.php', '/tmp/library-author-directory-fixture.php'],
+  ['tests/php/author_directory_browse_integration.php', '/tmp/library-author-directory-browse.php'],
+]) {
+  docker(['exec', '-u', 'root', container, 'rm', '-rf', target])
+  docker(['cp', source, `${container}:${target}`])
+  docker(['exec', '-u', 'root', container, 'chmod', '0644', target])
+  docker(['exec', '-u', 'www-data', container, 'test', '-f', target])
+}
 const fixture = action => JSON.parse(docker(['exec', '-u', 'www-data', container, 'php', '/tmp/library-author-directory-fixture.php', action]))
 let browser
+let fixtureCreated = false
 const results = []
 try {
   const state = fixture('setup')
+  fixtureCreated = true
   assert.equal(state.directory.authors.length, 1)
   assert.equal(Number(state.directory.authors[0].book_count), 2)
-  docker(['cp', 'tests/php/author_directory_browse_integration.php', `${container}:/tmp/library-author-directory-browse.php`])
   console.log(docker(['exec', '-u', 'www-data', container, 'php', '/tmp/library-author-directory-browse.php']))
   const text = createTemporaryAppPassword(container, state.uid, 'author-directory-smoke')
   const token = text.match(/app password is:\s*(\S+)/i)?.[1] || text.match(/app password:\s*\n\s*(\S+)/i)?.[1]
@@ -111,7 +120,7 @@ try {
   }
 } finally {
   if (browser) await browser.close()
-  fixture('cleanup')
+  if (fixtureCreated) fixture('cleanup')
   docker(['exec', container, 'rm', '-f', '/tmp/library-author-directory-fixture.php', '/tmp/library-author-directory-browse.php'])
 }
 writeFileSync(`${out}/results.json`, JSON.stringify(results, null, 2))

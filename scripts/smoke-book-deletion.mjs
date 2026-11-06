@@ -11,7 +11,10 @@ const docker = args => execFileSync('docker', args, { encoding: 'utf8', stdio: [
 let created = false, browser
 const fixture = action => JSON.parse(docker(['exec', '-u', 'www-data', container, 'php', '/tmp/library-book-deletion-fixture.php', action]))
 try {
+  docker(['exec', '-u', 'root', container, 'rm', '-rf', '/tmp/library-book-deletion-fixture.php'])
   docker(['cp', 'tests/php/book_deletion_fixture.php', `${container}:/tmp/library-book-deletion-fixture.php`])
+  docker(['exec', '-u', 'root', container, 'chmod', '0644', '/tmp/library-book-deletion-fixture.php'])
+  docker(['exec', '-u', 'www-data', container, 'test', '-f', '/tmp/library-book-deletion-fixture.php'])
   // setup writes its account identity before creating files, so partial setup is recoverable.
   docker(['exec', container, 'test', '!', '-e', '/tmp/library-book-deletion-fixture.json'])
   created = true
