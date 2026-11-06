@@ -1574,6 +1574,18 @@
     justify-content: space-between;
 }
 
+.library-provider-settings { max-width: 760px; }
+.library-provider-fieldset { border: 1px solid var(--color-border); border-radius: 8px; margin: 16px 0; padding: 12px 16px; }
+.library-provider-fieldset legend { font-weight: 600; padding-inline: 4px; }
+.library-provider-checkbox { align-items: center; display: flex; gap: 8px; min-height: 36px; }
+.library-provider-checkbox input { flex: none; }
+.library-provider-note { color: var(--color-text-maxcontrast); margin: 4px 0 12px; }
+.library-provider-instructions { margin-block-start: 16px; }
+.library-provider-instructions h3 { margin-block: 0 8px; }
+.library-provider-instructions li { margin-block: 6px; }
+.library-provider-instructions a { text-decoration: underline; text-underline-offset: 2px; }
+#library-googlebooks-key { box-sizing: border-box; display: block; max-width: 100%; width: min(440px, 100%); }
+
 .library-settings-count-badge {
     background: var(--color-background-hover);
     border: 1px solid var(--color-border);

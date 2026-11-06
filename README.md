@@ -81,7 +81,7 @@ scripts/package-release.sh
 
 Install `dist/library-<version>.tar.gz` with the archive commands above. Verify a packaged candidate with its adjacent `.sha256` artifact; detailed release evidence stays in the excluded `RELEASE.md`.
 
-Checks: `npm run check` and `npm run smoke:release-package`. For GUI workflows, install the pinned browsers with `npx playwright install chromium firefox`, then run `npm run test:gui` against a configured disposable instance. [Browser setup and coverage](docs/playwright-journeys.md).
+Checks: `npm run check` and `npm run smoke:release-package`. For GUI workflows, install the pinned browsers with `npx playwright install chromium firefox`, then run `npm run test:gui` against a configured disposable instance. [Browser setup and coverage](docs/playwright-journeys.md). For workstation checks, packaging and test deployment, use the [local CI/CD workflow](docs/local-ci-cd.md).
 
 `bin/nextcloud-background-worker.sh` runs the general Nextcloud background worker for a bounded development pass.
 

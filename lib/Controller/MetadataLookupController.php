@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OCA\Library\Controller;
 
 use OCA\Library\Service\ItemService;
+use OCA\Library\Service\GoogleBooksLookupService;
 use OCA\Library\Service\OpenLibraryLookupService;
 use OCA\Library\Service\SecurityAuditLogger;
 use OCP\AppFramework\Controller;
@@ -20,6 +21,7 @@ final class MetadataLookupController extends Controller {
         private IUserSession $session,
         private ItemService $items,
         private OpenLibraryLookupService $lookup,
+        private GoogleBooksLookupService $googleBooks,
         private SecurityAuditLogger $audit,
     ) {
         parent::__construct($appName, $request);
@@ -33,14 +35,15 @@ final class MetadataLookupController extends Controller {
             return $this->response(['error' => 'not_found'], 404);
         }
         try {
-            $results = $this->lookup->search(
+            $provider = $this->provider();
+            $results = $provider->search(
                 $userId,
                 $this->text('isbn'),
                 $this->text('title'),
                 $this->text('author'),
             );
             $this->audit->info('library.metadata_lookup.search', $userId, 'search', 'item', 'success', ['target_id' => $itemId, 'target_count' => count($results)]);
-            return $this->response(['provider' => 'Open Library', 'results' => $results]);
+            return $this->response(['provider' => $provider === $this->googleBooks ? 'Google Books' : 'Open Library', 'results' => $results]);
         } catch (\InvalidArgumentException) {
             $this->audit->warning('library.metadata_lookup.search', $userId, 'search', 'item', 'rejected', ['target_id' => $itemId, 'reason' => 'invalid_query']);
             return $this->response(['error' => 'invalid_query'], 400);
@@ -48,6 +51,7 @@ final class MetadataLookupController extends Controller {
             $this->audit->warning('library.metadata_lookup.search', $userId, 'search', 'item', 'failure', ['target_id' => $itemId, 'reason' => $error->getMessage()]);
             if ($error->getMessage() === 'rate_limited') return $this->response(['error' => 'rate_limited'], 429);
             if ($error->getMessage() === 'provider_disabled') return $this->response(['error' => 'provider_disabled'], 503);
+            if ($error->getMessage() === 'provider_unconfigured') return $this->response(['error' => 'provider_unconfigured'], 503);
             return $this->response(['error' => 'provider_unavailable'], 502);
         }
     }
@@ -60,7 +64,7 @@ final class MetadataLookupController extends Controller {
             return $this->response(['error' => 'not_found'], 404);
         }
         try {
-            $edition = $this->lookup->edition($userId, $this->text('editionId'));
+            $edition = $this->provider()->edition($userId, $this->text('editionId'));
             $this->audit->info('library.metadata_lookup.edition', $userId, 'view', 'item', 'success', ['target_id' => $itemId]);
             return $this->response($edition);
         } catch (\InvalidArgumentException) {
@@ -70,6 +74,7 @@ final class MetadataLookupController extends Controller {
             $this->audit->warning('library.metadata_lookup.edition', $userId, 'view', 'item', 'failure', ['target_id' => $itemId, 'reason' => $error->getMessage()]);
             if ($error->getMessage() === 'rate_limited') return $this->response(['error' => 'rate_limited'], 429);
             if ($error->getMessage() === 'provider_disabled') return $this->response(['error' => 'provider_disabled'], 503);
+            if ($error->getMessage() === 'provider_unconfigured') return $this->response(['error' => 'provider_unconfigured'], 503);
             return $this->response(['error' => 'provider_unavailable'], 502);
         }
     }
@@ -89,5 +94,13 @@ final class MetadataLookupController extends Controller {
             throw new \InvalidArgumentException($name);
         }
         return $value;
+    }
+
+    private function provider(): OpenLibraryLookupService|GoogleBooksLookupService {
+        return match ($this->text('provider')) {
+            '', 'openlibrary' => $this->lookup,
+            'googlebooks' => $this->googleBooks,
+            default => throw new \InvalidArgumentException('invalid_provider'),
+        };
     }
 }

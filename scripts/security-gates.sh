@@ -18,7 +18,7 @@ report_dir = root / "security-reports"
 report_dir.mkdir(exist_ok=True)
 
 skip_dirs = {
-    ".git", "node_modules", "dist", "build", ".pytest_cache", "playwright-report", "test-results", "coverage", "__pycache__"
+    ".git", ".venv", "node_modules", "dist", "build", ".pytest_cache", "playwright-report", "test-results", "coverage", "__pycache__"
 }
 skip_suffixes = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".tar", ".gz", ".zip", ".sqlite", ".db"}
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'routes' => [
         ['name' => 'thumbnail_settings#save', 'url' => '/admin/thumbnails', 'verb' => 'POST'],
+        ['name' => 'provider_settings#save', 'url' => '/admin/providers', 'verb' => 'POST'],
         ['name' => 'scan_schedule#save', 'url' => '/scan/schedule', 'verb' => 'POST'],
         ['name'=>'duplicate_suggestion#status','url'=>'/api/duplicate-suggestions','verb'=>'GET'],
         ['name'=>'duplicate_suggestion#configure','url'=>'/api/duplicate-suggestions','verb'=>'POST'],
