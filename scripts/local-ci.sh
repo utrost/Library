@@ -29,7 +29,7 @@ run_step() {
 
 # The venv and npm dependencies are local; nothing executes in GitHub Actions.
 if command -v uv >/dev/null; then
-    if [ ! -f "$root/.venv/pyvenv.cfg" ] || ! grep -q '^version = 3\.11\.' "$root/.venv/pyvenv.cfg"; then
+    if [ ! -f "$root/.venv/pyvenv.cfg" ] || ! grep -Eq '^(version|version_info) = 3\.11(\.|$)' "$root/.venv/pyvenv.cfg"; then
         uv venv --clear --python 3.11 "$root/.venv" >/dev/null
     fi
     export PATH="$root/.venv/bin:$PATH"
