@@ -3,6 +3,7 @@
 ## 0.4.0-alpha.2 — development, unreleased
 
 - Add optional Google Books volume lookup beside Open Library in Book Details. A server-side API key is required; owners explicitly choose the provider and review selected fields and ISBN/GGKEY identifiers before Save.
+- Add administrator settings for enabling metadata providers, entering or removing the Google Books API key, and following the setup steps. The stored key is never shown in the browser.
 - Keep requests account-scoped, bounded, paced and separate from scans and shared-library browsing. Goodreads and Amazon remain feasibility investigations.
 
 ## 0.4.0-alpha.1 — 2026-11-05, developer instance
