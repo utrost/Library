@@ -28,11 +28,15 @@ run_step() {
 }
 
 # The venv and npm dependencies are local; nothing executes in GitHub Actions.
-if [ ! -x "$root/.venv/bin/python" ]; then
-    python3 -m venv "$root/.venv"
+if command -v uv >/dev/null; then
+    uv venv --python 3.11 "$root/.venv" >/dev/null
+    export PATH="$root/.venv/bin:$PATH"
+    run_step python-dependencies uv pip install --python "$root/.venv/bin/python" --require-hashes -r requirements-ci.txt
+else
+    if [ ! -x "$root/.venv/bin/python" ]; then python3 -m venv "$root/.venv"; fi
+    export PATH="$root/.venv/bin:$PATH"
+    run_step python-dependencies python -m pip install --require-hashes -r requirements-ci.txt
 fi
-export PATH="$root/.venv/bin:$PATH"
-run_step python-dependencies python -m pip install --require-hashes -r requirements-ci.txt
 run_step npm-dependencies npm ci
 run_step npm-audit npm audit --audit-level=high --omit=dev
 run_step security-gates bash scripts/security-gates.sh

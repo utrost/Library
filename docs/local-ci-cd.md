@@ -1,6 +1,6 @@
 # Local CI and test deployment
 
-Run these commands on a workstation with Docker, Node 24, npm 11, Python 3, and the repository's signing certificate and private key stored outside the checkout. The commands do not start GitHub Actions. They write logs and receipts under ignored `dist/local-ci/` and keep secrets out of the archive.
+Run these commands on a workstation with Docker, Node 24, npm 11, Python 3.11 (and `uv` on Ubuntu systems without `ensurepip`), and the repository's signing certificate and private key stored outside the checkout. The commands do not start GitHub Actions. They write logs and receipts under ignored `dist/local-ci/` and keep secrets out of the archive.
 
 ## Checks
 
