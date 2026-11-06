@@ -31,6 +31,8 @@ if data.get('commit') != commit or data.get('version') != version or 'disposable
 PY
 
 if [ "$action" = package ]; then
+    test -x "$root/.venv/bin/python" || { echo 'Local Python environment missing. Run scripts/local-ci.sh full first.' >&2; exit 2; }
+    export PATH="$root/.venv/bin:$PATH"
     test -f "${NEXTCLOUD_SIGNING_PRIVATE_KEY:-}" || { echo 'Set NEXTCLOUD_SIGNING_PRIVATE_KEY to the private key file.' >&2; exit 2; }
     test -f "${NEXTCLOUD_SIGNING_CERTIFICATE:-}" || { echo 'Set NEXTCLOUD_SIGNING_CERTIFICATE to the certificate file.' >&2; exit 2; }
     NEXTCLOUD_CONTAINER="$container" npm run package:release -- --signed
