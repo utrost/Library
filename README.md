@@ -83,6 +83,8 @@ Install `dist/library-<version>.tar.gz` with the archive commands above. Verify 
 
 Checks: `npm run check` and `npm run smoke:release-package`. For GUI workflows, install the pinned browsers with `npx playwright install chromium firefox`, then run `npm run test:gui` against a configured disposable instance. [Browser setup and coverage](docs/playwright-journeys.md).
 
+For workstation-only CI, signed packaging and test-instance deployment, use the [local CI/CD workflow](docs/local-ci-cd.md). It records checks for an exact commit and keeps the disposable GUI package separate from the deployable archive.
+
 `bin/nextcloud-background-worker.sh` runs the general Nextcloud background worker for a bounded development pass.
 
 ## What's next
