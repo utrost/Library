@@ -2,9 +2,11 @@
 
 **Current stable release: 0.3.0.** The accepted RC3 functionality is unchanged. The exact signed package passed NC33–35 certification and is published in the App Store Stable channel; see the [release verification record](release-verification.md).
 
-Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical; 0.3.0 is now installed on the developer instance.
+**Developer instance: signed 0.4.0-alpha.1.** Google Books support is prepared on the alpha.2 development branch and is not deployed or published.
 
-Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; 0.3.0 is now installed on the developer instance.
+Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical; those features are retained in stable 0.3.0.
+
+Prior checkpoint: alpha.32 introduced the first UI consistency pass. Its verification record is retained as historical evidence; those features are retained in stable 0.3.0.
 
 Alpha.31 introduced confirmed book-file deletion with shared-OPF protection and empty-folder cleanup, retained in alpha.32. Historical verification: alpha.31 record.
 
@@ -12,13 +14,13 @@ Alpha.30 adds a shared compact browser for Authors, Series and Genres, with disp
 
 Alpha.29 fixes selective content-search performance and surname searches in the **Author** filter. See the search verification record. The alpha.29 search verification is historical and remains covered by alpha.30 regression checks; that search change required no migration.
 
-Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the alpha.28 verification record. The alpha.28 deployment is historical; 0.3.0 is now installed on the developer instance.
+Alpha.28 adds direct destination-author typeahead for merge/reassign, starting after three letters and offering creation after an empty search. See the alpha.28 verification record. The alpha.28 deployment is historical; those features are retained in stable 0.3.0.
 
 Pre-release architecture: [review](pre-release-architecture-review.md) and [implementation/acceptance plan](pre-release-architecture-plan.md). Account isolation, atomic editing, deletion, authority and recovery contracts, declared database engines, schema parity checks and paged change-journal processing are merged. Disposable NC34 acceptance and the nine-combination fresh database matrix passed for the earlier candidate. The signed alpha.9 fresh and upgrade matrix passed on NC33–35. The alpha.11 populated NC34 deployment is complete; owner acceptance remains.
 
 Status: **0.3.0** is available in the App Store Stable channel. The preserved private **0.2.0-beta.3** package remains an upgrade-test baseline.
 
-Last updated: 2026-11-05
+Last updated: 2026-11-06
 
 ## Product direction
 
