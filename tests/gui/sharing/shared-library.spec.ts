@@ -1,8 +1,8 @@
 import { expect, test, type Page, type TestInfo } from '@playwright/test'
 import { attachCheckpoint, requiredEnvironment } from '../fixtures/nextcloud'
 
-test.skip(!process.env.PW_RECIPIENT_USER || !process.env.PW_OUTSIDER_USER,
-  'Requires the disposable three-account sharing fixture')
+test.skip(!process.env.PW_RECIPIENT_USER || !process.env.PW_OUTSIDER_USER || !process.env.PW_OTHER_USER,
+  'Requires the disposable multi-account sharing fixture')
 
 async function loginAs(page: Page, user: string, password: string): Promise<void> {
   const response = await page.goto('/login')
@@ -50,16 +50,21 @@ async function browseSharedShelf(page: Page, testInfo: TestInfo): Promise<void> 
 
   const bookUrl = new URL(page.url())
   const grantUrl = new URL(shelfUrl!, bookUrl)
-  const outsider = await page.context().browser()!.newContext({ baseURL: bookUrl.origin })
-  try {
-    const outsiderPage = await outsider.newPage()
-    await loginAs(outsiderPage, requiredEnvironment('PW_OUTSIDER_USER'), requiredEnvironment('PW_OUTSIDER_PASSWORD'))
-    for (const url of [grantUrl.toString(), bookUrl.toString(), new URL(coverUrl!, bookUrl).toString()]) {
-      const denied = await outsiderPage.request.get(url)
-      expect(denied.status(), `outsider accessed ${new URL(url).pathname}`).toBe(404)
+  for (const [user, password] of [
+    [requiredEnvironment('PW_OUTSIDER_USER'), requiredEnvironment('PW_OUTSIDER_PASSWORD')],
+    [requiredEnvironment('PW_OTHER_USER'), requiredEnvironment('PW_OTHER_PASSWORD')],
+  ]) {
+    const otherContext = await page.context().browser()!.newContext({ baseURL: bookUrl.origin })
+    try {
+      const otherPage = await otherContext.newPage()
+      await loginAs(otherPage, user, password)
+      for (const url of [grantUrl.toString(), bookUrl.toString(), new URL(coverUrl!, bookUrl).toString()]) {
+        const denied = await otherPage.request.get(url)
+        expect(denied.status(), `${user} accessed ${new URL(url).pathname}`).toBe(404)
+      }
+    } finally {
+      await otherContext.close()
     }
-  } finally {
-    await outsider.close()
   }
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)
   expect(overflow).toBe(false)

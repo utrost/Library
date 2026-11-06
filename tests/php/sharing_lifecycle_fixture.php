@@ -18,6 +18,7 @@ use OCP\Share\IShare;
 
 $owner = 'library-smoke';
 $recipient = 'library-recipient';
+$otherRecipient = 'library-other';
 $mode = $argv[1] ?? '';
 $files = \OC::$server->get(IRootFolder::class)->getUserFolder($owner);
 $shares = \OC::$server->get(IManager::class);
@@ -77,6 +78,22 @@ if ($mode === 'seed') {
     $shares->acceptShare($created, $recipient);
     echo json_encode(['manualRootShare' => $created->getFullId(),
         'rootShares' => fileShares('LibraryLifecycle')], JSON_THROW_ON_ERROR), "\n";
+} elseif ($mode === 'share-other') {
+    $share = $shares->newShare();
+    $share->setShareType(IShare::TYPE_USER)->setSharedBy($owner)->setShareOwner($owner)
+        ->setSharedWith($otherRecipient)->setNode(folder('LibraryLifecycle'))
+        ->setPermissions(Constants::PERMISSION_READ)->setNote('other-files-only');
+    $created = $shares->createShare($share);
+    $shares->acceptShare($created, $otherRecipient);
+    echo json_encode(['otherFilesOnly' => $created->getFullId(),
+        'rootShares' => fileShares('LibraryLifecycle')], JSON_THROW_ON_ERROR), "\n";
+} elseif ($mode === 'unshare-other') {
+    foreach ($shares->getSharesBy($owner, IShare::TYPE_USER, folder('LibraryLifecycle'), false, 100, 0, false) as $share) {
+        if ($share->getSharedWith() === $otherRecipient) {
+            $shares->deleteShare($share);
+        }
+    }
+    echo json_encode(['rootShares' => fileShares('LibraryLifecycle')], JSON_THROW_ON_ERROR), "\n";
 } elseif ($mode === 'unshare-root') {
     foreach ($shares->getSharesBy($owner, IShare::TYPE_USER, folder('LibraryLifecycle'), false, 100, 0, false) as $share) {
         if ($share->getSharedWith() === $recipient) {

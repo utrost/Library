@@ -1,13 +1,13 @@
 # Read-only sharing acceptance checkpoint — 2026-11-06
 
-This is a focused source-build checkpoint for the 0.4 development branch, not signed-package certification. It uses disposable loopback-only Nextcloud instances, two synthetic users and one outsider. No personal library was accessed or changed.
+This is a focused source-build checkpoint for the 0.4 development branch, not signed-package certification. It uses disposable loopback-only Nextcloud instances: an owner, recipient, outsider and a second Files recipient without a Library grant. No personal library was accessed or changed.
 
 ## Results
 
 | Check | Result |
 | --- | --- |
 | NC34 recipient browse and canonical-author search | Passed in desktop Chromium, desktop Firefox and mobile Chromium (3 Playwright cases) |
-| NC34 cover access | HTTP 200 for recipient, `private, no-store`; HTTP 404 for outsider |
+| NC34 cover access | HTTP 200 for recipient, `private, no-store`; HTTP 404 for outsider and Files-only second recipient |
 | NC34 owner revoke and regrant | Passed in desktop Chromium; existing manual Files share remained |
 | NC34 Files share removal | Passed in desktop Chromium; recipient shelf disappeared and shelf, book and cover URLs returned HTTP 404 |
 | NC33, NC34, NC35 lifecycle fixture | Passed on each version: no grant without accepted read-only Files access; grant, search, Files-share removal, restore, revoke, disable and uninstall; manual Files shares remained |
