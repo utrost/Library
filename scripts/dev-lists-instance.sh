@@ -8,6 +8,8 @@ work_dir="${LIBRARY_LISTS_WORK_DIR:-/tmp/library-lists-dev}"
 mkdir -p "$work_dir"
 env_file="$work_dir/$nc_version.env"
 action="${1:-start}"
+database="${LIBRARY_LISTS_DATABASE:-sqlite}"
+[[ "$database" == sqlite || "$database" == mysql ]] || { echo 'Supported fixture databases: sqlite, mysql' >&2; exit 2; }
 
 owned_instance() {
   [[ "$(docker inspect --format '{{index .Config.Labels "library.disposable"}}' "$instance" 2>/dev/null)" == personal-lists ]]
@@ -39,14 +41,32 @@ case "$action" in
       owned_instance || { echo 'Container name already in use' >&2; exit 1; }
       echo "already_running=$instance environment=$env_file"; exit 0
     fi
-    docker run --rm -d --label library.disposable=personal-lists --name "$instance" -p 127.0.0.1::80 "nextcloud:$nc_version-apache" >/dev/null
+    network_args=()
+    if [[ "$database" == mysql ]]; then
+      docker network create --label library.disposable=personal-lists "$instance-net" >/dev/null
+      docker run --rm -d --label library.disposable=personal-lists --name "$instance-db" --network "$instance-net" --network-alias db \
+        -e MARIADB_RANDOM_ROOT_PASSWORD=yes -e MARIADB_DATABASE=nextcloud -e MARIADB_USER=library \
+        -e MARIADB_PASSWORD=Disposable-database-2026 mariadb:11 >/dev/null
+      db_ready=0
+      for _ in $(seq 1 120); do
+        if docker exec "$instance-db" healthcheck.sh --connect --innodb_initialized >/dev/null 2>&1; then db_ready=1; break; fi
+        sleep 1
+      done
+      [[ "$db_ready" == 1 ]] || { echo 'Fixture database initialization timed out' >&2; exit 1; }
+      network_args=(--network "$instance-net")
+    fi
+    docker run --rm -d --label library.disposable=personal-lists --name "$instance" "${network_args[@]}" -p 127.0.0.1::80 "nextcloud:$nc_version-apache" >/dev/null
     ready=0
     for _ in $(seq 1 120); do
       if docker exec "$instance" test -f /var/www/html/version.php >/dev/null 2>&1; then ready=1; break; fi
       sleep 1
     done
     [[ "$ready" == 1 ]] || { echo 'Instance initialization timed out' >&2; exit 1; }
-    docker exec -u www-data "$instance" php occ maintenance:install --database sqlite --admin-user library-smoke --admin-pass 'Disposable-lists-2026' --data-dir /var/www/html/data
+    db_args=(--database sqlite)
+    if [[ "$database" == mysql ]]; then
+      db_args=(--database mysql --database-host db --database-name nextcloud --database-user library --database-pass Disposable-database-2026)
+    fi
+    docker exec -u www-data "$instance" php occ maintenance:install "${db_args[@]}" --admin-user library-smoke --admin-pass 'Disposable-lists-2026' --data-dir /var/www/html/data
     port=$(docker port "$instance" 80/tcp | sed 's/.*://')
     docker exec -u www-data "$instance" php occ config:system:set trusted_domains 1 --value="127.0.0.1:$port" >/dev/null
     docker exec -u www-data "$instance" php occ config:system:set overwrite.cli.url --value="http://127.0.0.1:$port" >/dev/null
@@ -90,8 +110,16 @@ case "$action" in
     PLAYWRIGHT_HTML_OUTPUT_DIR="$work_dir/reports/$nc_version" npx playwright test tests/gui/lists/personal-lists.spec.ts --output="$work_dir/results/$nc_version"
     ;;
   stop)
-    owned_instance || { echo 'Refusing to remove an instance without the personal-lists label' >&2; exit 1; }
-    docker rm -f -v "$instance" >/dev/null
+    if docker inspect "$instance" >/dev/null 2>&1; then
+      owned_instance || { echo 'Refusing to remove an instance without the personal-lists label' >&2; exit 1; }
+      docker rm -f -v "$instance" >/dev/null
+    fi
+    if [[ "$(docker inspect --format '{{index .Config.Labels "library.disposable"}}' "$instance-db" 2>/dev/null || true)" == personal-lists ]]; then
+      docker rm -f -v "$instance-db" >/dev/null
+    fi
+    if [[ "$(docker network inspect --format '{{index .Labels "library.disposable"}}' "$instance-net" 2>/dev/null || true)" == personal-lists ]]; then
+      docker network rm "$instance-net" >/dev/null
+    fi
     rm -f "$env_file"
     ;;
   *) echo 'Usage: dev-lists-instance.sh start|deploy|test|stop' >&2; exit 2 ;;

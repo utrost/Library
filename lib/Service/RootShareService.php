@@ -740,7 +740,8 @@ final class RootShareService {
     }
 
     private function withGrantLock(string $owner, int $rootId, string $recipient, callable $operation): mixed {
-        $key = 'library/root-share/' . hash('sha256', $owner . "\0" . $rootId . "\0" . $recipient);
+        // DBLockingProvider stores keys in VARCHAR(64); include the namespace in the hash.
+        $key = hash('sha256', 'library/root-share/' . $owner . "\0" . $rootId . "\0" . $recipient);
         $this->locks->acquireLock($key, ILockingProvider::LOCK_EXCLUSIVE);
         try {
             return $operation();
@@ -802,7 +803,7 @@ final class RootShareService {
 
     /** Serialize the Files grant lifecycle with path, disable and delete changes. */
     public function withRootLock(string $owner, int $rootId, callable $operation): mixed {
-        $key = 'library/root-share-root/' . hash('sha256', $owner . "\0" . $rootId);
+        $key = hash('sha256', 'library/root-share-root/' . $owner . "\0" . $rootId);
         $this->locks->acquireLock($key, ILockingProvider::LOCK_EXCLUSIVE);
         try {
             return $operation();
