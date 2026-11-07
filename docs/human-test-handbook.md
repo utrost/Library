@@ -2,7 +2,8 @@
 
 ## Development: selected-book metadata lookup
 
-Available in the alpha.4 development package. See the
+Alpha.4 is installed on developer NC34. See the
+[installed verification record](bulk-metadata-lookup-verification.md#signed-alpha4-installed-checkpoint) and the
 [workflow and limitations](bulk-metadata-lookup.md). On a disposable catalogue,
 select two books and open **Find book details**; repeat from a personal list.
 Verify the default is **Fill missing fields**, providers reflect configuration,
