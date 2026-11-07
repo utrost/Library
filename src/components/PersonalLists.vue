@@ -12,7 +12,8 @@ import { detailsUrlWithReturn } from '../details-return.js'
 
 const props = defineProps({ requestToken: { type: String, default: '' }, catalogueUrl: { type: String, required: true }, listsUrl: { type: String, required: true } })
 function detailsLink(url) { return detailsUrlWithReturn(url, props.catalogueUrl, window.location.href) }
-const emit = defineEmits(['changed'])
+const emit = defineEmits(['changed', 'lookup'])
+const lookupIds = ref([])
 const lists = ref([])
 const detail = ref(null)
 const busy = ref(false)
@@ -37,6 +38,7 @@ async function load(page = 1, preserveDraft = editing.value) {
   try {
     if (selectedListId.value) {
       detail.value = await listRequest(`/${selectedListId.value}?page=${page}`)
+      lookupIds.value = []
       const url = new URL(location.href)
       if (page > 1) url.searchParams.set('listPage', String(page))
       else url.searchParams.delete('listPage')
@@ -143,9 +145,14 @@ onMounted(async () => {
       </div>
 
       <p v-if="detail.total === 0 && !busy" class="library-lists-empty">{{ t('library', 'This list is empty. Select books in the catalogue and choose Add to list.') }}</p>
+      <div v-if="detail.entries.some(entry => entry.book)" class="library-list-actions">
+        <label><input type="checkbox" :disabled="!canChange || editing" :checked="lookupIds.length > 0 && lookupIds.length === detail.entries.filter(entry => entry.book).length" @change="lookupIds = $event.target.checked ? detail.entries.filter(entry => entry.book).map(entry => Number(entry.book.id)) : []">{{ t('library', 'Select all') }}</label>
+        <button type="button" :disabled="!canChange || editing || !lookupIds.length" @click="emit('lookup', lookupIds)">{{ t('library', 'Find book details') }}</button>
+      </div>
       <ol class="library-list-entries" :start="(detail.page - 1) * 25 + 1">
         <li v-for="entry in detail.entries" :id="`library-list-entry-${entry.id}`" :key="entry.id" class="library-list-entry" tabindex="-1" @dragover.prevent @drop.prevent="drop(entry.id)">
           <div class="library-list-entry-heading">
+            <input v-if="entry.book" v-model="lookupIds" type="checkbox" :value="Number(entry.book.id)" :disabled="!canChange || editing" :aria-label="t('library', 'Select {title}', { title: entry.book.title })">
             <span class="library-list-drag" :draggable="canChange" :title="t('library', 'Drag to reorder, or use Move up and Move down')" aria-hidden="true" @dragstart="startDrag($event, entry)" @dragend="dragged = null">⠿</span>
             <a v-if="entry.book" :href="detailsLink(entry.book.detailsUrl)" :aria-label="entry.book.title"><img :src="entry.book.coverUrl" alt="" width="48" height="64" loading="lazy"></a>
             <div class="library-list-book">

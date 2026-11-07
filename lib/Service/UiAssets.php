@@ -6,7 +6,7 @@ use OCP\Util;
 
 final class UiAssets {
     public static function maintenance(): void {
-        Util::addStyle('library', 'library-vue-0-4-0-alpha-3-compact-list-table-cover-96-fit-v8');
-        Util::addScript('library', 'library-main-0-4-0-alpha-3-compact-list-table-cover-96-fit-v8');
+        Util::addStyle('library', 'library-vue-0-4-0-alpha-4-compact-list-table-cover-96-fit-v8');
+        Util::addScript('library', 'library-main-0-4-0-alpha-4-compact-list-table-cover-96-fit-v8');
     }
 }

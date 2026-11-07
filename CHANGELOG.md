@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0-alpha.4 — development
+
+- Add explicit background lookup for up to 50 selected owned books, with catalogue and personal-list entry points, provider selection and a missing-fields default.
+- Persist edition review and field choices; support per-book and selected-book Apply, partial conflicts, source receipts and conditional Undo.
+- Add bounded retries, worker leases, pause/resume/cancel, account-scoped history and 30-day retention through an additive migration.
+- Add focused disposable SQLite/MariaDB and desktop/mobile browser checks. Large-catalogue acceptance and broader provider checks remain pending.
+
 ## 0.4.0-alpha.3 — development
 
 - Add selected-book sharing for a fixed list of up to 100 books without granting folder-wide Files access. Review exact titles and paths before confirming.

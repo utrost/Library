@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.4 development source tree**, 2026-11-06. Covers 44 app-owned tables through `Version000400Date20261106190000`. The 0.4 migrations add root-scoped named-user grants, selected-book Library-only snapshots, and a global external-lookup pacing slot. They have not yet passed the exact-package multi-version and physical-schema checks required before release. The 0.3 schema passed NC33–35 certification across SQLite, MariaDB and PostgreSQL; see the release record.
+Snapshot: **0.4 development source tree**, 2026-11-07. Covers 45 app-owned tables through `Version000400Date20261107120000`. The 0.4 migrations add root-scoped named-user grants, selected-book Library-only snapshots, durable selected-book lookup runs, and a global external-lookup pacing slot. They have not yet passed the exact-package multi-version and physical-schema checks required before release. The 0.3 schema passed NC33–35 certification across SQLite, MariaDB and PostgreSQL; see the release record.
 
 ## Schema ownership
 
@@ -47,6 +47,7 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 | `library_item_search_grams` | 4 | 3 | Materialized substring-search keys. |
 | `library_lists` | 7 | 2 | Private list owners, names, descriptions and revision tokens. |
 | `library_list_entries` | 7 | 3 | List membership, source file IDs, order and private book notes. |
+| `library_lookup_jobs` | 9 | 4 | Private selected-book lookup runs, worker leases, review choices and conditional Undo receipts; 30-day retention. |
 | `library_inference_batches` | 6 | 3 | Prepared/applied review snapshots and conditional Undo history. |
 | `library_infer_jobs` | 12 | 3 | Frozen whole-folder rule definitions, scope, progress and expiry. |
 | `library_infer_results` | 5 | 3 | Saved per-book extraction proposals and review status. |
@@ -122,3 +123,7 @@ A reviewed book with the same incoming credit hash stays synchronized without ch
 ## Author directory ordering (alpha.30)
 
 `Version000300Date20261020120000` adds `library_authors_display` on `(user_id, merged_into, display_name, id)`. Active authors use this index for displayed-name ordering in either direction. The existing surname index remains. Preview queries read at most three distinct item IDs per displayed author using `library_author_books`, then join owned items/files in one batch. No identities or book metadata are rewritten. Rollback to alpha.29 can leave this additive index in place.
+
+### Bulk lookup development migration
+
+`Version000400Date20261107120000` adds `library_lookup_jobs` without changing existing book rows. Re-running the migration is safe. An application rollback must stop the new worker; retaining the additive table preserves outstanding review receipts. A database restore is required to restore already changed book values after their receipts expire. See [bulk lookup](bulk-metadata-lookup.md).

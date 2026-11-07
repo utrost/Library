@@ -477,7 +477,7 @@ final class ItemService {
         $this->refreshItemSearchIndex($userId, $itemId);
     }
 
-    public function updateItem(string $userId, int $itemId, array $metadata, ?string $expectedRevision = null, ?array $editorLinks = null): void {
+    public function updateItem(string $userId, int $itemId, array $metadata, ?string $expectedRevision = null, ?array $editorLinks = null, ?array $acceptedSources = null): void {
         $explicitAuthors = array_key_exists('authors', $metadata);
         $metadata = $this->validateEditableMetadata($metadata);
         $hasIdentifierUpdate = array_key_exists('identifiers', $metadata);
@@ -532,7 +532,7 @@ final class ItemService {
             $userEdited = $existing['userEdited'] || $changedFields !== [];
             $protected = $existing['userEdited'] && $protected === null ? null : array_values(array_unique(array_merge($protected ?? [], $changedFields)));
             $existingProvenance = $this->existingFieldProvenance($userId, $itemId);
-            foreach ($changedFields as $field) if ($field !== 'identifiers') $existingProvenance['fieldSources'][$field] = 'user';
+            foreach ($changedFields as $field) if ($field !== 'identifiers') $existingProvenance['fieldSources'][$field] = $acceptedSources[$field] ?? 'user';
 
             $qb = $this->db->getQueryBuilder();
             $qb->update('library_items')
