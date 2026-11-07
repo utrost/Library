@@ -234,7 +234,7 @@ final class RootShareController extends Controller {
                 ['Cache-Control' => 'private, no-store']);
         }
         // Download rather than hand off to Files: the recipient has no Files mount in Library-only mode.
-        return new SharedBookDownloadResponse($lease);
+        return new SharedBookDownloadResponse($lease, $this->request);
     }
 
     #[NoAdminRequired]

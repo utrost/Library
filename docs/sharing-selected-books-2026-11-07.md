@@ -1,6 +1,6 @@
 # Selected-book sharing checkpoint — 2026-11-07
 
-This is a focused source-build checkpoint for the 0.4 development branch. All checks ran locally against disposable accounts and synthetic files. GitHub Actions, full CI and the full release gate were not run. The installed developer build remains alpha.2; this feature requires a subsequent versioned deployment that runs the additive migration.
+This is a focused source-build checkpoint for the 0.4 development branch. All checks ran locally against disposable accounts and synthetic files. GitHub Actions, full CI and the full release gate were not run. This source checkpoint preceded the versioned alpha.3 deployment; see the [alpha.3 upgrade and performance record](sharing-alpha3-verification.md) for subsequent signed-package and deployment evidence.
 
 ## Delivered
 

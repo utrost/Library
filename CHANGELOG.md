@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0-alpha.3 — development
+
+- Add selected-book sharing for a fixed list of up to 100 books without granting folder-wide Files access. Review exact titles and paths before confirming.
+- Protect downloads and covers with current grant checks, source identity checks and shared file locks. Existing Files-backed shares retain their behavior.
+- Handle single-byte download ranges explicitly, including suffix ranges, unsatisfiable ranges and stale If-Range requests, without buffering large files.
+- Keep sharing lock keys within Nextcloud's 64-character database limit so repeated grants and revocation work on MariaDB.
+- Add populated MariaDB upgrade, large-catalogue and streaming checks; keep verification local for this development deployment.
+
 ## 0.4.0-alpha.2 — development, unreleased
 
 - Add optional Google Books volume lookup beside Open Library in Book Details. A server-side API key is required; owners explicitly choose the provider and review selected fields and ISBN/GGKEY identifiers before Save.

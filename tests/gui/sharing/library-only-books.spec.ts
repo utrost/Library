@@ -15,16 +15,19 @@ async function login(page: Page, user: string, password: string): Promise<void> 
 }
 
 async function selectedBooksJourney(page: Page, browser: Browser, testInfo: TestInfo): Promise<void> {
+  const otherUser = requiredEnvironment('PW_OTHER_USER')
+  const escapedOtherUser = otherUser.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const removeAccess = new RegExp(`Remove access for.*${escapedOtherUser}.*Lifecycle fixture`)
   await login(page, requiredEnvironment('PW_USER'), requiredEnvironment('PW_PASSWORD'))
   await page.goto('/apps/library/shares')
-  const previous = page.getByRole('button', { name: /Remove access for.*library-other.*Lifecycle fixture/ })
+  const previous = page.getByRole('button', { name: removeAccess })
   if (await previous.count()) await previous.click()
   await page.getByRole('combobox', { name: 'Access' }).selectOption('library_only')
   await expect(page.getByRole('combobox', { name: 'Books to share' })).toBeVisible()
   await page.getByRole('combobox', { name: 'Books to share' }).selectOption({ label: 'One selected fixture book (1)' })
   const picker = page.getByRole('combobox', { name: 'Nextcloud user' })
-  await picker.fill('library-other')
-  await page.getByRole('option', { name: /library-other/ }).click()
+  await picker.fill(otherUser)
+  await page.getByRole('option', { name: new RegExp(escapedOtherUser) }).click()
   await page.getByRole('button', { name: 'Review sharing' }).click()
   await expect(page.getByText('Selected books only, without a Nextcloud Files share')).toBeVisible()
   await expect(page.getByText('One selected fixture book')).toBeVisible()
@@ -60,11 +63,20 @@ async function selectedBooksJourney(page: Page, browser: Browser, testInfo: Test
     expect(response.headers()['content-disposition']).toContain('attachment')
     expect(response.headers()['cache-control']).toContain('no-store')
     expect((await response.body()).subarray(0, 4).toString()).toBe('%PDF')
-    // Nextcloud's streaming output handles ranges after the app has authorized this request.
+    // Range and conditional requests must authorize before exposing any source bytes.
     const ranged = await recipient.request.get(contentUrl!, { headers: { Range: 'bytes=0-3' } })
     expect(ranged.status()).toBe(206)
     expect(ranged.headers()['content-range']).toMatch(/^bytes 0-3\/\d+$/)
     expect((await ranged.body()).toString()).toBe('%PDF')
+    const suffix = await recipient.request.get(contentUrl!, { headers: { Range: 'bytes=-4' } })
+    expect(suffix.status()).toBe(206)
+    expect(await suffix.body()).toEqual((await response.body()).subarray(-4))
+    const impossible = await recipient.request.get(contentUrl!, { headers: { Range: 'bytes=9999999999-' } })
+    expect(impossible.status()).toBe(416)
+    expect(impossible.headers()['content-range']).toMatch(/^bytes \*\/\d+$/)
+    const staleRange = await recipient.request.get(contentUrl!, { headers: { Range: 'bytes=0-3', 'If-Range': '"stale-fixture"' } })
+    expect(staleRange.status()).toBe(200)
+    expect(await staleRange.body()).toEqual(await response.body())
     const etag = response.headers().etag
     expect(etag).toBeTruthy()
     const conditional = await recipient.request.get(contentUrl!, { headers: { 'If-None-Match': etag } })
@@ -82,7 +94,7 @@ async function selectedBooksJourney(page: Page, browser: Browser, testInfo: Test
     for (const deniedUrl of [shelfUrl, contentUrl!, coverUrl!]) {
       expect((await outsider.request.get(deniedUrl)).status()).toBe(404)
     }
-    await page.getByRole('button', { name: /Remove access for.*library-other.*Lifecycle fixture/ }).click()
+    await page.getByRole('button', { name: removeAccess }).click()
     await expect(page.getByRole('status')).toContainText('Library access was removed')
     expect((await recipient.request.get(contentUrl!, { headers: { Range: 'bytes=0-3' } })).status()).toBe(404)
     expect((await recipient.request.get(contentUrl!, { headers: { 'If-None-Match': etag } })).status()).toBe(404)
