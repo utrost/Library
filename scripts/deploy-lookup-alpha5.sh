@@ -116,7 +116,7 @@ sha256sum "$backup/database.sql" > "$backup/database.sql.sha256"
 docker cp "$archive" "$app:/tmp/library-alpha5-deploy.tar.gz" >/dev/null
 changed=true
 docker exec "$app" sh -eu -c 'rm -rf /var/www/html/custom_apps/library; tar -xzf /tmp/library-alpha5-deploy.tar.gz -C /var/www/html/custom_apps; chown -R www-data:www-data /var/www/html/custom_apps/library'
-occ upgrade
+if [[ "$from_version" != 0.4.0-alpha.5 ]]; then occ upgrade; fi
 occ maintenance:mode --on
 docker restart -t 60 "$app" >/dev/null
 [[ "$(occ config:app:get library installed_version)" == 0.4.0-alpha.5 ]]
