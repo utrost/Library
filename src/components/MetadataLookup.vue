@@ -28,7 +28,7 @@ let requestController = null
 const labels = {
   title: t('library', 'Title'), subtitle: t('library', 'Subtitle'),
   publisher: t('library', 'Publisher'), publicationDate: t('library', 'Publication date'),
-  description: t('library', 'Description'), subjects: t('library', 'Subjects'),
+  description: t('library', 'Description'), subjects: t('library', 'Subjects'), language: t('library', 'Language'),
 }
 watch(() => props.item.id, () => {
   generation += 1
@@ -161,6 +161,7 @@ function stage() {
       <div v-if="edition" class="library-metadata-lookup-review">
         <h3>{{ t('library', 'Selected edition') }} · {{ edition.editionId }}</h3>
         <p>{{ t('library', 'Compare this edition with your current book details. Select only fields you want to stage.') }} <a :href="edition.url" target="_blank" rel="noopener noreferrer">{{ t('library', 'View source at {provider}', { provider: providerName }) }}</a></p>
+        <p v-if="edition.languages?.length && !edition.fields.language">{{ t('library', 'Unrecognized language evidence. Review it manually; no language change is offered.') }}</p>
         <p class="library-muted">{{ [edition.isbn?.length ? `ISBN ${edition.isbn.join(', ')}` : '', edition.languages?.length ? `${t('library', 'Language')}: ${edition.languages.join(', ')}` : ''].filter(Boolean).join(' · ') }}</p>
         <p v-if="!fields.length" role="status">{{ t('library', 'This edition has no different supported details to suggest.') }}</p>
         <div v-for="row in fields" :key="row.key" class="library-metadata-lookup-field"><label><input v-model="selectedFields" type="checkbox" :value="row.key" :disabled="disabled"><strong>{{ row.label }}<template v-if="row.key.startsWith('isbn:') || row.key.startsWith('ggkey:')"> {{ row.suggested }}</template></strong></label><div><small>{{ t('library', 'Current draft') }}</small><p>{{ row.current || '—' }}</p></div><div><small>{{ t('library', 'Suggested') }}</small><p>{{ row.suggested }}</p></div></div>

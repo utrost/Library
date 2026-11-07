@@ -9,7 +9,7 @@ use OCA\Library\Exception\MetadataConflictException;
 
 /** Provider I/O happens outside transactions. Every review/apply transition locks its run. */
 final class MetadataBatchService {
-    public const FIELDS = ['title','subtitle','publisher','publicationDate','description','subjects','isbn','ggkey'];
+    public const FIELDS = ['title','subtitle','publisher','publicationDate','description','subjects','language','isbn','ggkey'];
     public function __construct(
         private IDBConnection $db, private ItemService $items, private InferenceBatchService $snapshots,
         private OpenLibraryLookupService $openLibrary, private GoogleBooksLookupService $googleBooks,
@@ -44,8 +44,10 @@ final class MetadataBatchService {
                     return $this->present($existing);
                 }
             }
-            $history = $this->history($uid);
-            if (count($history)>=20 || count(array_filter($history,static fn($job)=>in_array($job['status'],['running','paused'],true)))>=2) throw new \DomainException('job_limit');
+            $q=$this->db->getQueryBuilder();
+            $r=$q->select('status')->from('library_lookup_jobs')->where($q->expr()->eq('user_id',$q->createNamedParameter($uid)))->andWhere($q->expr()->gt('expires_at',$q->createNamedParameter(time())))->executeQuery();
+            $history=$r->fetchAll(); $r->closeCursor();
+            if (count($history)>=100 || count(array_filter($history,static fn($job)=>$job['status']!=='archived'))>=20 || count(array_filter($history,static fn($job)=>in_array($job['status'],['running','paused'],true)))>=2) throw new \DomainException('job_limit');
             $rows = [];
             foreach (array_values(array_unique($ids)) as $id) {
                 $item = $this->items->findItem($uid,$id) ?? throw new \OutOfBoundsException('not_found');
@@ -55,13 +57,13 @@ final class MetadataBatchService {
                     if ($identifier['scheme']==='isbn' && ($identifier['valid'] ?? false)) { $isbn=$identifier['displayValue']; break; }
                 }
                 $rows[] = ['id'=>$id, 'title'=>$item['title'], 'revision'=>$item['metadataRevision'], 'file'=>$snapshot['file'],
-                    'before'=>array_intersect_key($item,array_flip(array_merge(self::FIELDS,['identifiers']))),
+                    'before'=>array_intersect_key($item,array_flip(array_merge(self::FIELDS,['identifiers','language']))),
                     'query'=>['isbn'=>$isbn,'title'=>mb_substr($item['title'],0,200),'author'=>mb_substr($item['canonicalAuthors'][0]['name'] ?? $item['authors'][0] ?? '',0,200)],
-                    'status'=>'queued','phase'=>'search','attempts'=>0,'retryAt'=>0,'results'=>[],'selected'=>[]];
+                    'provider'=>$provider,'reviewVersion'=>0,'status'=>'queued','phase'=>'search','attempts'=>0,'retryAt'=>0,'results'=>[],'selected'=>[]];
             }
             $id=$requestId ?? bin2hex(random_bytes(16));
             $job=['id'=>$id,'user_id'=>$uid,'status'=>'running','created_at'=>time(),'expires_at'=>time()+2592000,'wake_at'=>0,'lease_until'=>0,'lease_token'=>'',
-                'payload'=>['provider'=>$provider,'fields'=>array_values(array_unique($fields)),'policy'=>$policy,'rows'=>$rows]];
+                'payload'=>['provider'=>$provider,'fields'=>array_values(array_unique($fields)),'policy'=>$policy,'suggestionsExpireAt'=>time()+2592000,'rows'=>$rows]];
             $qb=$this->db->getQueryBuilder();
             $values=[];
             foreach ($job as $key=>$value) $values[$key]=$qb->createNamedParameter($key==='payload' ? json_encode($value,JSON_THROW_ON_ERROR) : $value);
@@ -72,14 +74,15 @@ final class MetadataBatchService {
     }
 
     public function history(string $uid): array {
+        $this->expire();
         $q=$this->db->getQueryBuilder();
         $r=$q->select('id','status','created_at','expires_at')->from('library_lookup_jobs')
             ->where($q->expr()->eq('user_id',$q->createNamedParameter($uid)))
             ->andWhere($q->expr()->gt('expires_at',$q->createNamedParameter(time())))
-            ->orderBy('created_at','DESC')->addOrderBy('id','DESC')->setMaxResults(20)->executeQuery();
+            ->orderBy('created_at','DESC')->addOrderBy('id','DESC')->setMaxResults(100)->executeQuery();
         $rows=$r->fetchAll(); $r->closeCursor(); return $rows;
     }
-    public function get(string $uid,string $id): array { return $this->present($this->read($uid,$id)); }
+    public function get(string $uid,string $id): array { $this->expire(); return $this->present($this->read($uid,$id)); }
 
     /** One claimed row per step; a crashed worker's lease can be reclaimed. */
     public function advance(): bool {
@@ -106,32 +109,35 @@ final class MetadataBatchService {
         });
         if (!$work) return false;
         [$job,$index,$row]=$work;
-        $result=null; $error=null;
+        $result=null; $error=null; $retryAfter=0;
         try {
             $this->assertCurrent($job['user_id'],$row);
-            $provider=$job['payload']['provider']==='googlebooks' ? $this->googleBooks : $this->openLibrary;
+            $provider=($row['provider'] ?? $job['payload']['provider'])==='googlebooks' ? $this->googleBooks : $this->openLibrary;
             $result=$row['phase']==='search'
                 ? $provider->search($job['user_id'],$row['query']['isbn'],$row['query']['title'],$row['query']['author'])
                 : $provider->edition($job['user_id'],$row['editionId']);
         } catch (\Throwable $e) {
+            $retryAfter=$e instanceof \OCA\Library\Exception\MetadataProviderRetryException ? $e->retryAfter : 0;
             $error=$e instanceof MetadataConflictException ? 'stale_book' : ($e instanceof \OutOfBoundsException ? 'unavailable' :
                 (in_array($e->getMessage(),['rate_limited','provider_disabled','provider_unconfigured','invalid_query'],true) ? $e->getMessage() : 'provider_unavailable'));
         }
         // Token comparison prevents a timed-out worker from overwriting its replacement or user decision.
-        try { $this->transaction(function() use($job,$index,$result,$error) {
+        try { $this->transaction(function() use($job,$index,$result,$error,$retryAfter,$row) {
             $live=$this->read($job['user_id'],$job['id'],true);
             if (!hash_equals($live['lease_token'],$job['lease_token'])) return;
+            $version=(int)($row['reviewVersion'] ?? 0);
             $row=&$live['payload']['rows'][$index];
-            if ($row['status']==='working') {
+            if ($row['status']==='working' && (int)($row['reviewVersion'] ?? 0)===$version) {
                 if ($error!==null) {
                     $retry=in_array($error,['rate_limited','provider_unavailable'],true) && $row['attempts']<4;
                     $row['status']=$retry ? 'queued' : 'failed'; $row['error']=$error;
-                    $row['retryAt']=time()+min(300,15*(2**$row['attempts']));
+                    $row['retryAt']=time()+max($retryAfter,min(300,15*(2**$row['attempts'])));
                 } elseif ($row['phase']==='search') {
                     $row['results']=$result; $row['status']=$result ? 'matches' : 'no_match'; unset($row['error']);
                 } else {
                     $row['edition']=$result; $row['status']='ready'; $row['selected']=[]; unset($row['error']);
                 }
+                $row['reviewVersion']=(int)($row['reviewVersion'] ?? 0)+1;
             }
             unset($row); $live['lease_until']=0; $live['lease_token']='';
             $this->schedule($live); $this->save($live);
@@ -140,12 +146,25 @@ final class MetadataBatchService {
     }
 
     public function control(string $uid,string $id,string $action): array {
+        $this->expire();
         return $this->transaction(function() use($uid,$id,$action) {
             $job=$this->read($uid,$id,true);
-            if ($action==='delete') {
+            if ($action==='delete' && $this->archiveReceipts($job)) {
+                $this->save($job); return ['deleted'=>true,'receiptsRetained'=>true];
+            }
+            if ($action==='delete' || ($action==='delete_receipts' && $job['status']==='archived')) {
                 $this->db->executeStatement('DELETE FROM *PREFIX*library_lookup_jobs WHERE id=? AND user_id=?',[$id,$uid]);
                 return ['deleted'=>true];
             }
+            if ($action==='select_missing') {
+                if ($job['status']==='archived') throw new \DomainException('invalid_transition');
+                foreach ($job['payload']['rows'] as &$row) {
+                    $eligible=$this->strongMissingFields($job,$row);
+                    if ($eligible) { $row['selected']=array_values(array_unique(array_merge($row['selected'],$eligible))); $row['reviewVersion']=(int)($row['reviewVersion'] ?? 0)+1; }
+                }
+                unset($row); $this->save($job); return $this->present($job);
+            }
+            if ($job['status']==='archived') throw new \DomainException('invalid_transition');
             if (!in_array($action,['pause','resume','cancel'],true) || ($job['status']==='cancelled' && $action!=='cancel')) throw new \DomainException('invalid_transition');
             $job['status']=match($action) {'pause'=>'paused','cancel'=>'cancelled',default=>'running'};
             // An authorized in-flight request may finish; cancelling never starts another.
@@ -155,15 +174,20 @@ final class MetadataBatchService {
     }
 
     public function review(string $uid,string $id,int $itemId,string $action,array $data): array {
+        $this->expire();
         try { return $this->transaction(function() use($uid,$id,$itemId,$action,$data) {
             $job=$this->read($uid,$id,true);
             $index=array_search($itemId,array_column($job['payload']['rows'],'id'),true);
             if ($index===false) throw new \OutOfBoundsException('not_found');
             $row=&$job['payload']['rows'][$index];
+            if (($action==='apply' && $row['status']==='applied') || ($action==='undo' && $row['status']==='undone')) return $this->present($job);
+            if (($data['reviewVersion'] ?? 0)!==(int)($row['reviewVersion'] ?? 0)) throw new \DomainException('review_changed');
+            if ($job['status']==='archived' && $action!=='undo') throw new \DomainException('invalid_transition');
             unset($row['applyError']);
             if ($action==='undo') {
                 if ($row['status']==='undone') return $this->present($job);
                 if ($row['status']!=='applied') throw new \DomainException('invalid_transition');
+                if (($row['receipt']['expiresAt'] ?? $row['receipt']['appliedAt']+7776000)<=time()) throw new \DomainException('receipt_expired');
                 $this->assertCurrent($uid,$row,$row['receipt']['afterRevision'],true);
                 $this->items->updateItem($uid,$itemId,$row['receipt']['before'],$row['receipt']['afterRevision'],null,$row['receipt']['beforeSources']);
                 $row['status']='undone'; $row['receipt']['undoneAt']=time();
@@ -182,11 +206,11 @@ final class MetadataBatchService {
                     } else { $changes[$field]=$row['edition']['fields'][$field]; $before[$field]=$current[$field] ?? null; }
                 }
                 // Nested writer transaction participates in this outer transaction, including receipt commit.
-                $sources=array_fill_keys(array_keys($changes),'provider:'.$job['payload']['provider']);
+                $sources=array_fill_keys(array_keys($changes),'provider:'.($row['provider'] ?? $job['payload']['provider']));
                 $this->items->updateItem($uid,$itemId,$changes,$row['revision'],null,$sources);
                 $after=$this->items->findItem($uid,$itemId);
-                $row['receipt']=['version'=>1,'provider'=>$job['payload']['provider'],'editionId'=>$row['editionId'],
-                    'url'=>$row['edition']['url'] ?? '', 'appliedAt'=>time(),'before'=>$before,
+                $row['receipt']=['version'=>1,'provider'=>$row['provider'] ?? $job['payload']['provider'],'editionId'=>$row['editionId'],
+                    'url'=>$row['edition']['url'] ?? '', 'appliedAt'=>time(),'expiresAt'=>time()+7776000,'before'=>$before,
                     'beforeSources'=>array_intersect_key($current['fieldSources'] ?? [],$changes),
                     'after'=>array_intersect_key($after,$changes),'afterRevision'=>$after['metadataRevision']];
                 $row['status']='applied';
@@ -205,11 +229,21 @@ final class MetadataBatchService {
                 $this->assertCurrent($uid,$row);
                 $row['editionId']=$data['editionId']; $row['phase']='edition'; $row['status']='queued'; $row['attempts']=0; $row['retryAt']=0;
                 unset($row['edition']); $row['selected']=[]; $job['status']='running';
+            } elseif ($action==='search') {
+                if (in_array($row['status'],['applied','undone'],true) || in_array($job['status'],['cancelled','paused'],true)) throw new \DomainException('resume_required');
+                $provider=$data['provider'] ?? '';
+                if (!in_array($provider,$this->options($uid)['providers'],true)) throw new \InvalidArgumentException('invalid_provider');
+                $query=$this->query($data);
+                $this->assertCurrent($uid,$row);
+                $row['provider']=$provider; $row['query']=$query; $row['phase']='search';
+                $row['results']=[]; $row['selected']=[]; unset($row['edition'],$row['editionId'],$row['error']);
+                $row['status']='queued'; $row['attempts']=0; $row['retryAt']=0; $job['status']='running';
             } elseif ($action==='retry') {
-                if (!in_array($row['status'],['failed','no_match','skipped'],true) || $job['status']==='cancelled') throw new \DomainException('invalid_transition');
+                if (!in_array($row['status'],['failed','no_match','skipped'],true) || in_array($job['status'],['cancelled','paused'],true)) throw new \DomainException('invalid_transition');
                 $this->assertCurrent($uid,$row);
                 $row['status']='queued'; $row['attempts']=0; $row['retryAt']=0; unset($row['error']); $job['status']='running';
             } else throw new \InvalidArgumentException('invalid_action');
+            $row['reviewVersion']=(int)($row['reviewVersion'] ?? 0)+1;
             unset($row); $this->schedule($job); $this->save($job); return $this->present($job);
         }); } catch (\Throwable $error) {
             if (in_array($action,['apply','undo'],true)) {
@@ -224,11 +258,22 @@ final class MetadataBatchService {
     }
 
     /** Each book commits separately, so a stale row cannot roll back other approvals. */
-    public function applySelected(string $uid,string $id): array {
+    public function applySelected(string $uid,string $id,?array $selection=null): array {
+        $this->expire();
         $job=$this->read($uid,$id); $outcomes=[];
+        if ($selection!==null) {
+            if (!array_is_list($selection) || count($selection)>50) throw new \InvalidArgumentException('invalid_selection');
+            $versions=[];
+            foreach ($selection as $chosen) {
+                if (!is_array($chosen) || !is_int($chosen['id'] ?? null) || !is_int($chosen['reviewVersion'] ?? null) || isset($versions[$chosen['id']])) throw new \InvalidArgumentException('invalid_selection');
+                $versions[$chosen['id']]=$chosen['reviewVersion'];
+            }
+        }
         foreach ($job['payload']['rows'] as $row) {
+            if ($selection!==null && !array_key_exists($row['id'],$versions)) continue;
+            if ($selection!==null && $versions[$row['id']]!==(int)($row['reviewVersion'] ?? 0)) { $outcomes[]=['id'=>$row['id'],'status'=>'conflict']; continue; }
             if ($row['status']!=='ready' || !$row['selected']) continue;
-            try { $this->review($uid,$id,$row['id'],'apply',[]); $outcomes[]=['id'=>$row['id'],'status'=>'applied']; }
+            try { $this->review($uid,$id,$row['id'],'apply',['reviewVersion'=>(int)($row['reviewVersion'] ?? 0)]); $outcomes[]=['id'=>$row['id'],'status'=>'applied']; }
             catch (MetadataConflictException|\OutOfBoundsException|\DomainException $e) { $outcomes[]=['id'=>$row['id'],'status'=>'conflict']; }
             catch (\Throwable) { $outcomes[]=['id'=>$row['id'],'status'=>'failed']; }
         }
@@ -246,6 +291,7 @@ final class MetadataBatchService {
         $values=$row['edition']['fields'] ?? [];
         foreach (['isbn','ggkey'] as $scheme) $values[$scheme]=$this->identifierValues($row,$scheme);
         foreach ($values as $key=>$value) {
+            if ($key==='ggkey' && ($row['provider'] ?? $job['payload']['provider'])!=='googlebooks') continue;
             if (!in_array($key,$job['payload']['fields'],true) || $this->emptyValue($value) || $value===$this->fieldValue($row['before'],$key)) continue;
             if ($job['payload']['policy']==='missing' && !$this->emptyValue($this->fieldValue($row['before'],$key))) continue;
             $proposals[]=['key'=>$key,'before'=>$this->fieldValue($row['before'],$key),'after'=>$value];
@@ -273,18 +319,22 @@ final class MetadataBatchService {
     private function present(array $job): array {
         $data=$job['payload'];
         foreach ($data['rows'] as &$row) {
+            $row['provider']=$row['provider'] ?? $job['payload']['provider'];
+            $row['reviewVersion']=(int)($row['reviewVersion'] ?? 0);
             $row['proposals']=$this->proposals($job,$row);
-            unset($row['file'],$row['revision'],$row['before'],$row['query']);
+            $row['strongMissingFields']=$this->strongMissingFields($job,$row);
+            unset($row['file'],$row['revision'],$row['before']);
         }
         unset($row);
         return ['id'=>$job['id'],'status'=>$job['status'],'expiresAt'=>(int)$job['expires_at']]+$data;
     }
-    private function read(string $uid,string $id,bool $lock=false): array {
+    private function read(string $uid,string $id,bool $lock=false,bool $includeExpired=false): array {
         if (preg_match('/^[a-f0-9]{32}$/D',$id)!==1) throw new \OutOfBoundsException('not_found');
         if ($lock && $this->db->getDatabaseProvider()==='sqlite') $this->db->executeStatement('UPDATE *PREFIX*library_lookup_jobs SET id=id WHERE id=? AND user_id=?',[$id,$uid]);
         $q=$this->db->getQueryBuilder();
         $q->select('*')->from('library_lookup_jobs')->where($q->expr()->eq('id',$q->createNamedParameter($id)))
-            ->andWhere($q->expr()->eq('user_id',$q->createNamedParameter($uid)))->andWhere($q->expr()->gt('expires_at',$q->createNamedParameter(time())));
+            ->andWhere($q->expr()->eq('user_id',$q->createNamedParameter($uid)));
+        if (!$includeExpired) $q->andWhere($q->expr()->gt('expires_at',$q->createNamedParameter(time())));
         if ($lock && $this->db->getDatabaseProvider()!=='sqlite') $q->forUpdate();
         $r=$q->executeQuery(); $job=$r->fetch(); $r->closeCursor();
         if (!$job) throw new \OutOfBoundsException('not_found');
@@ -292,7 +342,7 @@ final class MetadataBatchService {
     }
     private function save(array $job): void {
         $q=$this->db->getQueryBuilder(); $q->update('library_lookup_jobs');
-        foreach (['status','payload','wake_at','lease_until','lease_token'] as $key) $q->set($key,$q->createNamedParameter($key==='payload' ? json_encode($job[$key],JSON_THROW_ON_ERROR) : $job[$key]));
+        foreach (['status','payload','wake_at','lease_until','lease_token','expires_at'] as $key) $q->set($key,$q->createNamedParameter($key==='payload' ? json_encode($job[$key],JSON_THROW_ON_ERROR) : $job[$key]));
         $q->where($q->expr()->eq('id',$q->createNamedParameter($job['id'])))->andWhere($q->expr()->eq('user_id',$q->createNamedParameter($job['user_id'])))->executeStatement();
     }
     private function transaction(callable $work): mixed {
@@ -300,7 +350,72 @@ final class MetadataBatchService {
         try { $result=$work(); $this->db->commit(); return $result; }
         catch (\Throwable $e) { $this->db->rollBack(); throw $e; }
     }
+    private function query(array $data): array {
+        $query=[];
+        foreach (['isbn'=>50,'title'=>200,'author'=>200] as $key=>$max) {
+            $value=$data[$key] ?? '';
+            if (!is_string($value) || !mb_check_encoding($value,'UTF-8') || mb_strlen($value)>$max || preg_match('/[\p{Cc}]/u',$value)) throw new \InvalidArgumentException('invalid_query');
+            $query[$key]=trim($value);
+        }
+        if ($query['isbn']!=='') {
+            $isbn=IdentifierService::normalizeIdentifier('isbn',$query['isbn']);
+            if ($isbn===null || !$isbn['valid']) throw new \InvalidArgumentException('invalid_query');
+            $query['isbn']=$isbn['normalizedValue'];
+        } elseif (mb_strlen($query['title'])<3) throw new \InvalidArgumentException('invalid_query');
+        return $query;
+    }
+
+    /** Deliberately narrow: one ISBN result, matching saved title/author and no known edition conflicts. */
+    private function strongMissingFields(array $job,array $row): array {
+        if ($row['status']!=='ready' || count($row['results'])!==1) return [];
+        $match=$row['results'][0];
+        if (($match['match'] ?? '')!=='isbn' || ($match['editionId'] ?? '')!==($row['editionId'] ?? '')) return [];
+        $isbn=IdentifierService::normalizeIdentifier('isbn',$row['query']['isbn'] ?? '');
+        if ($isbn===null || !$isbn['valid']) return [];
+        $matches=static function(array $values) use($isbn): bool {
+            foreach ($values as $value) { $other=IdentifierService::normalizeIdentifier('isbn',$value); if ($other!==null && $other['valid'] && $other['normalizedValue']===$isbn['normalizedValue']) return true; }
+            return false;
+        };
+        if (!$matches($match['isbn'] ?? []) || !$matches($row['edition']['isbn'] ?? [])) return [];
+        $fold=static fn(string $value): string => mb_strtolower(trim(preg_replace('/[^\p{L}\p{N}]+/u',' ',$value) ?? ''));
+        $title=$fold($row['before']['title'] ?? ''); $author=$fold($row['query']['author'] ?? '');
+        if ($title==='' || $title!==$fold($match['title'] ?? '') || $author==='' || !in_array($author,array_map($fold,$match['authors'] ?? []),true)) return [];
+        if (isset($row['edition']['fields']['title']) && $title!==$fold($row['edition']['fields']['title'])) return [];
+        $year=substr($row['before']['publicationDate'] ?? '',0,4);
+        if ($year!=='' && ($year!==substr($match['year'] ?? '',0,4) || $year!==substr($row['edition']['fields']['publicationDate'] ?? '',0,4))) return [];
+        // A saved language needs explicit edition review; no guessing between translations.
+        if (!$this->emptyValue($row['before']['language'] ?? '')) return [];
+        return array_column(array_filter($this->proposals($job,$row),fn($proposal)=>$this->emptyValue($proposal['before'])),'key');
+    }
+
+    /** Keep only applied-change evidence and source identity needed for conditional Undo. */
+    private function archiveReceipts(array &$job): bool {
+        $rows=[]; $expires=0;
+        foreach ($job['payload']['rows'] as $row) {
+            if (!isset($row['receipt'])) continue;
+            $until=$row['receipt']['expiresAt'] ?? $row['receipt']['appliedAt']+7776000;
+            if ($until<=time()) continue;
+            $row=array_intersect_key($row,array_flip(['id','title','file','revision','provider','reviewVersion','status','receipt']));
+            $row['before']=$row['receipt']['before']; $row['selected']=[]; $row['results']=[];
+            $row['reviewVersion']=(int)($row['reviewVersion'] ?? 0)+1;
+            $rows[]=$row; $expires=$expires===0 ? $until : min($expires,$until);
+        }
+        if (!$rows) return false;
+        $job['payload']['rows']=$rows; $job['status']='archived'; $job['expires_at']=$expires;
+        $job['lease_until']=0; $job['lease_token']='';
+        return true;
+    }
+
     private function expire(): void {
-        $q=$this->db->getQueryBuilder(); $q->delete('library_lookup_jobs')->where($q->expr()->lte('expires_at',$q->createNamedParameter(time())))->executeStatement();
+        // Only due jobs are read; never scan catalogue rows or deserialize every owner's history.
+        $q=$this->db->getQueryBuilder();
+        $r=$q->select('id','user_id')->from('library_lookup_jobs')->where($q->expr()->lte('expires_at',$q->createNamedParameter(time())))->orderBy('expires_at')->setMaxResults(100)->executeQuery();
+        $due=$r->fetchAll(); $r->closeCursor();
+        foreach ($due as $candidate) { try { $this->transaction(function() use($candidate) {
+            $job=$this->read($candidate['user_id'],$candidate['id'],true,true);
+            if ((int)$job['expires_at']>time()) return;
+            if ($this->archiveReceipts($job)) $this->save($job);
+            else $this->db->executeStatement('DELETE FROM *PREFIX*library_lookup_jobs WHERE id=? AND user_id=?',[$job['id'],$job['user_id']]);
+        }); } catch (\OutOfBoundsException) { /* Another worker already removed this expired run. */ } }
     }
 }

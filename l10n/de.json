@@ -1565,7 +1565,6 @@
         "Choose a match": "Treffer auswählen",
         "Choose a provider": "Anbieter auswählen",
         "Delete lookup": "Suche löschen",
-        "Delete this lookup and its Undo receipts? Applied metadata stays in your books.": "Diese Suche und ihre Wiederherstellungsbelege löschen? Übernommene Metadaten bleiben in den Büchern.",
         "Edition matches": "Passende Ausgaben",
         "Fields to look up": "Zu suchende Felder",
         "Fill missing fields": "Fehlende Felder ergänzen",
@@ -1576,7 +1575,6 @@
         "Google Books needs a server API key.": "Google Books benötigt einen API-Schlüssel auf dem Server.",
         "Lookup progress": "Suchfortschritt",
         "Lookup queued. Background processing depends on your server’s cron schedule. You can leave and return here.": "Suche eingereiht. Die Hintergrundverarbeitung richtet sich nach dem Zeitplan des Servers. Diese Seite kann verlassen und später wieder geöffnet werden.",
-        "Lookups and Undo receipts expire 30 days after creation. Applied book metadata is retained.": "Suchen und Wiederherstellungsbelege laufen 30 Tage nach Erstellung ab. Übernommene Buchmetadaten bleiben erhalten.",
         "No changes for the selected fields and update policy.": "Keine Änderungen für die ausgewählten Felder und die gewählte Aktualisierungsregel.",
         "No matches": "Keine Treffer",
         "No metadata provider is available. Check Library settings.": "Kein Metadatenanbieter verfügbar. Einstellungen von Library prüfen.",
@@ -1587,7 +1585,6 @@
         "Ready to review": "Bereit zur Prüfung",
         "Recent lookups": "Letzte Suchen",
         "Resume": "Fortsetzen",
-        "Resume this lookup before requesting another edition.": "Diese Suche fortsetzen, bevor eine weitere Ausgabe angefordert wird.",
         "Review editions carefully: an ISBN match alone does not guarantee the correct edition. Cancel stops new work; an in-flight request may finish. Completed suggestions remain available.": "Ausgaben sorgfältig prüfen: Eine passende ISBN allein garantiert nicht die richtige Ausgabe. Abbrechen verhindert neue Anfragen; eine laufende Anfrage kann noch abgeschlossen werden. Fertige Vorschläge bleiben verfügbar.",
         "Review replacements too": "Auch Ersetzungen prüfen",
         "Review this edition": "Diese Ausgabe prüfen",
@@ -1610,7 +1607,32 @@
             "Ausgewählte Felder in %n Buch übernehmen",
             "Ausgewählte Felder in %n Büchern übernehmen"
         ],
-        "Change receipt": "Änderungsbeleg"
+        "Change receipt": "Änderungsbeleg",
+        "An ISBN search takes precedence. Clear it to search by title and author.": "Die ISBN-Suche hat Vorrang. Leeren Sie das Feld, um nach Titel und Autor zu suchen.",
+        "Change receipts": "Änderungsnachweise",
+        "Changing this search clears its previous matches and field approvals. Other books are unchanged.": "Eine geänderte Suche entfernt die bisherigen Treffer und Feldfreigaben dieses Buchs. Andere Bücher bleiben unverändert.",
+        "Delete lookup suggestions? Applied-change receipts remain available for 90 days after application.": "Suchvorschläge löschen? Nachweise über angewendete Änderungen bleiben nach der Anwendung 90 Tage verfügbar.",
+        "Delete receipts": "Nachweise löschen",
+        "Delete these change receipts and their Undo history? Applied metadata stays in your books.": "Diese Änderungsnachweise und ihre Rückgängig-Historie löschen? Angewendete Metadaten bleiben in Ihren Büchern.",
+        "Lookup suggestions expire after 30 days. Applied-change receipts and Undo remain available for 90 days after application. Applied book metadata is retained.": "Suchvorschläge verfallen nach 30 Tagen. Änderungsnachweise und Rückgängig bleiben nach der Anwendung 90 Tage verfügbar. Angewendete Buchmetadaten bleiben erhalten.",
+        "No books match this filter.": "Keine Bücher entsprechen diesem Filter.",
+        "Ready to apply": "Bereit zur Anwendung",
+        "Refine search": "Suche anpassen",
+        "Resume a paused lookup before searching or requesting another edition. Cancelled lookups cannot restart.": "Setzen Sie eine pausierte Suche fort, bevor Sie erneut suchen oder eine andere Ausgabe anfordern. Abgebrochene Suchen können nicht neu gestartet werden.",
+        "Retry after {time}": "Erneuter Versuch nach {time}",
+        "Search queued for this book. Previous matches and approvals were cleared.": "Die Suche für dieses Buch wurde eingereiht. Bisherige Treffer und Freigaben wurden entfernt.",
+        "Search this book": "Dieses Buch suchen",
+        "Select missing fields from strong matches": "Fehlende Felder aus eindeutigen Treffern auswählen",
+        "Show books": "Bücher anzeigen",
+        "Suggestions have been removed. Change receipts remain available; Undo still protects later edits.": "Vorschläge wurden entfernt. Änderungsnachweise bleiben verfügbar; Rückgängig schützt weiterhin spätere Bearbeitungen.",
+        "This review changed in another tab. Reload the lookup before approving fields.": "Diese Prüfung wurde in einer anderen Registerkarte geändert. Laden Sie die Suche neu, bevor Sie Felder freigeben.",
+        "Unrecognized language evidence. Review it manually; no language change is offered.": "Unbekannte Sprachangabe. Prüfen Sie diese manuell; es wird keine Sprachänderung angeboten.",
+        "Across all filters": "Über alle Filter hinweg",
+        "_%n field selected_::_%n fields selected_": [
+            "%n Feld ausgewählt",
+            "%n Felder ausgewählt"
+        ],
+        "Applying reviewed changes: {done} of {total} books": "Geprüfte Änderungen werden angewendet: {done} von {total} Büchern"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

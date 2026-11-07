@@ -26,3 +26,15 @@ worker leases, retention, atomic receipts and remaining acceptance work. Earlier
 statements above about no batch caller and no receipts describe the single-book
 slice; they still apply to single-book staging. This addition does not enable
 passive, scheduled or scan-triggered provider queries.
+
+
+## Unreleased follow-up: normalized languages and bulk review
+
+The initial slice above describes deployed alpha.4 and earlier behavior. Current
+unreleased source adds normalized language proposals in both lookup interfaces;
+raw evidence remains visible and unsupported codes cannot be selected. Batch
+changes have source-aware receipts and conditional Undo with independent receipt
+retention. One-book staging still awaits provenance/Undo parity under #185.
+See [bulk workflow](bulk-metadata-lookup.md) and
+[focused verification](bulk-metadata-lookup-refinements.md). Provider covers and
+full provider-policy/release acceptance remain open.

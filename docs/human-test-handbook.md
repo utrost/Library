@@ -16,6 +16,30 @@ and check the retention explanation. Check 51-book rejection, keyboard focus,
 long descriptions, mobile wrapping, dark mode and RTL. Use synthetic books only.
 
 
+### Unreleased lookup refinements
+
+These checks target current source, **not the installed alpha.4 package**.
+
+- Refine one row’s title/author/ISBN and switch an enabled provider; check no
+  request until Search, old approvals cleared only for that row, and stale-tab
+  Apply rejected. Cancel the inline form and verify its approvals survive.
+- Change status filters. Book/field selection counts cover all filters. Apply
+  eleven selected synthetic books: two requests (ten plus one), visible progress,
+  durable outcomes, no redirect. Interrupt/fail a request and refresh before retry.
+- Choose an exact-ISBN edition with matching title/author; select missing fields
+  using the shortcut. Ambiguous editions, replacements and conflicting language
+  evidence must remain unselected. Selection alone must not edit a book.
+- Compare raw language evidence with normalized suggestions in one-book and batch
+  review. Check aliases, regional codes, multiple languages and an unknown code.
+  Existing language sets survive Fill missing fields; explicitly approved language
+  replacement remains reversible until a later edit.
+- Delete lookup suggestions after Apply; reopen the retained receipt and Undo.
+  Delete receipts only after the separate confirmation. Test expiry using the
+  disposable backend fixture, never by changing the developer instance’s clock.
+- Check keyboard focus after Apply, mobile refinement form wrapping, source links,
+  retry timing, and readable light/dark states. Manual assistive technology and
+  linguistic review remain human acceptance work.
+
 **Current acceptance target: 0.3.0.** The signed stable archive, checksum and certification are recorded in the [release verification record](release-verification.md). Earlier RC checksums and results do not certify 0.3.0.
 
 ### 0.4 provider lookup preview

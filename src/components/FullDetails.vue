@@ -477,7 +477,7 @@ function discardBookChanges() {
 
 function stageLookup(fields) {
   for (const [key, value] of Object.entries(fields)) {
-    if (['title', 'subtitle', 'publisher', 'publicationDate', 'description', 'subjects'].includes(key)) draft[key] = value
+    if (['title', 'subtitle', 'publisher', 'publicationDate', 'description', 'subjects', 'language'].includes(key)) draft[key] = value
   }
   if (Array.isArray(fields.isbn)) {
     const known = new Set((draft.identifiers || []).filter(row => row.scheme === 'isbn').map(row => String(row.displayValue || '').replace(/[\s-]/g, '').toUpperCase()))

@@ -1565,7 +1565,6 @@
         "Choose a match": "Choose a match",
         "Choose a provider": "Choose a provider",
         "Delete lookup": "Delete lookup",
-        "Delete this lookup and its Undo receipts? Applied metadata stays in your books.": "Delete this lookup and its Undo receipts? Applied metadata stays in your books.",
         "Edition matches": "Edition matches",
         "Fields to look up": "Fields to look up",
         "Fill missing fields": "Fill missing fields",
@@ -1576,7 +1575,6 @@
         "Google Books needs a server API key.": "Google Books needs a server API key.",
         "Lookup progress": "Lookup progress",
         "Lookup queued. Background processing depends on your server’s cron schedule. You can leave and return here.": "Lookup queued. Background processing depends on your server’s cron schedule. You can leave and return here.",
-        "Lookups and Undo receipts expire 30 days after creation. Applied book metadata is retained.": "Lookups and Undo receipts expire 30 days after creation. Applied book metadata is retained.",
         "No changes for the selected fields and update policy.": "No changes for the selected fields and update policy.",
         "No matches": "No matches",
         "No metadata provider is available. Check Library settings.": "No metadata provider is available. Check Library settings.",
@@ -1587,7 +1585,6 @@
         "Ready to review": "Ready to review",
         "Recent lookups": "Recent lookups",
         "Resume": "Resume",
-        "Resume this lookup before requesting another edition.": "Resume this lookup before requesting another edition.",
         "Review editions carefully: an ISBN match alone does not guarantee the correct edition. Cancel stops new work; an in-flight request may finish. Completed suggestions remain available.": "Review editions carefully: an ISBN match alone does not guarantee the correct edition. Cancel stops new work; an in-flight request may finish. Completed suggestions remain available.",
         "Review replacements too": "Review replacements too",
         "Review this edition": "Review this edition",
@@ -1610,7 +1607,32 @@
             "Apply selected fields in %n book",
             "Apply selected fields in %n books"
         ],
-        "Change receipt": "Change receipt"
+        "Change receipt": "Change receipt",
+        "An ISBN search takes precedence. Clear it to search by title and author.": "An ISBN search takes precedence. Clear it to search by title and author.",
+        "Change receipts": "Change receipts",
+        "Changing this search clears its previous matches and field approvals. Other books are unchanged.": "Changing this search clears its previous matches and field approvals. Other books are unchanged.",
+        "Delete lookup suggestions? Applied-change receipts remain available for 90 days after application.": "Delete lookup suggestions? Applied-change receipts remain available for 90 days after application.",
+        "Delete receipts": "Delete receipts",
+        "Delete these change receipts and their Undo history? Applied metadata stays in your books.": "Delete these change receipts and their Undo history? Applied metadata stays in your books.",
+        "Lookup suggestions expire after 30 days. Applied-change receipts and Undo remain available for 90 days after application. Applied book metadata is retained.": "Lookup suggestions expire after 30 days. Applied-change receipts and Undo remain available for 90 days after application. Applied book metadata is retained.",
+        "No books match this filter.": "No books match this filter.",
+        "Ready to apply": "Ready to apply",
+        "Refine search": "Refine search",
+        "Resume a paused lookup before searching or requesting another edition. Cancelled lookups cannot restart.": "Resume a paused lookup before searching or requesting another edition. Cancelled lookups cannot restart.",
+        "Retry after {time}": "Retry after {time}",
+        "Search queued for this book. Previous matches and approvals were cleared.": "Search queued for this book. Previous matches and approvals were cleared.",
+        "Search this book": "Search this book",
+        "Select missing fields from strong matches": "Select missing fields from strong matches",
+        "Show books": "Show books",
+        "Suggestions have been removed. Change receipts remain available; Undo still protects later edits.": "Suggestions have been removed. Change receipts remain available; Undo still protects later edits.",
+        "This review changed in another tab. Reload the lookup before approving fields.": "This review changed in another tab. Reload the lookup before approving fields.",
+        "Unrecognized language evidence. Review it manually; no language change is offered.": "Unrecognized language evidence. Review it manually; no language change is offered.",
+        "Across all filters": "Across all filters",
+        "_%n field selected_::_%n fields selected_": [
+            "%n field selected",
+            "%n fields selected"
+        ],
+        "Applying reviewed changes: {done} of {total} books": "Applying reviewed changes: {done} of {total} books"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }
