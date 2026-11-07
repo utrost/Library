@@ -63,4 +63,19 @@ export function mountMaintenance() {
     recipientField.closest('label').hidden = true
     mount.hidden = false
   }
+  for (const form of document.querySelectorAll('form.library-shared-form')) {
+    const mode = form.querySelector('[data-library-share-mode]')
+    const list = form.querySelector('[data-library-share-list]')
+    const label = form.querySelector('[data-library-share-list-label]')
+    const help = form.querySelector('[data-library-share-list-help]')
+    if (!mode || !list || !label || !help) continue
+    const update = () => {
+      const selected = mode.value === 'library_only'
+      label.hidden = !selected
+      help.hidden = !selected
+      list.required = selected
+    }
+    mode.addEventListener('change', update)
+    update()
+  }
 }

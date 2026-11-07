@@ -17,4 +17,4 @@ Run the complete disposable browser check with `NC_VERSIONS=34.0.4 bash scripts/
 
 ## Still open
 
-The tests do not establish a signed-package result, SQL-engine matrix, 100k-book shared-listing latency, restricted sharing policies, account deletion, root moves or legacy managed-share recovery. Human review of dark theme, long labels, assistive technology and real reader handoff remains pending. The current product requires a separate accepted read-only Files share; it does not create one.
+The tests do not establish a signed-package result, SQL-engine matrix, 100k-book shared-listing latency, restricted sharing policies, account deletion, root moves or legacy managed-share recovery. Human review of dark theme, long labels, assistive technology and real reader handoff remains pending. At this checkpoint, sharing required a separate accepted read-only Files share. The subsequent [selected-book checkpoint](sharing-selected-books-2026-11-07.md) adds a separate Library-only mode.

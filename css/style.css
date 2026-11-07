@@ -2524,7 +2524,8 @@
 .library-shared-detail-cover { width: 120px; height: 180px; object-fit: cover; border-radius: 6px; background: var(--color-background-dark); }
 .library-shared-detail > div { flex: 1 1 18rem; min-width: 0; }
 .library-shared-facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .35rem 1rem; }
+.library-shared-facts dt, .library-shared-facts dd { float: none; width: auto; min-height: 0; margin: 0; padding: 0; text-align: start; }
 .library-shared-facts dt { font-weight: 600; }
-.library-shared-facts dd { margin: 0; overflow-wrap: anywhere; }
+.library-shared-facts dd { overflow-wrap: anywhere; }
 .library-shared-description { white-space: pre-wrap; overflow-wrap: anywhere; margin: 1rem 0; }
 @media (max-width: 600px) { .library-shared-facts { grid-template-columns: 1fr; gap: .1rem; } .library-shared-facts dd { margin-bottom: .5rem; } }

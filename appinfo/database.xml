@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- Schema reference for the 0.4 development branch, through Version000400Date20261105093000.
+<!-- Schema reference for the 0.4 development branch, through Version000400Date20261106190000.
      lib/Migration is authoritative for installation and upgrades; see docs/database-schema.md. -->
 <database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/database.xsd">
@@ -12,6 +12,15 @@
         </declaration>
     </table>
     <table>
+        <name>*dbprefix*library_share_books</name>
+        <declaration>
+            <field><name>grant_id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
+            <field><name>item_id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
+            <field><name>file_id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
+            <index><name>library_share_books_pk</name><primary>true</primary><unique>true</unique><field><name>grant_id</name></field><field><name>item_id</name></field></index>
+        </declaration>
+    </table>
+    <table>
         <name>*dbprefix*library_root_shares</name>
         <declaration>
             <field><name>id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull><autoincrement>true</autoincrement></field>
@@ -21,6 +30,8 @@
             <field><name>root_file_id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
             <field><name>managed_share_id</name><type>string</type><length>64</length><notnull>false</notnull></field>
             <field><name>recovery_token</name><type>string</type><length>32</length><notnull>false</notnull></field>
+            <field><name>access_mode</name><type>string</type><length>16</length><notnull>true</notnull><default>files</default></field>
+            <field><name>scope_name</name><type>string</type><length>120</length><notnull>false</notnull></field>
             <field><name>revoked_at</name><type>integer</type><unsigned>true</unsigned><notnull>false</notnull></field>
             <field><name>created_at</name><type>integer</type><unsigned>true</unsigned><notnull>true</notnull></field>
             <index><name>library_root_shares_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>

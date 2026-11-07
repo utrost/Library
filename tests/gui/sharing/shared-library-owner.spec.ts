@@ -10,8 +10,8 @@ test('owner can revoke and regrant without changing the Files share', async ({ p
   await page.locator('#user').fill(requiredEnvironment('PW_USER'))
   await page.locator('#password').fill(requiredEnvironment('PW_PASSWORD'))
   await Promise.all([
-    page.waitForURL((url) => !url.pathname.endsWith('/login')),
-    page.locator('button[type="submit"]').click(),
+    page.waitForURL((url) => !url.pathname.endsWith('/login'), { waitUntil: 'domcontentloaded' }),
+    page.locator('button[type="submit"]').click({ noWaitAfter: true }),
   ])
   await page.goto('/apps/library/shares')
   await expect(page.getByRole('heading', { name: 'People with access' })).toBeVisible()
@@ -28,8 +28,8 @@ test('owner can revoke and regrant without changing the Files share', async ({ p
     await recipientPage.locator('#user').fill(requiredEnvironment('PW_RECIPIENT_USER'))
     await recipientPage.locator('#password').fill(requiredEnvironment('PW_RECIPIENT_PASSWORD'))
     await Promise.all([
-      recipientPage.waitForURL((url) => !url.pathname.endsWith('/login')),
-      recipientPage.locator('button[type="submit"]').click(),
+      recipientPage.waitForURL((url) => !url.pathname.endsWith('/login'), { waitUntil: 'domcontentloaded' }),
+      recipientPage.locator('button[type="submit"]').click({ noWaitAfter: true }),
     ])
     await recipientPage.goto('/apps/library/shares')
     await expect(recipientPage.getByText('No shared libraries yet.')).toBeVisible()
