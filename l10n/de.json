@@ -1632,7 +1632,23 @@
             "%n Feld ausgewählt",
             "%n Felder ausgewählt"
         ],
-        "Applying reviewed changes: {done} of {total} books": "Geprüfte Änderungen werden angewendet: {done} von {total} Büchern"
+        "Applying reviewed changes: {done} of {total} books": "Geprüfte Änderungen werden angewendet: {done} von {total} Büchern",
+        "Compare covers": "Cover vergleichen",
+        "Cover preview is unavailable or expired. Retry before selecting it.": "Die Cover-Vorschau ist nicht verfügbar oder abgelaufen. Vor der Auswahl erneut versuchen.",
+        "Cover replaced": "Cover ersetzt",
+        "Current cover": "Aktuelles Cover",
+        "Loading…": "Wird geladen…",
+        "Lookup change history": "Änderungsverlauf der Metadatensuche",
+        "No retained lookup changes for this book.": "Keine gespeicherten Suchänderungen für dieses Buch.",
+        "Preview cover from Open Library": "Cover von Open Library ansehen",
+        "Save or discard staged suggestions before choosing another edition.": "Vorgemerkte Vorschläge speichern oder verwerfen, bevor eine andere Ausgabe gewählt wird.",
+        "Save or discard your edits before Undo.": "Änderungen vor dem Rückgängigmachen speichern oder verwerfen.",
+        "Saving covers from Google Books is not supported.": "Das Speichern von Covern aus Google Books wird nicht unterstützt.",
+        "Suggested cover": "Vorgeschlagenes Cover",
+        "The change could not be undone. Later edits and changed files are protected.": "Die Änderung konnte nicht rückgängig gemacht werden. Spätere Bearbeitungen und geänderte Dateien sind geschützt.",
+        "The cover changes only when you apply or save. Text-only updates keep your current cover.": "Das Cover ändert sich erst beim Anwenden oder Speichern. Reine Textänderungen behalten das aktuelle Cover bei.",
+        "Use this cover, replacing the current cover if present": "Dieses Cover verwenden und ein vorhandenes Cover ersetzen",
+        "Cover storage is full. Delete older lookup receipts before retrying.": "Der Cover-Speicher ist voll. Vor dem erneuten Versuch ältere Suchbelege löschen."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

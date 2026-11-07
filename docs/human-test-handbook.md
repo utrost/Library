@@ -2,8 +2,8 @@
 
 ## Development: selected-book metadata lookup
 
-Alpha.4 is installed on developer NC34. See the
-[installed verification record](bulk-metadata-lookup-verification.md#signed-alpha4-installed-checkpoint) and the
+Alpha.5 is the current development candidate. See the
+[focused verification record](lookup-editor-covers-alpha5.md) and the
 [workflow and limitations](bulk-metadata-lookup.md). On a disposable catalogue,
 select two books and open **Find book details**; repeat from a personal list.
 Verify the default is **Fill missing fields**, providers reflect configuration,
@@ -16,9 +16,9 @@ and check the retention explanation. Check 51-book rejection, keyboard focus,
 long descriptions, mobile wrapping, dark mode and RTL. Use synthetic books only.
 
 
-### Unreleased lookup refinements
+### Alpha.5 lookup refinements
 
-These checks target current source, **not the installed alpha.4 package**.
+These checks target alpha.5; the stable App Store release remains 0.3.0.
 
 - Refine one row’s title/author/ISBN and switch an enabled provider; check no
   request until Search, old approvals cleared only for that row, and stale-tab
@@ -42,9 +42,32 @@ These checks target current source, **not the installed alpha.4 package**.
 
 **Current acceptance target: 0.3.0.** The signed stable archive, checksum and certification are recorded in the [release verification record](release-verification.md). Earlier RC checksums and results do not certify 0.3.0.
 
+### Single-book provenance and optional covers
+
+- Compare an Open Library edition in Book Details. Stage a publisher, edit the
+  description manually, then Save once. Lookup change history should attribute
+  only the accepted publisher. Undo restores it and keeps the manual description.
+- Select only one of several suggested ISBNs. Its source should identify the
+  provider; manually changed suggestions must remain user edits.
+- Choose **Preview cover from Open Library**, compare the current and suggested
+  images, and explicitly select the replacement. Staging alone changes nothing.
+  Discard preserves the current cover; Save commits approved text and cover together.
+- Repeat in bulk review with Cover enabled. Cover is never automatically checked
+  by the strong-match shortcut, even under Fill missing fields. Text-only Apply
+  must preserve a custom cover. Undo restores original cover bytes and source.
+- Edit text or replace the cover in another tab after review. Stale Apply/Undo must
+  refuse the whole operation. Expired, oversized, unsupported or unavailable
+  images must leave the book unchanged and permit retry.
+- Preview storage is private and bounded. Suggestions expire after 30 days;
+  image approval expires after 30 minutes. Retained receipts and original cover
+  backups expire 90 days after Apply. Explicit receipt deletion removes Undo.
+- Google Books text lookup remains available when configured; permanent Google
+  cover saving is unsupported pending provider-policy acceptance. No provider
+  fallback or automatic external image requests should occur.
+
 ### 0.4 provider lookup preview
 
-On an alpha.4 development build, open **Administration settings → Library → Book metadata lookup**. Confirm Open Library needs no key, Google Books shows whether a key is configured without showing it, a blank Save preserves a stored key, and explicit removal disables keyed lookup. Enter a disposable restricted key to try Google Books; never put it in screenshots or notes. Then open a disposable book's **Find book details** section. Select Open Library, search by a valid ISBN, compare an edition and stage one field, then Discard. Repeat with Google Books; check that the query is sent only after Search, the volume link identifies Google Books, and a matching ISBN is shown for an ISBN search. Select the GGKEY separately, Save on a disposable book and confirm it survives reload. Try a wrong ISBN, missing Google key, provider switch during a pending search, sparse results and provider failure; none should change saved book data. Check keyboard, mobile and screen-reader labels. These checks do not certify provider terms, attribution or the full NC33–35 matrix.
+On an alpha.5 development build, open **Administration settings → Library → Book metadata lookup**. Confirm Open Library needs no key, Google Books shows whether a key is configured without showing it, a blank Save preserves a stored key, and explicit removal disables keyed lookup. Enter a disposable restricted key to try Google Books; never put it in screenshots or notes. Then open a disposable book's **Find book details** section. Select Open Library, search by a valid ISBN, compare an edition and stage one field, then Discard. Repeat with Google Books; check that the query is sent only after Search, the volume link identifies Google Books, and a matching ISBN is shown for an ISBN search. Select the GGKEY separately, Save on a disposable book and confirm it survives reload. Try a wrong ISBN, missing Google key, provider switch during a pending search, sparse results and provider failure; none should change saved book data. Check keyboard, mobile and screen-reader labels. These checks do not certify provider terms, attribution or the full NC33–35 matrix.
 
 ### 0.4 read-only sharing preview
 

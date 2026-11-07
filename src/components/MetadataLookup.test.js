@@ -5,7 +5,7 @@ enableAutoUnmount(afterEach)
 afterEach(() => vi.unstubAllGlobals())
 const response = data => ({ ok: true, json: async () => data })
 async function compare(edition, language = '', onStage = vi.fn()) {
-  const fetch = vi.fn().mockResolvedValueOnce(response({ results: [{ editionId: 'OL1M', title: 'Example' }] })).mockResolvedValueOnce(response(edition))
+  const fetch = vi.fn().mockResolvedValueOnce(response({ results: [{ editionId: 'OL1M', title: 'Example' }] })).mockResolvedValueOnce(response({ ...edition, lookup: { jobId: 'a'.repeat(32), reviewVersion: 1 } }))
   vi.stubGlobal('fetch', fetch)
   const wrapper = mount(MetadataLookup, { attachTo: document.body, props: { onStage, item: { id: 1, title: 'Example' }, draft: { language, identifiers: [] }, baseUrl: '/apps/library', requestToken: 'fixture-token' } })
   wrapper.get('details').element.open = true
@@ -23,7 +23,7 @@ it('shows raw language evidence and normalized comparison, staging only after ap
   expect(staged).not.toHaveBeenCalled()
   await wrapper.get('input[type=checkbox]').setValue(true)
   await wrapper.findAll('button').find(button => button.text() === 'Stage selected details').trigger('click')
-  expect(staged).toHaveBeenCalledExactlyOnceWith({ language: 'de; en' })
+  expect(staged).toHaveBeenCalledExactlyOnceWith({ language: 'de; en' }, { jobId: 'a'.repeat(32), reviewVersion: 1, fields: ['language'] })
 })
 it('retains unsupported language evidence without offering an editable field', async () => {
   const staged = vi.fn()

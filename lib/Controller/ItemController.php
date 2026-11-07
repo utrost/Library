@@ -39,6 +39,7 @@ final class ItemController extends Controller {
         private IRootFolder $rootFolder,
         private ?IFactory $l10nFactory = null,
         ?SecurityAuditLogger $securityAudit = null,
+        private ?\OCA\Library\Service\MetadataBatchService $lookups = null,
     ) {
         parent::__construct($appName, $request);
         $this->securityAudit = $securityAudit;
@@ -161,7 +162,13 @@ final class ItemController extends Controller {
                     $links = json_decode($rawLinks, true);
                     if (!is_array($links) || array_is_list($links)) throw new \InvalidArgumentException('editor_links');
                 }
-                $this->itemService->updateItem($user->getUID(), $itemId, $draft, $revision, $links);
+                $rawApproval=$this->request->getParam('lookupApproval','');
+                if (!is_string($rawApproval) || strlen($rawApproval)>4096) throw new \InvalidArgumentException('lookup_approval');
+                if ($rawApproval!=='') {
+                    $approval=json_decode($rawApproval,true);
+                    if (!is_array($approval)) throw new \InvalidArgumentException('lookup_approval');
+                    ($this->lookups ?? \OC::$server->get(\OCA\Library\Service\MetadataBatchService::class))->saveEditor($user->getUID(),$itemId,$approval,$draft,$revision,$links);
+                } else $this->itemService->updateItem($user->getUID(), $itemId, $draft, $revision, $links);
             } catch (\OutOfBoundsException $e) {
                 return $metadataAutosave
                     ? new JSONResponse(['saved' => false, 'error' => 'Publication not found.'], 404, ['Cache-Control' => 'private, no-store'])
@@ -183,6 +190,8 @@ final class ItemController extends Controller {
                 ], 'user', 409);
                 $response->addHeader('Cache-Control', 'private, no-store');
                 return $response;
+            } catch (\DomainException $e) {
+                return new JSONResponse(['saved'=>false,'error'=>'The lookup approval or cover has expired. Compare the edition again before saving.'],409,['Cache-Control'=>'private, no-store']);
             } catch (\InvalidArgumentException $e) {
                 $safeError = $this->safeValidationError($e);
                 if ($metadataAutosave) {

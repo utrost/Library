@@ -24,6 +24,17 @@ final class MetadataBatchController extends Controller {
     public function review(string $id,int $itemId): JSONResponse { return $this->respond(fn($uid)=>$this->batches->review($uid,$id,$itemId,$this->text('action'),['fields'=>$this->list('fields'),'editionId'=>$this->text('editionId'),'provider'=>$this->text('provider'),'isbn'=>$this->text('isbn'),'title'=>$this->text('title',800),'author'=>$this->text('author',800),'reviewVersion'=>$this->request->getParam('reviewVersion',0)])); }
     #[NoAdminRequired]
     public function apply(string $id): JSONResponse { return $this->respond(fn($uid)=>$this->batches->applySelected($uid,$id,$this->selectedRows())); }
+    #[NoAdminRequired]
+    public function previewCover(string $id,int $itemId): JSONResponse { return $this->respond(fn($uid)=>$this->batches->fetchCover($uid,$id,$itemId,(int)$this->request->getParam('reviewVersion',-1))); }
+    #[NoAdminRequired]
+    public function coverImage(string $id,int $itemId): \OCP\AppFramework\Http\Response {
+        $uid=$this->session->getUser()?->getUID();
+        if ($uid===null) return new JSONResponse(['error'=>'not_found'],404);
+        try {
+            $image=$this->batches->coverImage($uid,$id,$itemId);
+            return new \OCP\AppFramework\Http\DataDownloadResponse($image['content'],'cover',$image['mime'],200,['Cache-Control'=>'private, no-store','X-Content-Type-Options'=>'nosniff']);
+        } catch (\Throwable) { return new JSONResponse(['error'=>'cover_unavailable'],404,['Cache-Control'=>'private, no-store']); }
+    }
     private function selectedRows(): array {
         $value=$this->request->getParam('rows',null);
         if (!is_array($value) || !array_is_list($value) || count($value)>50) throw new \InvalidArgumentException('invalid_selection');
