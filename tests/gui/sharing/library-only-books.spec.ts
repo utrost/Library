@@ -12,9 +12,13 @@ async function login(page: Page, user: string, password: string): Promise<void> 
     page.waitForURL(url => !url.pathname.endsWith('/login'), { waitUntil: 'domcontentloaded' }),
     page.locator('button[type="submit"]').click({ noWaitAfter: true }),
   ])
+  // Let the Nextcloud shell finish its lazy imports before navigating away from login.
+  await page.waitForLoadState('networkidle', { timeout: 15_000 })
 }
 
 async function selectedBooksJourney(page: Page, browser: Browser, testInfo: TestInfo): Promise<void> {
+  const pageErrors: string[] = []
+  page.on('pageerror', error => pageErrors.push(error.message))
   const otherUser = requiredEnvironment('PW_OTHER_USER')
   const escapedOtherUser = otherUser.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const removeAccess = new RegExp(`Remove access for.*${escapedOtherUser}.*Lifecycle fixture`)
@@ -43,6 +47,7 @@ async function selectedBooksJourney(page: Page, browser: Browser, testInfo: Test
   const outsiderContext = await browser.newContext({ baseURL: new URL(page.url()).origin })
   try {
     const recipient = await recipientContext.newPage()
+    recipient.on('pageerror', error => pageErrors.push(error.message))
     await login(recipient, requiredEnvironment('PW_OTHER_USER'), requiredEnvironment('PW_OTHER_PASSWORD'))
     await recipient.goto('/apps/library/shares')
     const shelf = recipient.getByRole('link', { name: 'Lifecycle fixture' })
@@ -90,6 +95,7 @@ async function selectedBooksJourney(page: Page, browser: Browser, testInfo: Test
     await attachCheckpoint(recipient, testInfo, 'library-only-book')
 
     const outsider = await outsiderContext.newPage()
+    outsider.on('pageerror', error => pageErrors.push(error.message))
     await login(outsider, requiredEnvironment('PW_OUTSIDER_USER'), requiredEnvironment('PW_OUTSIDER_PASSWORD'))
     for (const deniedUrl of [shelfUrl, contentUrl!, coverUrl!]) {
       expect((await outsider.request.get(deniedUrl)).status()).toBe(404)
@@ -104,6 +110,7 @@ async function selectedBooksJourney(page: Page, browser: Browser, testInfo: Test
     await recipientContext.close()
     await outsiderContext.close()
   }
+  expect(pageErrors).toEqual([])
 }
 
 test('owner shares selected books without Files access; recipient can download only those books', async ({ page, browser }, testInfo) => {

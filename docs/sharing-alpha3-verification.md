@@ -54,4 +54,18 @@ The installed-package browser smoke uses newly created, randomly named accounts 
 
 PostgreSQL, external/read-only mounts, broader restricted-sharing policies, manual assistive technology, dark-theme review and legacy managed-share recovery remain tracked in [#194](https://github.com/utrost/Library/issues/194), [#196](https://github.com/utrost/Library/issues/196) and [#197](https://github.com/utrost/Library/issues/197). The full NC33–35 signed release matrix is a separate release task. Library-only sharing currently offers attachment downloads without a Nextcloud reader handoff.
 
-Final signed-package identity, exact-package repetition and installed smoke results will be appended after deployment.
+## Final signed package and installed result
+
+- Package: `library-0.4.0-alpha.3.tar.gz`.
+- Built and signed from merged commit `25076884` ([PR #204](https://github.com/utrost/Library/pull/204)).
+- SHA-256: `dc636f950e3bf3622a4734b5a12442f471b2be6efb95e2204b4fb8ae005a3c31`.
+- SBOM and provenance accompany the private development artifact. Signature, package audit, module closure and frontend budget checks passed; staged frontend size is 1,080,777 bytes.
+- The exact archive passed the populated alpha.2 → alpha.3 NC34.0.4/MariaDB upgrade, schema rerun, installed integrity and all three selected-book Playwright projects.
+- Its repeated browser medians on the synthetic 100k catalogue were **597 ms listing**, **484 ms matching search** and **335 ms no-match search**. The largest observed visit was 826 ms. These remain warmed-instance measurements under the stated fixture limitations.
+- The exact archive streamed the 536,871,490-byte fixture with **6 MiB PHP peak memory**. Four-byte, 2 MiB and suffix ranges passed. Revocation denied a new request while the authorized full transfer completed. First bytes arrived within 68 ms in the two full-download samples.
+- Developer NC34.0.3 was upgraded with a private database/config/app rollback backup. Integrity passed, maintenance is off and cron resumed. Before/after fingerprints of all book/file records, lists, entries and existing grants were identical.
+- Installed-package Chromium, Firefox and mobile sharing journeys passed with page-error assertions. The live JavaScript/CSS response hashes matched the signed archive and the Vue catalogue mounted successfully. The isolated accounts/files were removed, and the same catalogue fingerprints still matched after cleanup.
+
+The first installed smoke was interrupted by Nextcloud's first-run welcome dialog. Fixture setup now records that dialog as seen **only for its newly created accounts**. A subsequent Firefox run reported a Nextcloud shell chunk-loading error; the login helper now waits for network settling before navigating away. The final complete run passed without suppressing page errors. The asset probe also uses an attached-state check for the Vue mount container rather than requiring the container itself to have a visible box.
+
+Only test/handbook refinements follow the package commit; deployed app bytes and the checksum above are unchanged. No full CI, full release gate, GitHub Actions or public release was run.

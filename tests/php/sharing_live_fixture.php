@@ -46,6 +46,8 @@ foreach ($uids as $uid) {
     file_put_contents($statePath, json_encode($state, JSON_THROW_ON_ERROR));
     \OC::$server->get(\OCP\IConfig::class)->setUserValue($uid, 'core', 'lang', 'en');
     \OC::$server->get(\OCP\IConfig::class)->setUserValue($uid, 'core', 'whatsNewLastRead', '99');
+    $version = array_slice(\OC::$server->get(\OCP\ServerVersion::class)->getVersion(), 0, 3);
+    \OC::$server->get(\OCP\Config\IUserConfig::class)->setValueString($uid, 'firstrunwizard', 'show', implode('.', $version));
 }
 $owner = $uids['owner'];
 \OC::$server->get(\OCP\IUserSession::class)->setUser($users->get($owner));
