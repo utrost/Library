@@ -12,6 +12,8 @@ onBeforeUnmount(clear)
 async function preview() {
   if (busy.value || props.disabled) return
   busy.value = true; error.value = ''; const token = ++generation
+  if (image.value) URL.revokeObjectURL(image.value)
+  image.value = ''
   try {
     const base = generateUrl(`/apps/library/api/metadata-batches/${props.jobId}/books/${props.itemId}`)
     const options = { method: 'POST', credentials: 'same-origin', cache: 'no-store', headers: { 'Content-Type': 'application/json', requesttoken: props.requestToken } }
@@ -26,7 +28,7 @@ async function preview() {
     if (token !== generation) return
     if (image.value) URL.revokeObjectURL(image.value)
     image.value = URL.createObjectURL(blob)
-  } catch (cause) { if (token === generation) error.value = cause.message || t('library', 'Cover preview is unavailable or expired. Retry before selecting it.') }
+  } catch (cause) { if (token === generation) { error.value = cause.message || t('library', 'Cover preview is unavailable or expired. Retry before selecting it.'); emit('select', false) } }
   finally { busy.value = false }
 }
 </script>
