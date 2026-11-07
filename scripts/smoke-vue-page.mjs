@@ -37,7 +37,7 @@ const user = process.env.NC_USER || 'example'
 const container = process.env.NC_CONTAINER || 'nextcloud'
 const tokenName = `library-library-vue-smoke-${Date.now()}`
 const packageVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version
-const assetVersion = `${packageVersion.replace(/[^a-zA-Z0-9]+/g, '-')}-compact-list-table-cover-96-fit-v8`
+const assetVersion = `${packageVersion.replace(/[^a-zA-Z0-9]+/g, '-')}-compact-list-table-cover-96-fit-v9`
 
 function runDocker(args) {
   return execFileSync('docker', ['exec', '-u', 'www-data', container, 'php', 'occ', ...args], {

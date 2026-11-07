@@ -55,7 +55,9 @@ python3 - "$backup/status-before.json" <<'PY'
 import json, sys
 d=json.load(open(sys.argv[1])); assert d['installed'] and not d['maintenance'] and d['version'].startswith('34.')
 PY
-[[ "$(occ config:app:get library installed_version)" == 0.4.0-alpha.4 ]]
+from_version="${LIBRARY_UPGRADE_FROM_VERSION:-0.4.0-alpha.4}"
+[[ "$from_version" == 0.4.0-alpha.4 || "$from_version" == 0.4.0-alpha.5 ]]
+[[ "$(occ config:app:get library installed_version)" == "$from_version" ]]
 [[ -z "$(occ integrity:check-app library)" ]]
 [[ "$(occ config:system:get dbtype)" == mysql ]]
 [[ "$(occ config:system:get dbname)" == "$(docker exec "$db" sh -c 'printf %s "$MYSQL_DATABASE"')" ]]

@@ -36,7 +36,7 @@ async function preview() {
     <p v-if="error" role="alert">{{ error }}</p>
     <template v-if="image">
       <div class="library-lookup-cover-pair">
-        <figure><img :src="generateUrl(`/apps/library/items/${itemId}/cover?lookup=${jobId}`)" :alt="t('library', 'Current cover')"><figcaption>{{ t('library', 'Current cover') }}</figcaption></figure>
+        <figure><img :src="generateUrl(`/apps/library/items/${itemId}/cover?refresh=1&lookup=${jobId}&review=${reviewVersion}`)" :alt="t('library', 'Current cover')"><figcaption>{{ t('library', 'Current cover') }}</figcaption></figure>
         <figure><img :src="image" :alt="t('library', 'Suggested cover')"><figcaption>{{ t('library', 'Suggested cover') }}</figcaption></figure>
       </div>
       <label><input type="checkbox" :checked="selected" :disabled="disabled || busy" @change="emit('select', $event.target.checked)">{{ t('library', 'Use this cover, replacing the current cover if present') }}</label>
