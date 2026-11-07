@@ -131,6 +131,9 @@ final class GoogleBooksLookupService {
             'description' => $this->cleanString($info['description'] ?? null, 5000),
             'subjects' => $this->boundedStrings($info['categories'] ?? null, 12, 150),
         ];
+        $languages = $this->boundedStrings(isset($info['language']) ? [$info['language']] : null, 1, 16);
+        $language = LanguageNormalizer::normalize(implode('; ', $languages));
+        if ($language !== null) $fields['language'] = $language;
         $fields = array_filter($fields, static fn ($value): bool => is_array($value) ? $value !== [] : $value !== '');
         return [
             'provider' => 'Google Books',
@@ -218,8 +221,12 @@ final class GoogleBooksLookupService {
                 'headers' => ['Accept' => 'application/json', 'X-Goog-Api-Key' => $key,
                     'User-Agent' => 'Nextcloud-Library/0.4 (+https://github.com/utrost/Library)'],
             ]);
-            if ($response->getStatusCode() === 429) {
-                throw new \RuntimeException('rate_limited');
+            if ($response->getStatusCode() === 429 || ($response->getStatusCode() === 503 && $response->getHeader('retry-after'))) {
+                $retry=\OCA\Library\Exception\MetadataProviderRetryException::fromHeader($response->getHeader('retry-after'));
+                $until=(int)floor(microtime(true)*1000)+$retry->retryAfter*1000;
+                $this->db->executeStatement('UPDATE *PREFIX*library_lookup_quota SET next_at_ms=? WHERE provider=? AND next_at_ms<?',[$until,'googlebooks',$until]);
+                $body=$response->getBody(); if (is_resource($body)) fclose($body);
+                throw $retry;
             }
             if ($response->getStatusCode() !== 200) {
                 throw new \RuntimeException('provider_unavailable');
@@ -269,6 +276,9 @@ final class GoogleBooksLookupService {
                     [$now + 1000, 'googlebooks', $now]) === 1) {
                     return;
                 }
+                $slot=$this->db->executeQuery('SELECT next_at_ms FROM *PREFIX*library_lookup_quota WHERE provider=?',['googlebooks']);
+                $next=(int)$slot->fetchOne(); $slot->closeCursor();
+                if ($next>$now+2500) throw new \OCA\Library\Exception\MetadataProviderRetryException((int)ceil(($next-$now)/1000));
                 if (!$triedInsert) {
                     $triedInsert = true;
                     try {
@@ -278,6 +288,8 @@ final class GoogleBooksLookupService {
                         // Another worker initialized the shared slot first.
                     }
                 }
+            } catch (\OCA\Library\Exception\MetadataProviderRetryException $error) {
+                throw $error;
             } catch (\Throwable $error) {
                 $dbError = $error;
             }

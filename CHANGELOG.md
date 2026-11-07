@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Add per-book query/provider refinement, review filters, selected-field counts and conservative missing-field selection to bulk metadata lookup.
+- Bind approvals to review versions, reject stale selections and submit browser bulk applies in groups of ten with progress.
+- Preserve applied-change receipts and conditional Undo for 90 days after application, independently of 30-day suggestions; allow explicit receipt deletion.
+- Honor provider Retry-After cooldowns and expose normalized language suggestions in one-book and batch review.
+- Add deterministic provider fault checks, SQLite/MariaDB integration, focused desktop/mobile journeys and a synthetic 100k-book scale fixture. No new migration or full release certification.
+
 ## 0.4.0-alpha.4 — development
 
 - Add explicit background lookup for up to 50 selected owned books, with catalogue and personal-list entry points, provider selection and a missing-fields default.

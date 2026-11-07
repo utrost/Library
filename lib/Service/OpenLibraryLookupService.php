@@ -243,6 +243,8 @@ final class OpenLibraryLookupService {
                 $languages[] = $match[1];
             }
         }
+        $language = LanguageNormalizer::normalize(implode('; ', array_slice($languages, 0, 4)));
+        if ($language !== null) $fields['language'] = $language;
         $result = ['provider' => 'Open Library', 'editionId' => $id, 'url' => self::BASE . '/books/' . $id, 'fields' => $fields,
             'isbn' => array_values($identifiers), 'languages' => array_slice($languages, 0, 4)];
         return $result;
@@ -289,8 +291,12 @@ final class OpenLibraryLookupService {
                 'stream' => true,
                 'headers' => ['Accept' => 'application/json', 'User-Agent' => 'Nextcloud-Library/0.4 (+https://github.com/utrost/Library)'],
             ]);
-            if ($response->getStatusCode() === 429) {
-                throw new \RuntimeException('rate_limited');
+            if ($response->getStatusCode() === 429 || ($response->getStatusCode() === 503 && $response->getHeader('retry-after'))) {
+                $retry=\OCA\Library\Exception\MetadataProviderRetryException::fromHeader($response->getHeader('retry-after'));
+                $until=(int)floor(microtime(true)*1000)+$retry->retryAfter*1000;
+                $this->db->executeStatement('UPDATE *PREFIX*library_lookup_quota SET next_at_ms=? WHERE provider=? AND next_at_ms<?',[$until,'openlibrary',$until]);
+                $body=$response->getBody(); if (is_resource($body)) fclose($body);
+                throw $retry;
             }
             if ($allowEditionRedirect && in_array($response->getStatusCode(), [301, 302, 303, 307, 308], true)) {
                 $location = $response->getHeader('location');
@@ -356,6 +362,9 @@ final class OpenLibraryLookupService {
                     [$now + 1000, 'openlibrary', $now]) === 1) {
                     return;
                 }
+                $slot=$this->db->executeQuery('SELECT next_at_ms FROM *PREFIX*library_lookup_quota WHERE provider=?',['openlibrary']);
+                $next=(int)$slot->fetchOne(); $slot->closeCursor();
+                if ($next>$now+2500) throw new \OCA\Library\Exception\MetadataProviderRetryException((int)ceil(($next-$now)/1000));
                 if (!$triedInsert) {
                     $triedInsert = true;
                     try {
@@ -365,6 +374,8 @@ final class OpenLibraryLookupService {
                         // Another worker initialized the shared slot first.
                     }
                 }
+            } catch (\OCA\Library\Exception\MetadataProviderRetryException $error) {
+                throw $error;
             } catch (\Throwable $error) {
                 $dbError = $error;
             }

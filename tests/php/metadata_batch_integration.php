@@ -13,6 +13,11 @@ use OCP\Http\Client\IClientService;
 use OCP\Lock\ILockingProvider;
 function check(bool $ok,string $message): void { if (!$ok) throw new RuntimeException($message); }
 function rejects(string $type,callable $work): void { try { $work(); } catch(Throwable $e) { check($e instanceof $type,'Expected '.$type.', got '.get_class($e).': '.$e->getMessage()); return; } throw new RuntimeException('Expected '.$type); }
+function review(MetadataBatchService $service,string $uid,string $jobId,int $itemId,string $action,array $data): array {
+    $rows=$service->get($uid,$jobId)['rows'];
+    $row=array_values(array_filter($rows,static fn($row)=>$row['id']===$itemId))[0];
+    return $service->review($uid,$jobId,$itemId,$action,$data+['reviewVersion'=>$row['reviewVersion']]);
+}
 $db=\OC::$server->get(IDBConnection::class); $config=\OC::$server->get(IConfig::class);
 $migration=new \OCA\Library\Migration\Version000400Date20261107120000();
 $schema=new \OC\DB\SchemaWrapper(\OC::$server->get(\OC\DB\Connection::class),new \Doctrine\DBAL\Schema\Schema());
@@ -39,7 +44,7 @@ if (!$home->nodeExists('LookupFixtures')) {
 $r=$db->executeQuery('SELECT id FROM *PREFIX*library_items WHERE user_id=? ORDER BY id',[$uid]); $ids=array_map('intval',$r->fetchAll(\PDO::FETCH_COLUMN)); $r->closeCursor();
 check(count($ids)===50,'50 fixture books');
 $db->executeStatement('DELETE FROM *PREFIX*library_lookup_jobs WHERE user_id=?',[$uid]);
-foreach ($ids as $i=>$id) $items->updateItem($uid,$id,['title'=>sprintf('Lookup fixture %02d',$i+1),'publisher'=>'','description'=>'','identifiers'=>[]]);
+foreach ($ids as $i=>$id) $items->updateItem($uid,$id,['title'=>sprintf('Lookup fixture %02d',$i+1),'publisher'=>'','description'=>'','language'=>'','identifiers'=>[]]);
 
 $cache=new class extends \OC\Memcache\ArrayCache {
     public ?string $failure=null;
@@ -79,9 +84,9 @@ $job=$service->get($uid,$job['id']);
 check(count(array_filter($job['rows'],fn($row)=>$row['status']==='matches'))===50,'all results persisted');
 check($items->findItem($uid,$ids[0])['publisher']==='','search writes no book metadata');
 foreach (array_slice($ids,0,3) as $id) {
-    $service->review($uid,$job['id'],$id,'choose',['editionId'=>'OL1M']);
+    review($service,$uid,$job['id'],$id,'choose',['editionId'=>'OL1M']);
     check($service->advance(),'edition worker');
-    $service->review($uid,$job['id'],$id,'select',['fields'=>['publisher','isbn']]);
+    review($service,$uid,$job['id'],$id,'select',['fields'=>['publisher','isbn']]);
 }
 $items->updateItem($uid,$ids[1],['description'=>'A later manual edit']);
 $result=$service->applySelected($uid,$job['id']);
@@ -89,33 +94,33 @@ check(array_column($result['outcomes'],'status')===['applied','conflict','applie
 check($items->findItem($uid,$ids[0])['publisher']==='Example Press','applied publisher');
 check(count($items->findItem($uid,$ids[0])['identifiers'])===1,'explicit ISBN added');
 check($items->findItem($uid,$ids[0])['fieldSources']['publisher']==='provider:openlibrary','provider provenance');
-$service->review($uid,$job['id'],$ids[0],'apply',[]);
+review($service,$uid,$job['id'],$ids[0],'apply',[]);
 check(count($items->findItem($uid,$ids[0])['identifiers'])===1,'apply retry idempotent');
-$service->review($uid,$job['id'],$ids[0],'undo',[]);
+review($service,$uid,$job['id'],$ids[0],'undo',[]);
 check($items->findItem($uid,$ids[0])['publisher']==='' && !$items->findItem($uid,$ids[0])['identifiers'],'undo restores selected values');
-$service->review($uid,$job['id'],$ids[0],'undo',[]);
+review($service,$uid,$job['id'],$ids[0],'undo',[]);
 $items->updateItem($uid,$ids[2],['description'=>'Keep later correction']);
-rejects(MetadataConflictException::class,fn()=>$service->review($uid,$job['id'],$ids[2],'undo',[]));
-$service->review($uid,$job['id'],$ids[3],'skip',[]);
+rejects(MetadataConflictException::class,fn()=>review($service,$uid,$job['id'],$ids[2],'undo',[]));
+review($service,$uid,$job['id'],$ids[3],'skip',[]);
 check($service->get($uid,$job['id'])['rows'][3]['status']==='skipped','skip persists');
 $service->control($uid,$job['id'],'cancel'); check(!$service->advance(),'cancel stops new work');
 
 // Transaction rollback protects metadata when receipt persistence fails.
 $job2=$service->create($uid,[$ids[4]],'openlibrary',['publisher'],'missing'); $service->advance();
-$service->review($uid,$job2['id'],$ids[4],'choose',['editionId'=>'OL1M']); $service->advance();
-$service->review($uid,$job2['id'],$ids[4],'select',['fields'=>['publisher']]);
+review($service,$uid,$job2['id'],$ids[4],'choose',['editionId'=>'OL1M']); $service->advance();
+review($service,$uid,$job2['id'],$ids[4],'select',['fields'=>['publisher']]);
 // Force a receipt-write failure and require the nested metadata writer to roll back too.
 if ($db->getDatabaseProvider()==='sqlite') {
     $prefix=$config->getSystemValue('dbtableprefix','oc_');
     $db->executeStatement("CREATE TRIGGER lookup_receipt_failure BEFORE UPDATE ON ".$prefix."library_lookup_jobs WHEN NEW.payload LIKE '%appliedAt%' BEGIN SELECT RAISE(ABORT, 'fixture receipt failure'); END");
-    rejects(Throwable::class,fn()=>$service->review($uid,$job2['id'],$ids[4],'apply',[]));
+    rejects(Throwable::class,fn()=>review($service,$uid,$job2['id'],$ids[4],'apply',[]));
     $db->executeStatement('DROP TRIGGER lookup_receipt_failure');
     check($items->findItem($uid,$ids[4])['publisher']==='', 'receipt failure rolls back book edit');
     check($service->get($uid,$job2['id'])['rows'][0]['status']==='ready','receipt failure preserves review');
 }
 // A new source revision invalidates the approval even if metadata is unchanged.
 $file=$home->get('LookupFixtures/book-05.epub'); $file->touch(time()+5);
-rejects(MetadataConflictException::class,fn()=>$service->review($uid,$job2['id'],$ids[4],'apply',[]));
+rejects(MetadataConflictException::class,fn()=>review($service,$uid,$job2['id'],$ids[4],'apply',[]));
 $service->control($uid,$job2['id'],'delete');
 rejects(OutOfBoundsException::class,fn()=>$service->get($uid,$job2['id']));
 $service->control($uid,$job['id'],'delete');
@@ -150,17 +155,127 @@ check($cancelled['status']==='cancelled' && $cancelled['rows'][0]['status']==='m
 check(!$service->advance(),'cancel prevents subsequent work');
 $service->control($uid,$cancel['id'],'delete');
 $skip=$service->create($uid,[$ids[13]],'openlibrary',['publisher'],'missing');
-$cache->duringRequest=fn()=>$service->review($uid,$skip['id'],$ids[13],'skip',[]);
+$cache->duringRequest=fn()=>review($service,$uid,$skip['id'],$ids[13],'skip',[]);
 $service->advance(); check($service->get($uid,$skip['id'])['rows'][0]['status']==='skipped','in-flight result cannot overwrite skip');
 $service->control($uid,$skip['id'],'delete');
+
+// Per-row refinement, stale-tab approval, provider identity, and retained Undo evidence.
+$googleKey='DisposableFixtureKey'; $config->setAppValue('library','google_books_api_key',$googleKey);
+$google=new GoogleBooksLookupService(\OC::$server->get(IClientService::class),$caches,$db,$config);
+$service=new MetadataBatchService($db,$items,\OC::$server->get(InferenceBatchService::class),$provider,$google,$config,\OC::$server->get(ILockingProvider::class));
+$refined=$service->create($uid,[$ids[15],$ids[16]],'openlibrary',['publisher','description'],'missing');
+$service->advance(); $service->advance();
+review($service,$uid,$refined['id'],$ids[15],'choose',['editionId'=>'OL1M']); $service->advance();
+review($service,$uid,$refined['id'],$ids[15],'select',['fields'=>['publisher']]);
+$beforeRefine=$service->get($uid,$refined['id']);
+$oldVersion=$beforeRefine['rows'][0]['reviewVersion'];
+$otherRow=$beforeRefine['rows'][1];
+$query='intitle:"Corrected title" inauthor:"Example Writer"';
+$googleResult=['editionId'=>'fixtureVolume','title'=>'Corrected title','authors'=>['Example Writer'],'publisher'=>'Second Press','year'=>'2025','isbn'=>[],'languages'=>['de'],'url'=>'https://books.google.com/books?id=fixtureVolume','match'=>'title_author'];
+$cache->set(hash('sha256',$uid."\0".hash('sha256',$googleKey)."\0search\0".$query),[$googleResult]);
+$cache->set(hash('sha256',$uid."\0".hash('sha256',$googleKey)."\0volume\0fixtureVolume"),['editionId'=>'fixtureVolume','fields'=>['publisher'=>'Second Press'],'isbn'=>[],'url'=>'https://books.google.com/books?id=fixtureVolume']);
+review($service,$uid,$refined['id'],$ids[15],'search',['provider'=>'googlebooks','title'=>'Corrected title','author'=>'Example Writer','isbn'=>'']);
+$current=$service->get($uid,$refined['id']);
+check($current['rows'][0]['selected']===[] && $current['rows'][0]['results']===[] && !isset($current['rows'][0]['edition']),'refinement invalidates candidates and approvals');
+check($current['rows'][1]===$otherRow,'refining one row preserves other rows');
+rejects(DomainException::class,fn()=>$service->review($uid,$refined['id'],$ids[15],'select',['reviewVersion'=>$oldVersion,'fields'=>['publisher']]));
+$service->advance();
+review($service,$uid,$refined['id'],$ids[15],'choose',['editionId'=>'fixtureVolume']); $service->advance();
+review($service,$uid,$refined['id'],$ids[15],'select',['fields'=>['publisher']]);
+check($service->applySelected($uid,$refined['id'],[['id'=>$ids[15],'reviewVersion'=>$oldVersion]])['outcomes'][0]['status']==='conflict','stale bulk approvals rejected');
+review($service,$uid,$refined['id'],$ids[15],'apply',[]);
+check($items->findItem($uid,$ids[15])['fieldSources']['publisher']==='provider:googlebooks','row provider controls attribution');
+$deleted=$service->control($uid,$refined['id'],'delete');
+$archived=$service->get($uid,$refined['id']);
+check($deleted['receiptsRetained'] && $archived['status']==='archived' && count($archived['rows'])===1,'deleting suggestions retains only receipts');
+check(!isset($archived['rows'][0]['edition'],$archived['rows'][0]['query']) && $archived['rows'][0]['results']===[],'archive removes unapproved provider data');
+review($service,$uid,$refined['id'],$ids[15],'undo',[]);
+check($items->findItem($uid,$ids[15])['publisher']==='','undo remains after deleting suggestions');
+$service->control($uid,$refined['id'],'delete_receipts');
+rejects(OutOfBoundsException::class,fn()=>$service->get($uid,$refined['id']));
+
+// A result that finishes after a refined search must not restore old approvals.
+$racing=$service->create($uid,[$ids[17]],'openlibrary',['publisher'],'missing');
+$cache->duringRequest=fn()=>review($service,$uid,$racing['id'],$ids[17],'search',['provider'=>'googlebooks','title'=>'Corrected title','author'=>'Example Writer','isbn'=>'']);
+$service->advance();
+$raceRow=$service->get($uid,$racing['id'])['rows'][0];
+check($raceRow['provider']==='googlebooks' && $raceRow['status']==='queued' && $raceRow['results']===[],'late old-provider result discarded');
+$service->advance(); check($service->get($uid,$racing['id'])['rows'][0]['results'][0]['editionId']==='fixtureVolume','new provider result persists');
+$service->control($uid,$racing['id'],'delete');
+
+// Selection shortcut requires reviewed, unique ISBN evidence and never writes metadata.
+$items->updateItem($uid,$ids[18],['identifiers'=>[['scheme'=>'isbn','displayValue'=>'9780306406157']]]);
+$isbnQuery=['isbn'=>'9780306406157','fields'=>'key,title,author_name,first_publish_year,edition_key,editions,editions.key,editions.title,editions.publish_date,editions.publisher,editions.language,editions.isbn','limit'=>'6'];
+$match=['editionId'=>'OL2M','title'=>'Lookup fixture 19','authors'=>['Example Writer'],'publisher'=>'Example Press','year'=>'2025','isbn'=>['9780306406157'],'languages'=>['en'],'url'=>'https://openlibrary.org/books/OL2M','match'=>'isbn'];
+$cache->set(hash('sha256',$uid."\0".json_encode($isbnQuery,JSON_THROW_ON_ERROR)),[$match]);
+$cache->set(hash('sha256',$uid."\0edition\0OL2M"),['editionId'=>'OL2M','fields'=>['title'=>'Lookup fixture 19','publisher'=>'Example Press'],'isbn'=>['9780306406157'],'url'=>'https://openlibrary.org/books/OL2M']);
+$strong=$service->create($uid,[$ids[18]],'openlibrary',['publisher'],'missing'); $service->advance();
+check($service->control($uid,$strong['id'],'select_missing')['rows'][0]['selected']===[],'unreviewed editions stay unselected');
+review($service,$uid,$strong['id'],$ids[18],'choose',['editionId'=>'OL2M']); $service->advance();
+check($service->control($uid,$strong['id'],'select_missing')['rows'][0]['selected']===['publisher'],'unique matching edition allows explicit missing-field selection');
+check($items->findItem($uid,$ids[18])['publisher']==='','selection shortcut writes no book values');
+review($service,$uid,$strong['id'],$ids[18],'apply',[]);
+$db->executeStatement('UPDATE *PREFIX*library_lookup_jobs SET expires_at=? WHERE id=?',[time()-1,$strong['id']]);
+$expired=$service->get($uid,$strong['id']);
+check($expired['status']==='archived','suggestion expiry preserves receipts');
+review($service,$uid,$strong['id'],$ids[18],'undo',[]);
+$payload=$db->executeQuery('SELECT payload FROM *PREFIX*library_lookup_jobs WHERE id=?',[$strong['id']])->fetchOne();
+$payload=json_decode($payload,true); $payload['rows'][0]['receipt']['expiresAt']=time()-1;
+$db->executeStatement('UPDATE *PREFIX*library_lookup_jobs SET payload=?,expires_at=? WHERE id=?',[json_encode($payload),time()-1,$strong['id']]);
+rejects(OutOfBoundsException::class,fn()=>$service->get($uid,$strong['id']));
+
+// RFC Retry-After seconds/date parsing and instance-wide cooldown are bounded.
+check(\OCA\Library\Exception\MetadataProviderRetryException::fromHeader('120',1000)->retryAfter===120,'retry seconds');
+check(\OCA\Library\Exception\MetadataProviderRetryException::fromHeader(gmdate('D, d M Y H:i:s \G\M\T',1120),1000)->retryAfter===120,'retry HTTP date');
+check(\OCA\Library\Exception\MetadataProviderRetryException::fromHeader('invalid',1000)->retryAfter===60,'malformed retry fallback');
+check(\OCA\Library\Exception\MetadataProviderRetryException::fromHeader('999999999',1000)->retryAfter===604800,'retry bounded');
+$db->executeStatement('DELETE FROM *PREFIX*library_lookup_quota WHERE provider=?',['googlebooks']);
+$db->executeStatement('INSERT INTO *PREFIX*library_lookup_quota (provider,next_at_ms) VALUES (?,?)',['googlebooks',(int)(microtime(true)*1000)+120000]);
+$reserve=new ReflectionMethod($google,'reserveRequestSlot');
+$started=microtime(true);
+rejects(\OCA\Library\Exception\MetadataProviderRetryException::class,fn()=>$reserve->invoke($google));
+check(microtime(true)-$started<0.5,'provider cooldown acknowledges without blocking wait');
+$db->executeStatement('DELETE FROM *PREFIX*library_lookup_quota WHERE provider=?',['googlebooks']);
+
+// Shared language normalization is exposed in both adapters and uses the normal metadata writer.
+$googleNormalize=new ReflectionMethod($google,'volumeResult');
+foreach (['EN-us'=>'en-US','GER'=>'de','deu'=>'de'] as $raw=>$expected) {
+    $volume=$googleNormalize->invoke($google,['volumeInfo'=>['title'=>'Language example','language'=>$raw]],'fixtureLanguage');
+    check(($volume['fields']['language'] ?? '')===$expected,'Google language alias/region normalization');
+}
+$unknown=$googleNormalize->invoke($google,['volumeInfo'=>['title'=>'Language example','language'=>'3ng']], 'fixtureLanguage');
+check(!isset($unknown['fields']['language']) && $unknown['languages']===['3ng'],'unknown language retained as evidence only');
+$openNormalize=new ReflectionMethod($provider,'editionResult');
+$languageEdition=$openNormalize->invoke($provider,['title'=>'Language example','languages'=>[['key'=>'/languages/ger'],['key'=>'/languages/deu'],['key'=>'/languages/eng']]],'OL3M');
+check($languageEdition['fields']['language']==='de; en','Open Library aliases deduplicate with multiple languages');
+$cache->set(hash('sha256',$uid."\0edition\0OL1M"),['editionId'=>'OL1M','fields'=>['language'=>'de; en'],'isbn'=>[],'languages'=>['ger','eng'],'url'=>'https://openlibrary.org/books/OL1M']);
+$items->updateItem($uid,$ids[19],['language'=>'']);
+$languageJob=$service->create($uid,[$ids[19]],'openlibrary',['language'],'missing'); $service->advance();
+review($service,$uid,$languageJob['id'],$ids[19],'choose',['editionId'=>'OL1M']); $service->advance();
+review($service,$uid,$languageJob['id'],$ids[19],'select',['fields'=>['language']]);
+review($service,$uid,$languageJob['id'],$ids[19],'apply',[]);
+check($items->findItem($uid,$ids[19])['language']==='de; en','explicit multiple-language application');
+review($service,$uid,$languageJob['id'],$ids[19],'undo',[]);
+check($items->findItem($uid,$ids[19])['language']==='','language Undo restores prior value');
+$service->control($uid,$languageJob['id'],'delete');
+$items->updateItem($uid,$ids[20],['language'=>'fr; en']);
+$languageJob=$service->create($uid,[$ids[20]],'openlibrary',['language'],'missing'); $service->advance();
+review($service,$uid,$languageJob['id'],$ids[20],'choose',['editionId'=>'OL1M']); $service->advance();
+check($service->get($uid,$languageJob['id'])['rows'][0]['proposals']===[],'fill-missing protects existing language set');
+$service->control($uid,$languageJob['id'],'delete');
+$cache->set(hash('sha256',$uid."\0edition\0OL1M"),['editionId'=>'OL1M','fields'=>['publisher'=>'Example Press','description'=>'Synthetic description'],'isbn'=>['9780306406157'],'url'=>'https://openlibrary.org/books/OL1M']);
 
 // Leave one deterministic persisted run for installed-browser checks.
 $job=$service->create($uid,[$ids[5],$ids[6]],'openlibrary',['publisher','description'],'missing');
 $service->advance(); $service->advance();
-foreach ([$ids[5],$ids[6]] as $id) { $service->review($uid,$job['id'],$id,'choose',['editionId'=>'OL1M']); $service->advance(); }
+foreach ([$ids[5],$ids[6]] as $id) { review($service,$uid,$job['id'],$id,'choose',['editionId'=>'OL1M']); $service->advance(); }
 $lists=\OC::$server->get(PersonalListService::class);
 $existing=array_values(array_filter($lists->lists($uid),static fn($list)=>$list['name']==='Lookup selection fixture'));
 $list=$existing[0] ?? $lists->create($uid,'Lookup selection fixture','Synthetic books for batch selection');
 if (!$existing) $lists->add($uid,$list['id'],$list['revision'],[$ids[5],$ids[6]]);
-file_put_contents('/tmp/library-bulk-fixture.json',json_encode(['jobId'=>$job['id'],'listId'=>$list['id'],'ids'=>[$ids[5],$ids[6]]],JSON_THROW_ON_ERROR));
+$bulkIds=array_slice($ids,30,11);
+$bulkJob=$service->create($uid,$bulkIds,'openlibrary',['publisher'],'missing');
+foreach ($bulkIds as $_) $service->advance();
+foreach ($bulkIds as $id) { review($service,$uid,$bulkJob['id'],$id,'choose',['editionId'=>'OL1M']); $service->advance(); review($service,$uid,$bulkJob['id'],$id,'select',['fields'=>['publisher']]); }
+file_put_contents('/tmp/library-bulk-fixture.json',json_encode(['jobId'=>$job['id'],'bulkJobId'=>$bulkJob['id'],'listId'=>$list['id'],'ids'=>[$ids[5],$ids[6]]],JSON_THROW_ON_ERROR));
 echo json_encode(['passed'=>true,'books'=>50,'createMs'=>$createMs,'jobId'=>$job['id']],JSON_THROW_ON_ERROR)."\n";

@@ -21,12 +21,17 @@ final class MetadataBatchController extends Controller {
     #[NoAdminRequired]
     public function control(string $id): JSONResponse { return $this->respond(fn($uid)=>$this->batches->control($uid,$id,$this->text('action'))); }
     #[NoAdminRequired]
-    public function review(string $id,int $itemId): JSONResponse { return $this->respond(fn($uid)=>$this->batches->review($uid,$id,$itemId,$this->text('action'),['fields'=>$this->list('fields'),'editionId'=>$this->text('editionId')])); }
+    public function review(string $id,int $itemId): JSONResponse { return $this->respond(fn($uid)=>$this->batches->review($uid,$id,$itemId,$this->text('action'),['fields'=>$this->list('fields'),'editionId'=>$this->text('editionId'),'provider'=>$this->text('provider'),'isbn'=>$this->text('isbn'),'title'=>$this->text('title',800),'author'=>$this->text('author',800),'reviewVersion'=>$this->request->getParam('reviewVersion',0)])); }
     #[NoAdminRequired]
-    public function apply(string $id): JSONResponse { return $this->respond(fn($uid)=>$this->batches->applySelected($uid,$id)); }
-    private function text(string $key): string {
+    public function apply(string $id): JSONResponse { return $this->respond(fn($uid)=>$this->batches->applySelected($uid,$id,$this->selectedRows())); }
+    private function selectedRows(): array {
+        $value=$this->request->getParam('rows',null);
+        if (!is_array($value) || !array_is_list($value) || count($value)>50) throw new \InvalidArgumentException('invalid_selection');
+        return $value;
+    }
+    private function text(string $key,int $max=128): string {
         $value=$this->request->getParam($key,'');
-        if (!is_string($value) || strlen($value)>128) throw new \InvalidArgumentException('invalid_request');
+        if (!is_string($value) || strlen($value)>$max) throw new \InvalidArgumentException('invalid_request');
         return $value;
     }
     private function list(string $key): array {

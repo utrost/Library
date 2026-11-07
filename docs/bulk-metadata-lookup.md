@@ -1,7 +1,8 @@
 # Selected-book metadata lookup
 
 Development implementation for [#186](https://github.com/utrost/Library/issues/186).
-Included in the alpha.4 development package.
+The initial workflow is deployed in alpha.4. The refinements described below are
+unreleased source changes; see the [verification record](bulk-metadata-lookup-refinements.md).
 
 ## Workflow
 
@@ -10,12 +11,16 @@ Included in the alpha.4 development package.
 3. Choose **Find matches** to authorize the provider searches. Opening the screen alone sends no provider request.
 4. Leave the page if desired. **Review and cleanup → Book detail lookups** reopens saved runs. Background processing uses Nextcloud background jobs; completion depends on the server's cron schedule.
 5. Review edition evidence, then choose **Review this edition**. Select individual before/after fields and choose **Apply now**, or **Apply selected fields** across the reviewed books. Neither searching nor selecting fields writes book metadata.
-6. Applied rows stay in the queue. **Undo** restores the changed values only while the saved book revision and source identity still match the receipt. A later edit causes a conflict, rather than being overwritten.
+6. Use **Refine search** to correct ISBN/title/author or explicitly switch an enabled provider for one book. Submitting clears only that row’s old matches and approvals; typing alone sends nothing. A late old response cannot overwrite the new query.
+7. Filter by review status; selected-book and field counts always cover the whole run. **Select missing fields from strong matches** only selects empty fields after an edition was chosen and exact ISBN/title/author evidence agrees. It never applies changes.
+8. Applied rows stay in the queue. **Undo** restores the changed values only while the saved book revision and source identity still match the receipt. A later edit causes a conflict, rather than being overwritten.
 
 Supported fields are title, subtitle, publisher, publication date, description,
-subjects and valid ISBNs. Google Books also offers GGKEY. Existing identifiers
+subjects, normalized languages and valid ISBNs. Google Books also offers GGKEY. Existing identifiers
 are retained when additional ones are approved. Subjects remain subjects.
-Language and covers are not batch application fields in this iteration.
+Provider covers are not batch application fields in this iteration. Unknown
+language codes remain evidence only; existing language sets are protected by
+the missing-field policy. Replacing them requires explicit review.
 
 **Review replacements too** makes existing values available for explicit review;
 it does not preselect or automatically replace them. An ISBN match is evidence,
@@ -35,26 +40,30 @@ lookup started needs a fresh run with a fresh snapshot.
 - Authentication, CSRF and account ownership protect every API operation.
   Shared recipients cannot use another owner's catalogue IDs for lookup.
 - Creation accepts at most 50 IDs, at most two running/paused jobs and 20
-  retained runs per account. It checks readable source files before queuing.
+  unarchived runs per account, with a 100-run total including retained receipts. It checks readable source files before queuing.
 - Workers claim one row with a five-minute lease. Provider I/O runs outside
-  database transactions. Completion checks the lease token; a late worker cannot
+  database transactions. Completion checks the lease token and row review version; a late worker cannot
   overwrite a reclaimed claim or a user's Skip decision.
 - Existing provider adapters enforce provider configuration, fixed endpoints,
   bounded responses, account-scoped caching and cross-worker request pacing.
   A row has at most four attempts per explicit Retry. Transient failures use
-  bounded exponential delays. No automatic provider fallback occurs.
+  bounded exponential delays and honor bounded Retry-After seconds/HTTP dates from 429 or 503 responses. Shared provider cooldowns prevent another account from immediately retrying the same provider. No automatic provider fallback occurs.
 - Apply locks the run and publication, checks the original file identity and
   revision, and rechecks the missing-field policy. It invokes the existing
   metadata writer, which updates manual protection and derived indexes.
   Book changes, source attribution and the receipt commit together.
 - Bulk Apply uses independent transactions per book and returns per-book
-  outcomes. A conflict or failure does not undo other successful books.
+  outcomes. The browser submits at most ten approved rows per request, showing
+  progress between requests; the request includes exact row IDs and review versions.
+  A conflict or failure does not undo other successful books.
 - Apply/Undo retries are idempotent. Undo retains manual-edit protection, while
   restoring the selected values and recorded field sources. It conservatively
   refuses reversal after any later metadata revision.
-- Jobs, suggestions and receipts expire **30 days after creation**. Explicit
-  Delete lookup removes them immediately, including Undo availability; applied
-  book values remain. Account deletion also removes the jobs. Requests and
+- Suggestions expire **30 days after creation**. Explicit
+  Delete lookup removes suggestions immediately but retains applied-change
+  receipts and conditional Undo for **90 days after application**. Receipt-only
+  runs provide a separate **Delete receipts** action. Applied book values remain.
+  Account deletion also removes the jobs. Requests and
   provider errors are not logged with book titles, file paths or credentials.
 - No source file is changed. Deleting a run does not undo applied metadata.
 
@@ -80,16 +89,18 @@ Focused results are recorded in [first implementation verification](bulk-metadat
 
 ## Remaining acceptance work
 
-Track these under #206–#209 and #211; this iteration does not close the full epic:
+Track the remaining work under #181–#186 and #206–#212:
 
-- Correct a query or explicitly switch provider for one row; no silent fallback.
-- A conservative shortcut for selecting missing fields in strong matches.
-- Broader Google Books batch fixtures, provider policy/retention review and
-  quota-specific Retry-After behavior.
-- Synthetic 100k catalogue timings, maximum payload/concurrency testing,
-  interruption testing and populated upgrades across other supported databases.
+- Provider cover comparison/application (#210).
+- Single-book provenance and Undo parity (#185); staging is still the existing
+  one-book draft workflow, while batch changes use durable provider receipts.
+- Broader matching/conflict explanations, Google-specific 403 quota responses,
+  provider policy review and real external-service acceptance.
+- Real concurrent-process load, populated upgrades and acceptance across the
+  other supported Nextcloud/database versions. The synthetic MariaDB scale
+  fixture is not a production browser or external-network latency benchmark.
 - Manual screen-reader review and full dark/RTL visual inspection.
 
-Provider covers (#210), normalized language suggestions (#212), and extending
-source-aware receipts to the existing single-book staging workflow (#185) remain
-separate work. Do not represent this focused verification as release certification.
+Normalized language suggestions are implemented, with broader filter/index and
+single-book provenance acceptance still tracked in #212/#185. Do not represent
+focused local verification as release certification.
