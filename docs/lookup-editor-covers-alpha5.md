@@ -1,6 +1,6 @@
 # Alpha.5: shared lookup receipts and explicit covers
 
-Development candidate, 2026-11-07. No new migration, full CI, GitHub Actions,
+Installed development alpha.5, 2026-11-07. No new migration, full CI, GitHub Actions,
 App Store publication or full release certification. This candidate also includes
 [the previously verified bulk refinements](bulk-metadata-lookup-refinements.md).
 
@@ -54,6 +54,38 @@ Existing bulk-review regression uses `tests/gui/metadata/bulk-lookup.spec.ts`.
 `smoke-lookup-upgrade.sh` checks a populated signed alpha.4 → alpha.5 MariaDB upgrade,
 including existing books, lists, Files-backed grants and saved lookup jobs.
 
-Deployment and exact-package results are recorded after the signed package check.
+## Installed checkpoint
+
+- Package source: `bfb636578979e5e7784ea39deca5ed034ae2eab0` (PRs #216–#218).
+- Signed archive: `library-0.4.0-alpha.5.tar.gz`.
+- SHA-256: `aba1c4e9d214bfbc870a7951e541b80e29ca7644be7ece2a52474b79065d3e3a`.
+- Package audit, embedded signature, SBOM/provenance and module closure passed.
+  Frontend bytes: **1,114,215 / 1,320,000**. Asset revision: **v9**.
+- Exact-package populated alpha.4 → alpha.5 NC34/MariaDB upgrade passed: three
+  synthetic books, list entries, Files-backed grant and saved lookup job preserved.
+- Five focused component tests passed. Nine Playwright journeys passed against
+  the final signed package on disposable NC34/MariaDB: desktop Chromium, desktop
+  Firefox and mobile Chromium. Injected provider fault checks passed; the earlier
+  SQLite run additionally verified rollback after receipt persistence failure.
+- Developer NC34 installation passed integrity, served-asset byte comparison and
+  catalogue/file/list/share fingerprints. Four installed-package desktop/mobile
+  cover/editor/batch journeys passed using only a temporary two-book account and
+  deterministic provider evidence. The account and its records were removed;
+  original fingerprints still matched afterward. No browser page errors or
+  horizontal overflow were reported by these journeys.
+- Maintenance mode is off and cron is running. Private rollback archives and
+  unredacted execution evidence remain outside the repository.
+
+### Deployment correction
+
+An initial same-version redeployment hit Nextcloud's maintenance-mode guard for
+`occ upgrade`. Automatic rollback completed and original fingerprints matched.
+The helper now skips that command when the installed alpha.5 version already
+matches, while still requiring identical migration files, signatures, backups
+and fingerprint checks. That path was verified on disposable NC34/MariaDB before
+successful installation. A temporary database memory adjustment used during the
+restore was reverted. Failed-preview and browser-cache regressions were corrected
+before the final package above; earlier local candidate archives are superseded.
+
 Manual provider/legal, assistive-technology and NC33–35 release acceptance remain
 separate work; development deployment does not close those gates.
