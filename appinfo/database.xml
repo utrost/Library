@@ -1486,4 +1486,19 @@
         <index><name>library_value_mappings_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>field_type</name></field><field><name>source_key</name></field></index>
         <index><name>library_value_mapping_target</name><field><name>user_id</name></field><field><name>field_type</name></field><field><name>target_value</name></field></index>
     </declaration></table>
+    <table><name>*dbprefix*library_lookup_jobs</name><declaration>
+        <field><name>id</name><type>string</type><length>32</length><notnull>true</notnull></field>
+        <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+        <field><name>status</name><type>string</type><length>16</length><notnull>true</notnull></field>
+        <field><name>payload</name><type>text</type><length>16777215</length><notnull>true</notnull></field>
+        <field><name>created_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+        <field><name>expires_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+        <field><name>wake_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+        <field><name>lease_until</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+        <field><name>lease_token</name><type>string</type><length>32</length><notnull>true</notnull><default></default></field>
+        <index><name>lib_lookup_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+        <index><name>lib_lookup_owner</name><field><name>user_id</name></field><field><name>created_at</name></field></index>
+        <index><name>lib_lookup_work</name><field><name>status</name></field><field><name>wake_at</name></field><field><name>lease_until</name></field></index>
+        <index><name>lib_lookup_expiry</name><field><name>expires_at</name></field></index>
+    </declaration></table>
 </database>

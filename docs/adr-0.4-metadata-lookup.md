@@ -17,3 +17,12 @@ An administrator manages both providers under **Administration settings → Libr
 Search results carry source edition ID and URL, title, author names, publication evidence, publisher, ISBNs, language evidence and the match kind. Edition details expose title, subtitle, publisher, year/date, description and subjects as candidate fields. The editor stages those six supported fields and any explicitly selected ISBNs after checksum validation. Language codes remain evidence only. Open Library's source link remains available during review. No cover reuse occurs in this slice.
 
 Google Books volume results use fixed HTTPS endpoints, reject redirects, bound query and response size, and verify requested ISBNs against validated volume identifiers. Its case-sensitive volume ID can be selected as a GGKEY; language is evidence only. No provider cover is copied. This iteration does not persist source/field provenance and therefore cannot offer source-aware reversal; accepted values have the same semantics as any other manual correction. The [selective apply issue](https://github.com/utrost/Library/issues/185) must add a versioned receipt, atomic provenance and conditional reversal before this is considered full metadata completion. Cross-provider ranking, credential-storage review, terms and attribution review, and the privacy/accessibility matrix remain release gates under [#181](https://github.com/utrost/Library/issues/181) and [#187](https://github.com/utrost/Library/issues/187).
+
+## Selected-book batch development (2026-11-07)
+
+The working tree adds an explicit, bounded batch workflow using the existing
+adapters. See [bulk metadata lookup](bulk-metadata-lookup.md) for consent, fields,
+worker leases, retention, atomic receipts and remaining acceptance work. Earlier
+statements above about no batch caller and no receipts describe the single-book
+slice; they still apply to single-book staging. This addition does not enable
+passive, scheduled or scan-triggered provider queries.
