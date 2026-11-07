@@ -13,14 +13,16 @@ use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\IDBConnection;
 use OCP\IConfig;
+use OCP\IGroupManager;
 use OCP\IUserManager;
 use OCP\Lock\ILockingProvider;
 use OCP\Share\IManager as IShareManager;
 use OCP\Share\IShare;
 
-/** A Library grant requires an existing read-only Files root; Library never creates one. */
+/** Files-backed grants reuse a Files share; Library-only grants expose a fixed list snapshot. */
 final class RootShareService {
     private const MANAGED_NOTE_PREFIX = 'Library managed share: ';
+    private const LIBRARY_ONLY_LIMIT = 100;
 
     public function __construct(
         private IDBConnection $db,
@@ -33,11 +35,12 @@ final class RootShareService {
         private IEventDispatcher $events,
         private AuthorDisplayService $authorDisplay,
         private IConfig $config,
+        private IGroupManager $groups,
     ) {
     }
 
     /** Inspect the exact folder and Files access before the owner confirms a grant. */
-    public function previewGrant(string $owner, int $rootId, string $recipient): array {
+    public function previewGrant(string $owner, int $rootId, string $recipient, string $filesMode = 'reuse', int $listId = 0): array {
         $this->assertSharingAvailable();
         $recipientUser = $this->users->get(trim($recipient));
         if ($recipientUser === null || !$recipientUser->isEnabled() || $recipientUser->getUID() === $owner) {
@@ -74,14 +77,24 @@ final class RootShareService {
         if (!$this->recipientDiscoverable($recipient, (int)$node->getId())) {
             throw new \InvalidArgumentException('invalid_recipient');
         }
-        $recipientRoots = $this->recipientRootNodes($recipient, (int)$node->getId());
-        if ($recipientRoots === []) {
-            throw new \InvalidArgumentException('files_access_required');
-        }
-        foreach ($recipientRoots as $visible) {
-            if (($visible->getPermissions() & (Constants::PERMISSION_UPDATE | Constants::PERMISSION_CREATE | Constants::PERMISSION_DELETE)) !== 0) {
-                throw new \InvalidArgumentException('recipient_has_writable_access');
+        $selection = null;
+        if ($filesMode === 'library_only') {
+            if (!$this->librarySharingAllowed($owner, $recipient) || !$node->isShareable()) {
+                throw new \InvalidArgumentException('sharing_not_allowed');
             }
+            $selection = $this->selectedBooks($owner, $rootId, $listId);
+        } elseif ($filesMode === 'reuse') {
+            $recipientRoots = $this->recipientRootNodes($recipient, (int)$node->getId());
+            if ($recipientRoots === []) {
+                throw new \InvalidArgumentException('files_access_required');
+            }
+            foreach ($recipientRoots as $visible) {
+                if (($visible->getPermissions() & (Constants::PERMISSION_UPDATE | Constants::PERMISSION_CREATE | Constants::PERMISSION_DELETE)) !== 0) {
+                    throw new \InvalidArgumentException('recipient_has_writable_access');
+                }
+            }
+        } else {
+            throw new \InvalidArgumentException('share_changed');
         }
         return [
             'rootId' => $rootId,
@@ -89,8 +102,65 @@ final class RootShareService {
             'rootFileId' => (int)$node->getId(),
             'recipientId' => $recipient,
             'recipientName' => $recipientUser->getDisplayName(),
-            'filesMode' => 'reuse',
+            'filesMode' => $filesMode,
+            'listId' => $listId,
+            'selectionHash' => $selection['hash'] ?? '',
+            'bookCount' => count($selection['books'] ?? []),
+            'scopeName' => $selection['name'] ?? '',
+            'reviewBooks' => $selection['reviewBooks'] ?? [],
         ];
+    }
+
+    /** @return array<int, array{id:int, name:string, count:int}> */
+    public function shareableLists(string $owner): array {
+        $result = $this->db->executeQuery('SELECT l.id,l.name,COUNT(e.id) AS entry_count FROM *PREFIX*library_lists l '
+            . 'LEFT JOIN *PREFIX*library_list_entries e ON e.list_id=l.id '
+            . 'WHERE l.user_id=? GROUP BY l.id,l.name ORDER BY l.name,l.id LIMIT 200', [$owner]);
+        $rows = $result->fetchAll();
+        $result->closeCursor();
+        return array_map(static fn (array $row): array => ['id' => (int)$row['id'],
+            'name' => (string)$row['name'], 'count' => (int)$row['entry_count']], $rows);
+    }
+
+    /** @return array{name:string, books:array<int, array{itemId:int,fileId:int}>, reviewBooks:array, hash:string} */
+    private function selectedBooks(string $owner, int $rootId, int $listId): array {
+        if ($listId <= 0) {
+            throw new \InvalidArgumentException('invalid_selection');
+        }
+        $result = $this->db->executeQuery('SELECT l.name,e.item_id,e.file_id,i.id AS present_item,i.title,i.marked_for_deletion_at, '
+            . 'f.root_id,f.scan_status,f.file_id AS current_file_id,f.cached_path FROM *PREFIX*library_lists l '
+            . 'INNER JOIN *PREFIX*library_list_entries e ON e.list_id=l.id '
+            . 'LEFT JOIN *PREFIX*library_items i ON i.id=e.item_id AND i.user_id=l.user_id '
+            . 'LEFT JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=l.user_id '
+            . 'WHERE l.user_id=? AND l.id=? ORDER BY e.item_id ASC LIMIT 101', [$owner, $listId]);
+        $rows = $result->fetchAll();
+        $result->closeCursor();
+        if ($rows === [] || count($rows) > self::LIBRARY_ONLY_LIMIT) {
+            throw new \InvalidArgumentException('invalid_selection');
+        }
+        $root = $this->roots->findRoot($owner, $rootId);
+        try {
+            $rootNode = $root === null ? null : $this->files->getUserFolder($owner)->get(ltrim($root['path'], '/'));
+        } catch (\Throwable) {
+            $rootNode = null;
+        }
+        if (!$rootNode instanceof Folder || !$rootNode->isReadable() || !$rootNode->isShareable()) {
+            throw new \InvalidArgumentException('invalid_selection');
+        }
+        $source = ['owner_user_id' => $owner, 'path' => $root['path'], 'root_file_id' => (int)$rootNode->getId()];
+        $books = [];
+        foreach ($rows as $row) {
+            if ($row['present_item'] === null || (int)$row['root_id'] !== $rootId
+                || $row['scan_status'] !== 'indexed' || $row['marked_for_deletion_at'] !== null
+                || (int)$row['file_id'] !== (int)$row['current_file_id'] || $this->ownerFile($source, $row) === null) {
+                throw new \InvalidArgumentException('invalid_selection');
+            }
+            $books[] = ['itemId' => (int)$row['item_id'], 'fileId' => (int)$row['file_id']];
+        }
+        return ['name' => (string)$rows[0]['name'], 'books' => $books,
+            'reviewBooks' => array_map(static fn (array $row): array => ['title' => (string)$row['title'],
+                'path' => (string)$row['cached_path']], $rows),
+            'hash' => hash('sha256', json_encode($books, JSON_THROW_ON_ERROR))];
     }
 
     /** @return array<int, array{id: string, label: string}> */
@@ -129,7 +199,8 @@ final class RootShareService {
     }
 
     /** @return array<string, mixed> */
-    public function grant(string $owner, int $rootId, string $recipient, int $expectedRootFileId, string $expectedFilesMode): array {
+    public function grant(string $owner, int $rootId, string $recipient, int $expectedRootFileId, string $expectedFilesMode,
+        int $listId = 0, string $selectionHash = ''): array {
         $recipient = trim($recipient);
         $recipientUser = $this->users->get($recipient);
         if ($recipient === '' || $recipientUser === null || !$recipientUser->isEnabled()) {
@@ -139,15 +210,16 @@ final class RootShareService {
         if ($recipient === $owner) {
             throw new \InvalidArgumentException('invalid_recipient');
         }
-        return $this->withLifecycleLock(function () use ($owner, $rootId, $recipient, $expectedRootFileId, $expectedFilesMode): array {
+        return $this->withLifecycleLock(function () use ($owner, $rootId, $recipient, $expectedRootFileId, $expectedFilesMode, $listId, $selectionHash): array {
             $this->assertSharingAvailable();
             return $this->withRootLock($owner, $rootId,
                 fn (): array => $this->withGrantLock($owner, $rootId, $recipient,
-                    fn (): array => $this->grantLocked($owner, $rootId, $recipient, $expectedRootFileId, $expectedFilesMode)));
+                    fn (): array => $this->grantLocked($owner, $rootId, $recipient, $expectedRootFileId, $expectedFilesMode, $listId, $selectionHash)));
         });
     }
 
-    private function grantLocked(string $owner, int $rootId, string $recipient, int $expectedRootFileId, string $expectedFilesMode): array {
+    private function grantLocked(string $owner, int $rootId, string $recipient, int $expectedRootFileId, string $expectedFilesMode,
+        int $listId, string $selectionHash): array {
         $root = $this->roots->findRoot($owner, $rootId);
         if ($root === null || !$root['enabled'] || $root['path'] === '/') {
             throw new \InvalidArgumentException('invalid_root');
@@ -158,9 +230,11 @@ final class RootShareService {
             if (!in_array($current['status'], ['ready', 'awaiting-acceptance'], true)) {
                 throw new \InvalidArgumentException('existing_share_changed');
             }
-            $existingMode = !empty($existing['managed_share_id']) ? 'create' : 'reuse';
+            $existingMode = ($existing['access_mode'] ?? 'files') === 'library_only' ? 'library_only'
+                : (!empty($existing['managed_share_id']) ? 'create' : 'reuse');
             if ((int)$existing['root_file_id'] !== $expectedRootFileId
-                || $existingMode !== $expectedFilesMode) {
+                || $existingMode !== $expectedFilesMode
+                || ($existingMode === 'library_only' && !$this->snapshotMatches((int)$existing['id'], $selectionHash))) {
                 throw new \InvalidArgumentException('share_changed');
             }
             return $current;
@@ -189,31 +263,59 @@ final class RootShareService {
         if (!$this->recipientDiscoverable($recipient, $rootFileId)) {
             throw new \InvalidArgumentException('invalid_recipient');
         }
-        $recipientRoots = $this->recipientRootNodes($recipient, $rootFileId);
-        if ($recipientRoots === []) {
-            throw new \InvalidArgumentException('files_access_required');
-        }
-        foreach ($recipientRoots as $visible) {
-            if (($visible->getPermissions() & (Constants::PERMISSION_UPDATE | Constants::PERMISSION_CREATE | Constants::PERMISSION_DELETE)) !== 0) {
-                throw new \InvalidArgumentException('recipient_has_writable_access');
+        $selection = null;
+        if ($expectedFilesMode === 'library_only') {
+            if (!$this->librarySharingAllowed($owner, $recipient) || !$node->isShareable()) {
+                throw new \InvalidArgumentException('sharing_not_allowed');
             }
-        }
-        if ($rootFileId !== $expectedRootFileId || $expectedFilesMode !== 'reuse') {
+            $selection = $this->selectedBooks($owner, $rootId, $listId);
+            if (!hash_equals($selection['hash'], $selectionHash)) {
+                throw new \InvalidArgumentException('share_changed');
+            }
+        } elseif ($expectedFilesMode === 'reuse') {
+            $recipientRoots = $this->recipientRootNodes($recipient, $rootFileId);
+            if ($recipientRoots === []) {
+                throw new \InvalidArgumentException('files_access_required');
+            }
+            foreach ($recipientRoots as $visible) {
+                if (($visible->getPermissions() & (Constants::PERMISSION_UPDATE | Constants::PERMISSION_CREATE | Constants::PERMISSION_DELETE)) !== 0) {
+                    throw new \InvalidArgumentException('recipient_has_writable_access');
+                }
+            }
+        } else {
             throw new \InvalidArgumentException('share_changed');
         }
+        if ($rootFileId !== $expectedRootFileId) {
+            throw new \InvalidArgumentException('share_changed');
+        }
+        $transactionStarted = false;
         try {
+            $this->db->beginTransaction();
+            $transactionStarted = true;
             $this->db->executeStatement('INSERT INTO *PREFIX*library_root_shares '
-                . '(owner_user_id,recipient_user_id,root_id,root_file_id,managed_share_id,recovery_token,revoked_at,created_at) '
-                . 'VALUES (?,?,?,?,?,?,?,?)', [$owner, $recipient, $rootId, $rootFileId,
-                    null, null, null, time()]);
+                . '(owner_user_id,recipient_user_id,root_id,root_file_id,managed_share_id,recovery_token,access_mode,scope_name,revoked_at,created_at) '
+                . 'VALUES (?,?,?,?,?,?,?,?,?,?)', [$owner, $recipient, $rootId, $rootFileId,
+                    null, null, $selection === null ? 'files' : 'library_only', $selection['name'] ?? null, null, time()]);
+            $grantId = (int)$this->db->lastInsertId('library_root_shares');
+            foreach ($selection['books'] ?? [] as $book) {
+                $this->db->executeStatement('INSERT INTO *PREFIX*library_share_books (grant_id,item_id,file_id) VALUES (?,?,?)',
+                    [$grantId, $book['itemId'], $book['fileId']]);
+            }
+            $this->db->commit();
+            $transactionStarted = false;
         } catch (\Throwable $e) {
+            if ($transactionStarted) {
+                $this->db->rollBack();
+            }
             $concurrent = $this->findOwnedGrant($owner, $rootId, $recipient);
             if ($concurrent !== null && $concurrent['revoked_at'] === null) {
                 $current = $this->presentGrant($concurrent);
                 if (in_array($current['status'], ['ready', 'awaiting-acceptance'], true)) {
-                    $concurrentMode = !empty($concurrent['managed_share_id']) ? 'create' : 'reuse';
+                    $concurrentMode = ($concurrent['access_mode'] ?? 'files') === 'library_only' ? 'library_only'
+                        : (!empty($concurrent['managed_share_id']) ? 'create' : 'reuse');
                     if ((int)$concurrent['root_file_id'] !== $expectedRootFileId
-                        || $concurrentMode !== $expectedFilesMode) {
+                        || $concurrentMode !== $expectedFilesMode
+                        || ($concurrentMode === 'library_only' && !$this->snapshotMatches((int)$concurrent['id'], $selectionHash))) {
                         throw new \InvalidArgumentException('share_changed', 0, $e);
                     }
                     return $current;
@@ -230,6 +332,13 @@ final class RootShareService {
             throw new \RuntimeException('grant_failed');
         }
         return $this->presentGrant($created);
+    }
+
+    private function snapshotMatches(int $grantId, string $expectedHash): bool {
+        $result = $this->db->executeQuery('SELECT item_id,file_id FROM *PREFIX*library_share_books WHERE grant_id=? ORDER BY item_id', [$grantId]);
+        $books = array_map(static fn (array $row): array => ['itemId' => (int)$row['item_id'], 'fileId' => (int)$row['file_id']], $result->fetchAll());
+        $result->closeCursor();
+        return hash_equals(hash('sha256', json_encode($books, JSON_THROW_ON_ERROR)), $expectedHash);
     }
 
     /** Revocation hides Library data first; a failed Files cleanup remains retryable. */
@@ -269,6 +378,7 @@ final class RootShareService {
         } elseif (is_string($grant['recovery_token'] ?? null) && $grant['recovery_token'] !== '') {
             $this->cleanupPendingShare($grant);
         }
+        $this->db->executeStatement('DELETE FROM *PREFIX*library_share_books WHERE grant_id=?', [$grantId]);
         $this->db->executeStatement('DELETE FROM *PREFIX*library_root_shares WHERE id=? AND owner_user_id=? AND revoked_at IS NOT NULL', [$grantId, $owner]);
         return true;
     }
@@ -379,7 +489,13 @@ final class RootShareService {
         if ($grant === null || $grant['recipient_user_id'] !== $recipient || $grant['revoked_at'] !== null || !$grant['enabled']) {
             return null;
         }
-        return $this->rootStillMatches($grant) && $this->recipientReadOnlyRootNodes($recipient, (int)$grant['root_file_id']) !== [] ? $grant : null;
+        if (!$this->rootStillMatches($grant)) {
+            return null;
+        }
+        $allowed = ($grant['access_mode'] ?? 'files') === 'library_only'
+            ? $this->librarySharingAllowed((string)$grant['owner_user_id'], $recipient)
+            : $this->recipientReadOnlyRootNodes($recipient, (int)$grant['root_file_id']) !== [];
+        return $allowed ? $grant : null;
     }
 
     /** @return array{items: array<int, array<string, mixed>>, nextCursor: int|null} */
@@ -394,10 +510,15 @@ final class RootShareService {
             throw new \InvalidArgumentException('invalid_search');
         }
         $pattern = '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower($search)) . '%';
+        $libraryOnly = ($grant['access_mode'] ?? 'files') === 'library_only';
         $query = 'SELECT i.id,i.title,i.subtitle,i.creators,i.publisher,i.publication_date,f.file_id,f.cached_path,f.extension '
-            . 'FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id '
-            . 'WHERE i.user_id=? AND f.root_id=? AND i.id>? AND i.marked_for_deletion_at IS NULL AND f.scan_status=? ';
-        $params = [$grant['owner_user_id'], (int)$grant['root_id'], max(0, $cursor), 'indexed'];
+            . 'FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id ';
+        if ($libraryOnly) {
+            $query .= 'INNER JOIN *PREFIX*library_share_books sb ON sb.grant_id=? AND sb.item_id=i.id AND sb.file_id=f.file_id ';
+        }
+        $query .= 'WHERE i.user_id=? AND f.root_id=? AND i.id>? AND i.marked_for_deletion_at IS NULL AND f.scan_status=? ';
+        $params = $libraryOnly ? [$grantId] : [];
+        array_push($params, $grant['owner_user_id'], (int)$grant['root_id'], max(0, $cursor), 'indexed');
         if ($search !== '') {
             // The recipient sees canonical author names when a book's author
             // links are ready. Search those same names; source credits are the
@@ -417,10 +538,10 @@ final class RootShareService {
         $result->closeCursor();
         $authorized = [];
         $lastId = $cursor;
-        $rootNodes = $this->recipientReadOnlyRootNodes($recipient, (int)$grant['root_file_id']);
+        $rootNodes = $libraryOnly ? [] : $this->recipientReadOnlyRootNodes($recipient, (int)$grant['root_file_id']);
         foreach (array_slice($rows, 0, 80) as $row) {
             $lastId = (int)$row['id'];
-            if ($this->recipientFile($recipient, $grant, $row, $rootNodes) === null) {
+            if (($libraryOnly ? $this->ownerFile($grant, $row) : $this->recipientFile($recipient, $grant, $row, $rootNodes)) === null) {
                 continue;
             }
             $authorized[] = $row;
@@ -436,13 +557,19 @@ final class RootShareService {
         if ($grant === null) {
             return null;
         }
-        $result = $this->db->executeQuery('SELECT i.id,i.title,i.subtitle,i.creators,i.publisher,i.publication_date,i.description,i.language,i.subjects_json,f.file_id,f.cached_path,f.extension '
-            . 'FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id '
-            . 'WHERE i.user_id=? AND f.root_id=? AND i.id=? AND i.marked_for_deletion_at IS NULL AND f.scan_status=?',
-            [$grant['owner_user_id'], (int)$grant['root_id'], $itemId, 'indexed']);
+        $libraryOnly = ($grant['access_mode'] ?? 'files') === 'library_only';
+        $query = 'SELECT i.id,i.title,i.subtitle,i.creators,i.publisher,i.publication_date,i.description,i.language,i.subjects_json,f.file_id,f.cached_path,f.extension '
+            . 'FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id ';
+        if ($libraryOnly) {
+            $query .= 'INNER JOIN *PREFIX*library_share_books sb ON sb.grant_id=? AND sb.item_id=i.id AND sb.file_id=f.file_id ';
+        }
+        $query .= 'WHERE i.user_id=? AND f.root_id=? AND i.id=? AND i.marked_for_deletion_at IS NULL AND f.scan_status=?';
+        $params = $libraryOnly ? [$grantId] : [];
+        array_push($params, $grant['owner_user_id'], (int)$grant['root_id'], $itemId, 'indexed');
+        $result = $this->db->executeQuery($query, $params);
         $row = $result->fetch();
         $result->closeCursor();
-        if (!is_array($row) || $this->recipientFile($recipient, $grant, $row) === null) {
+        if (!is_array($row) || ($libraryOnly ? $this->ownerFile($grant, $row) : $this->recipientFile($recipient, $grant, $row)) === null) {
             return null;
         }
         $row = $this->authorDisplay->decorate((string)$grant['owner_user_id'], [$row])[0];
@@ -461,17 +588,48 @@ final class RootShareService {
         return $this->resolveBookFile($recipient, $grant, $itemId);
     }
 
-    private function resolveBookFile(string $recipient, array $grant, int $itemId): ?File {
-        $result = $this->db->executeQuery('SELECT f.file_id,f.cached_path FROM *PREFIX*library_items i '
-            . 'INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id '
-            . 'WHERE i.user_id=? AND f.root_id=? AND i.id=? AND i.marked_for_deletion_at IS NULL AND f.scan_status=?',
-            [$grant['owner_user_id'], (int)$grant['root_id'], $itemId, 'indexed']);
-        $row = $result->fetch();
-        $result->closeCursor();
-        return is_array($row) ? $this->recipientFile($recipient, $grant, $row) : null;
+    /** Lock before rechecking access; keep the lease alive until bytes have been read. */
+    public function leaseBookFile(string $recipient, int $grantId, int $itemId): ?SharedFileLease {
+        if (!$this->config->getSystemValueBool('filelocking.enabled', true)) {
+            return null;
+        }
+        $file = $this->bookFile($recipient, $grantId, $itemId);
+        if ($file === null) {
+            return null;
+        }
+        $lease = null;
+        try {
+            $lease = new SharedFileLease($file);
+            $current = $this->bookFile($recipient, $grantId, $itemId);
+            if ($current === null || $current->getId() !== $file->getId()
+                || $current->getPath() !== $file->getPath()) {
+                $lease->close();
+                return null;
+            }
+            return $lease;
+        } catch (\Throwable) {
+            $lease?->close();
+            return null;
+        }
     }
 
-    /** Return a cover candidate only after checking the recipient's actual file mount. */
+    private function resolveBookFile(string $recipient, array $grant, int $itemId): ?File {
+        $libraryOnly = ($grant['access_mode'] ?? 'files') === 'library_only';
+        $query = 'SELECT f.file_id,f.cached_path FROM *PREFIX*library_items i '
+            . 'INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id ';
+        if ($libraryOnly) {
+            $query .= 'INNER JOIN *PREFIX*library_share_books sb ON sb.grant_id=? AND sb.item_id=i.id AND sb.file_id=f.file_id ';
+        }
+        $query .= 'WHERE i.user_id=? AND f.root_id=? AND i.id=? AND i.marked_for_deletion_at IS NULL AND f.scan_status=?';
+        $params = $libraryOnly ? [(int)$grant['id']] : [];
+        array_push($params, $grant['owner_user_id'], (int)$grant['root_id'], $itemId, 'indexed');
+        $result = $this->db->executeQuery($query, $params);
+        $row = $result->fetch();
+        $result->closeCursor();
+        return is_array($row) ? ($libraryOnly ? $this->ownerFile($grant, $row) : $this->recipientFile($recipient, $grant, $row)) : null;
+    }
+
+    /** Return a cover candidate only after checking the grant and current source access. */
     public function bookCover(string $recipient, int $grantId, int $itemId): ?array {
         $grant = $this->visibleGrant($recipient, $grantId);
         if ($grant === null) {
@@ -481,10 +639,16 @@ final class RootShareService {
         if ($file === null) {
             return null;
         }
-        $result = $this->db->executeQuery('SELECT i.cover_override_data,i.cover_override_mime_type '
-            . 'FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id '
-            . 'WHERE i.user_id=? AND f.root_id=? AND i.id=? AND f.file_id=? AND i.marked_for_deletion_at IS NULL AND f.scan_status=?',
-            [$grant['owner_user_id'], (int)$grant['root_id'], $itemId, (int)$file->getId(), 'indexed']);
+        $libraryOnly = ($grant['access_mode'] ?? 'files') === 'library_only';
+        $query = 'SELECT i.cover_override_data,i.cover_override_mime_type '
+            . 'FROM *PREFIX*library_items i INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id ';
+        if ($libraryOnly) {
+            $query .= 'INNER JOIN *PREFIX*library_share_books sb ON sb.grant_id=? AND sb.item_id=i.id AND sb.file_id=f.file_id ';
+        }
+        $query .= 'WHERE i.user_id=? AND f.root_id=? AND i.id=? AND f.file_id=? AND i.marked_for_deletion_at IS NULL AND f.scan_status=?';
+        $params = $libraryOnly ? [$grantId] : [];
+        array_push($params, $grant['owner_user_id'], (int)$grant['root_id'], $itemId, (int)$file->getId(), 'indexed');
+        $result = $this->db->executeQuery($query, $params);
         $row = $result->fetch();
         $result->closeCursor();
         if (!is_array($row)) {
@@ -521,6 +685,31 @@ final class RootShareService {
             }
         }
         return null;
+    }
+
+    /** Resolve only the selected file through the owner's current, readable shelf. */
+    private function ownerFile(array $grant, array $row): ?File {
+        $rootPath = rtrim((string)$grant['path'], '/');
+        $cachedPath = '/' . ltrim((string)$row['cached_path'], '/');
+        if ($rootPath === '' || !str_starts_with($cachedPath, $rootPath . '/')) {
+            return null;
+        }
+        $relative = substr($cachedPath, strlen($rootPath) + 1);
+        if ($relative === '' || in_array('..', explode('/', $relative), true)) {
+            return null;
+        }
+        try {
+            $root = $this->files->getUserFolder((string)$grant['owner_user_id'])->get(ltrim($rootPath, '/'));
+            if (!$root instanceof Folder || (int)$root->getId() !== (int)$grant['root_file_id']
+                || !$root->isReadable() || !$root->isShareable() || $root->getMountPoint()->getMountType() === 'shared') {
+                return null;
+            }
+            $file = $root->get($relative);
+            return $file instanceof File && (int)$file->getId() === (int)$row['file_id'] && $file->isReadable()
+                && $file->isShareable() && $file->getMountPoint()->getMountType() !== 'shared' ? $file : null;
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /** @return array<int, Folder> */
@@ -568,6 +757,25 @@ final class RootShareService {
             }
         }
         return false;
+    }
+
+    /** Recheck core sharing restrictions without relying on the recipient's session for owner policy. */
+    private function librarySharingAllowed(string $owner, string $recipient): bool {
+        if (!$this->config->getSystemValueBool('filelocking.enabled', true)
+            || !$this->shares->shareApiEnabled() || $this->shares->sharingDisabledForUser($owner)) {
+            return false;
+        }
+        $ownerUser = $this->users->get($owner);
+        $recipientUser = $this->users->get($recipient);
+        if ($ownerUser === null || !$ownerUser->isEnabled() || $recipientUser === null || !$recipientUser->isEnabled()) {
+            return false;
+        }
+        if ($this->shares->shareWithGroupMembersOnly()) {
+            $allowedGroups = array_diff($this->groups->getUserGroupIds($ownerUser),
+                $this->shares->shareWithGroupMembersOnlyExcludeGroupsList());
+            return array_intersect($allowedGroups, $this->groups->getUserGroupIds($recipientUser)) !== [];
+        }
+        return true;
     }
 
     /** @return array<int, array<string, mixed>> */
@@ -659,7 +867,9 @@ final class RootShareService {
         }
         try {
             $node = $this->files->getUserFolder((string)$grant['owner_user_id'])->get(ltrim($grant['path'], '/'));
-            return $node instanceof Folder && (int)$node->getId() === (int)$grant['root_file_id'];
+            return $node instanceof Folder && (int)$node->getId() === (int)$grant['root_file_id']
+                && (($grant['access_mode'] ?? 'files') !== 'library_only'
+                    || ($node->isReadable() && $node->isShareable() && $node->getMountPoint()->getMountType() !== 'shared'));
         } catch (\Throwable) {
             return false;
         }
@@ -691,7 +901,9 @@ final class RootShareService {
         if ($row['revoked_at'] !== null) {
             $status = 'cleanup-pending';
         } elseif (($row['enabled'] ?? false) && $this->rootStillMatches($row)) {
-            if ($this->recipientReadOnlyRootNodes($recipient, (int)$row['root_file_id']) !== []) {
+            if (($row['access_mode'] ?? 'files') === 'library_only'
+                ? $this->librarySharingAllowed((string)$row['owner_user_id'], $recipient)
+                : $this->recipientReadOnlyRootNodes($recipient, (int)$row['root_file_id']) !== []) {
                 $status = 'ready';
             } elseif (is_string($row['managed_share_id'] ?? null) && $row['managed_share_id'] !== '') {
                 try {
@@ -715,6 +927,8 @@ final class RootShareService {
             'recipientId' => $recipient,
             'recipientName' => $this->users->get($recipient)?->getDisplayName() ?? $recipient,
             'managedFilesShare' => ($row['managed_share_id'] ?? null) !== null,
+            'accessMode' => (string)($row['access_mode'] ?? 'files'),
+            'scopeName' => (string)($row['scope_name'] ?? ''),
             'status' => $status,
         ];
     }

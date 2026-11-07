@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\Library\Controller;
 
+use OCA\Library\Http\SharedBookDownloadResponse;
 use OCA\Library\Reader\DefaultNextcloudFileProvider;
 use OCA\Library\Service\CoverThumbnailService;
 use OCA\Library\Service\RootService;
@@ -51,6 +52,7 @@ final class RootShareController extends Controller {
         return $this->page([
             'view' => 'index',
             'roots' => $roots,
+            'shareableLists' => $this->sharing->shareableLists($uid),
             'owned' => $this->sharing->owned($uid),
             'received' => $this->sharing->received($uid),
             'notice' => is_string($notice) ? $notice : '',
@@ -88,7 +90,10 @@ final class RootShareController extends Controller {
             if (!is_string($recipient) || mb_strlen($recipient) > 64) {
                 throw new \InvalidArgumentException('invalid_recipient');
             }
-            return $this->page(['view' => 'confirm', 'grantPreview' => $this->sharing->previewGrant($uid, $rootId, $recipient)]);
+            $mode = $this->request->getParam('filesMode', 'reuse');
+            $listId = $mode === 'library_only' ? $this->selectionId() : 0;
+            return $this->page(['view' => 'confirm', 'grantPreview' => $this->sharing->previewGrant($uid, $rootId, $recipient,
+                is_string($mode) ? $mode : '', $listId)]);
         } catch (\InvalidArgumentException $error) {
             return $this->redirect($this->grantErrorCode($error->getMessage()));
         } catch (\Throwable $error) {
@@ -107,15 +112,20 @@ final class RootShareController extends Controller {
                 throw new \InvalidArgumentException('invalid_recipient');
             }
             $mode = $this->request->getParam('filesMode', '');
+            $listId = $mode === 'library_only' ? $this->selectionId() : 0;
+            $selectionHash = $this->request->getParam('selectionHash', '');
             try {
                 $fileId = $this->positiveId($this->request->getParam('rootFileId', ''));
             } catch (\InvalidArgumentException) {
                 throw new \InvalidArgumentException('share_changed');
             }
-            if ($this->request->getParam('confirmed', '') !== '1' || $mode !== 'reuse') {
+            if ($this->request->getParam('confirmed', '') !== '1'
+                || !in_array($mode, ['reuse', 'library_only'], true)
+                || !is_string($selectionHash)
+                || ($mode === 'library_only' && preg_match('/^[a-f0-9]{64}$/D', $selectionHash) !== 1)) {
                 throw new \InvalidArgumentException('share_changed');
             }
-            $grant = $this->sharing->grant($uid, $rootId, $recipient, $fileId, $mode);
+            $grant = $this->sharing->grant($uid, $rootId, $recipient, $fileId, $mode, $listId, $selectionHash);
             $this->audit->info('library.root_share.grant', $uid, 'grant', 'root_share', 'success', ['target_id' => (int)$grant['id']]);
             return $this->redirect('shared');
         } catch (\InvalidArgumentException $error) {
@@ -184,6 +194,10 @@ final class RootShareController extends Controller {
     #[NoCSRFRequired]
     public function book(int $grantId, int $itemId): TemplateResponse {
         $uid = $this->session->getUser()?->getUID() ?? '';
+        $grant = $this->sharing->visibleGrant($uid, $grantId);
+        if ($grant === null) {
+            return $this->notFound();
+        }
         $book = $this->sharing->book($uid, $grantId, $itemId);
         $file = $this->sharing->bookFile($uid, $grantId, $itemId);
         if ($book === null || $file === null) {
@@ -193,18 +207,52 @@ final class RootShareController extends Controller {
         $search = is_string($search) && mb_check_encoding($search, 'UTF-8')
             && preg_match('/[\p{Cc}]/u', $search) !== 1
             && mb_strlen($search) <= 100 && ($search === '' || mb_strlen($search) >= 3) ? $search : '';
+        $libraryOnly = ($grant['access_mode'] ?? 'files') === 'library_only';
         return $this->page([
             'view' => 'book', 'grantId' => $grantId, 'book' => $book,
             'backUrl' => $this->shelfUrl($grantId, $this->cursor(), $search),
             'coverUrl' => $this->urls->linkToRoute('library.root_share.cover', ['grantId' => $grantId, 'itemId' => $itemId]),
-            'openUrl' => $this->files->getOpenUrl((int)$file->getId()),
+            'openUrl' => $libraryOnly
+                ? $this->urls->linkToRoute('library.root_share.content', ['grantId' => $grantId, 'itemId' => $itemId])
+                : $this->files->getOpenUrl((int)$file->getId()),
+            'libraryOnly' => $libraryOnly,
         ]);
+    }
+
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function content(int $grantId, int $itemId): SharedBookDownloadResponse|DataDownloadResponse {
+        $uid = $this->session->getUser()?->getUID() ?? '';
+        $grant = $this->sharing->visibleGrant($uid, $grantId);
+        if ($grant === null || ($grant['access_mode'] ?? 'files') !== 'library_only') {
+            return new DataDownloadResponse('', 'unavailable', 'application/octet-stream', 404,
+                ['Cache-Control' => 'private, no-store']);
+        }
+        $lease = $this->sharing->leaseBookFile($uid, $grantId, $itemId);
+        if ($lease === null) {
+            return new DataDownloadResponse('', 'unavailable', 'application/octet-stream', 404,
+                ['Cache-Control' => 'private, no-store']);
+        }
+        // Download rather than hand off to Files: the recipient has no Files mount in Library-only mode.
+        return new SharedBookDownloadResponse($lease);
     }
 
     #[NoAdminRequired]
     #[NoCSRFRequired]
     public function cover(int $grantId, int $itemId): DataDownloadResponse {
         $uid = $this->session->getUser()?->getUID() ?? '';
+        $lease = $this->sharing->leaseBookFile($uid, $grantId, $itemId);
+        if ($lease === null) {
+            return new DataDownloadResponse('', 'unavailable', 'application/octet-stream', 404, ['Cache-Control' => 'private, no-store']);
+        }
+        try {
+            return $this->renderCover($uid, $grantId, $itemId);
+        } finally {
+            $lease->close();
+        }
+    }
+
+    private function renderCover(string $uid, int $grantId, int $itemId): DataDownloadResponse {
         $cover = $this->sharing->bookCover($uid, $grantId, $itemId);
         if ($cover === null) {
             return new DataDownloadResponse('', 'unavailable', 'application/octet-stream', 404, ['Cache-Control' => 'private, no-store']);
@@ -274,6 +322,14 @@ final class RootShareController extends Controller {
         return (int)$value;
     }
 
+    private function selectionId(): int {
+        try {
+            return $this->positiveId($this->request->getParam('listId', ''));
+        } catch (\InvalidArgumentException) {
+            throw new \InvalidArgumentException('invalid_selection');
+        }
+    }
+
     private function cursor(): int {
         $value = $this->request->getParam('after', '0');
         return is_string($value) && preg_match('/^[0-9]{1,10}$/D', $value) && (int)$value <= 2147483647 ? (int)$value : 0;
@@ -288,7 +344,7 @@ final class RootShareController extends Controller {
     }
 
     private function grantErrorCode(string $message): string {
-        return in_array($message, ['files_access_required', 'recipient_has_writable_access', 'invalid_root', 'share_limit_reached', 'already_shared', 'existing_share_changed', 'revocation_pending', 'share_changed'], true)
+        return in_array($message, ['files_access_required', 'recipient_has_writable_access', 'invalid_root', 'share_limit_reached', 'already_shared', 'existing_share_changed', 'revocation_pending', 'share_changed', 'invalid_selection', 'sharing_not_allowed'], true)
             ? $message : 'invalid_recipient';
     }
 }

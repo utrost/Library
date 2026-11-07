@@ -58,6 +58,7 @@ return [
         ['name' => 'root_share#revoke', 'url' => '/shares/{grantId}/revoke', 'verb' => 'POST', 'requirements' => ['grantId' => '[1-9][0-9]*']],
         ['name' => 'root_share#show', 'url' => '/shares/{grantId}', 'verb' => 'GET', 'requirements' => ['grantId' => '[1-9][0-9]*']],
         ['name' => 'root_share#cover', 'url' => '/shares/{grantId}/books/{itemId}/cover', 'verb' => 'GET', 'requirements' => ['grantId' => '[1-9][0-9]*', 'itemId' => '[1-9][0-9]*']],
+        ['name' => 'root_share#content', 'url' => '/shares/{grantId}/books/{itemId}/content', 'verb' => 'GET', 'requirements' => ['grantId' => '[1-9][0-9]*', 'itemId' => '[1-9][0-9]*']],
         ['name' => 'root_share#book', 'url' => '/shares/{grantId}/books/{itemId}', 'verb' => 'GET', 'requirements' => ['grantId' => '[1-9][0-9]*', 'itemId' => '[1-9][0-9]*']],
         ['name' => 'scan#run', 'url' => '/scan', 'verb' => 'POST'],
         ['name' => 'scan#runRoot', 'url' => '/scan/roots/{rootId}', 'verb' => 'POST'],

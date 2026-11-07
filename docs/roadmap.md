@@ -2,7 +2,7 @@
 
 **Current stable release: 0.3.0.** The accepted RC3 functionality is unchanged. The exact signed package passed NC33–35 certification and is published in the App Store Stable channel; see the [release verification record](release-verification.md).
 
-**Developer instance: signed 0.4.0-alpha.1.** Google Books support is prepared on the alpha.2 development branch and is not deployed or published.
+**Developer instance: signed 0.4.0-alpha.2.** Google Books lookup and its administrator key settings are deployed for testing. This development build is not an App Store release; provider acceptance and the full compatibility matrix remain open. Selected-book sharing is implemented in source and locally checked; see the [checkpoint](sharing-selected-books-2026-11-07.md). It is not deployed yet.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical; those features are retained in stable 0.3.0.
 
@@ -20,7 +20,7 @@ Pre-release architecture: [review](pre-release-architecture-review.md) and [impl
 
 Status: **0.3.0** is available in the App Store Stable channel. The preserved private **0.2.0-beta.3** package remains an upgrade-test baseline.
 
-Last updated: 2026-11-06
+Last updated: 2026-11-07
 
 ## Product direction
 
@@ -41,7 +41,7 @@ The release themes below guide sequencing. They are not delivery dates or claims
 
 **Foundation before edition grouping:** distinguish work, edition, file and personal activity through a reviewed design and additive migrations. Preserve existing file IDs, relationships and corrections. Progress remains tied to a specific file/version until a verified mapping exists; no automatic cross-edition position conversion or destructive duplicate consolidation.
 
-**Read-only sharing:** 0.4 includes the first owner-controlled grant of one Library shelf to a named Nextcloud user, with recipient browsing limited by current Files permissions. Shared corrections, groups, public links and admin-managed roots remain later work. Sharing is not a prerequisite for reader integration.
+**Read-only sharing:** 0.4 includes the first owner-controlled grant of one Library shelf to a named Nextcloud user, with either existing read-only Files access or a fixed list of selected books served through Library. Selected-book grants require current owner read/share permission and core sharing policy; the first slice offers downloads without an integrated reader. Shared corrections, groups, public links and admin-managed roots remain later work. Sharing is not a prerequisite for reader integration.
 
 **Nextcloud integration across releases:** stage book-linked Notes/Text documents, Unified Search, Smart Picker/link previews and a native Nextcloud Dashboard widget in 0.4; connect reader highlights and passage links to notes in 0.5; explore permission-aware links to Collectives and knowledge retrieval in 0.6. These are optional, independently deliverable integration slices, not a requirement to install every companion app. Notes remain user-owned documents with one authoritative copy; Library owns book/note relationships and reading anchors. Existing list notes and file comments retain their current meaning. See the [integration track](post-v0.1-roadmap.md#nextcloud-integration-across-releases).
 

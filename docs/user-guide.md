@@ -540,16 +540,18 @@ Current support: partial.
 
 Acceptance checks:
 
-- Library routes are user-scoped and do not introduce a separate global permission model.
-- Users configure roots under their own account.
-- The scanner resolves roots through the current user's Nextcloud folder view.
+- The owner enables a shelf in Library settings. For selected books, create a personal list with 1–100 books from that shelf, then choose **Selected books only — no Files share** in **Shared libraries**. Expand **Review selected books** to check the exact titles and paths, then confirm the list and recipient. Later list edits do not change the shared selection; revoke and grant again to change it.
+- Alternatively, share the shelf folder read-only in Nextcloud Files, have the recipient accept it, and choose **Existing read-only Files share**.
+- In **Shared libraries**, the owner chooses that shelf and user, reviews the access summary, and grants Library browsing. The recipient then sees the shelf under **Shared with me**, can search titles/authors and view covers. Selected-book access offers **Download shared file**; Files-backed access offers **Open in Nextcloud**.
+- Library rechecks the grant and source identity for every book, cover and download. Selected-book grants also require the owner’s current read/share permission and permitted Nextcloud sharing policy; Files-backed grants require the recipient’s current read-only Files access. The recipient cannot edit the owner's Library metadata, lists or reading state through this view.
+- **Remove access** revokes Library browsing. It leaves a pre-existing Files share in place; remove that separately in Nextcloud Files when Files access should end too.
 
 Visible gaps:
 
 - no admin-managed shared library root provisioning;
-- no explicit multi-user catalogue sharing layer;
-- no role distinction inside Library beyond Nextcloud access;
-- no UI explaining what another user must do after a folder is shared with them.
+- sharing is limited to a named user and one owner shelf; groups and public links remain future work;
+- selected-book sharing is a fixed list snapshot of at most 100 books and offers downloads without an integrated reader; Nextcloud transactional file locking must be enabled;
+- the shared shelf uses simple book-ID paging rather than the owner's full catalogue sorting and filters.
 
 ### Story 5: Finding a document in a large archive
 

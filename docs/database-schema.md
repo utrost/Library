@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.4 development source tree**, 2026-11-05. Covers 43 app-owned tables through `Version000400Date20261105093000`. The 0.4 migration adds root-scoped, named-user read-only grants without copying catalogue items, plus a global external-lookup pacing slot. It has not yet passed the exact-package multi-version and physical-schema checks required before release. The 0.3 schema passed NC33–35 certification across SQLite, MariaDB and PostgreSQL; see the release record.
+Snapshot: **0.4 development source tree**, 2026-11-06. Covers 44 app-owned tables through `Version000400Date20261106190000`. The 0.4 migrations add root-scoped named-user grants, selected-book Library-only snapshots, and a global external-lookup pacing slot. They have not yet passed the exact-package multi-version and physical-schema checks required before release. The 0.3 schema passed NC33–35 certification across SQLite, MariaDB and PostgreSQL; see the release record.
 
 ## Schema ownership
 
@@ -35,7 +35,8 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 | `library_language_mappings` | 3 | 1 | Account-wide language mapping or ignore decisions. |
 | `library_value_mappings` | 6 | 2 | Reversible account-wide publisher and subject spelling groups; publication metadata stays unchanged. |
 | `library_roots` | 8 | 3 | User-selected source folders and scan configuration. |
-| `library_root_shares` | 9 | 4 | Named-user grants for one owned root, its Files identity, and a hidden recovery marker for interrupted Files-share creation. No book or personal metadata is copied. |
+| `library_root_shares` | 11 | 4 | Named-user grants for one owned root, its Files identity, access mode and optional selected-list label. Legacy recovery marker remains for interrupted Files-share creation. |
+| `library_share_books` | 3 | 1 | Fixed selected-book snapshot for Library-only grants, bound to the source file ID. No publication or personal metadata is copied. |
 | `library_lookup_quota` | 2 | 1 | One global next-request slot per external metadata provider; no user queries or identifiers. |
 | `library_files` | 17 | 10 | Nextcloud file identity, observed paths/revisions, scan diagnostics and shelf/date/type worklist ordering. |
 | `library_items` | 48 | 31 | Catalogue metadata, ordered authors, series migration status, genre/language discovery markers, search-index version, provenance, field protection, review flags, reversible deletion mark and cover revision. |
