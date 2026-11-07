@@ -8,7 +8,7 @@ On an alpha.3 development build, open **Administration settings → Library → 
 
 ### 0.4 read-only sharing preview
 
-Alpha.3 adds selected-book sharing. See the [focused upgrade and performance record](sharing-alpha3-verification.md) for measured coverage and remaining release acceptance.
+Alpha.3 is installed on developer NC34 and adds selected-book sharing. Create a personal list of 1–100 books from one shelf, then choose **Shared libraries → Selected books only — no Files share**. See the [focused upgrade and performance record](sharing-alpha3-verification.md) for measured coverage and remaining release acceptance.
 
 Use disposable owner, recipient, outsider and second Files-recipient accounts. Enable an owner shelf with an indexed book and a cover. Share its folder read-only in Nextcloud Files with both recipients and have them accept it. In **Shared libraries**, choose the shelf and first recipient, type at least three letters of the recipient's name, select the result, review the folder-wide Files disclosure, then grant. As that recipient, browse, search by a corrected author name, inspect the cover and open the file. Confirm there are no metadata editing controls and neither the outsider nor the Files-only second recipient can open the shared shelf, book or cover URL. Revoke Library access and verify the recipient loses the shared view while the original Files share stays in place. Then remove the Files share separately. Repeat with a long shelf/user name, a missing cover, 390 px mobile width, keyboard focus, light/dark themes and a Files share whose permissions or acceptance state changes. The disposable NC34 browser script covers the basic permission boundary; it does not certify the full NC33–35, database, policy or large-catalogue matrix.
 
