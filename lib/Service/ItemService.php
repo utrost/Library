@@ -4070,9 +4070,17 @@ final class ItemService {
         if ($data === null) {
             return false;
         }
+        $this->db->beginTransaction();
+        try {
+        $this->lockOwnedItem($userId,$itemId);
+        $current=$this->findItem($userId,$itemId);
+        if ($current===null) throw new \OutOfBoundsException('item_not_found');
+        $sources=$current['fieldSources'] ?? [];
+        $sources['cover']='user';
         $qb = $this->db->getQueryBuilder();
         $affected = $qb->update('library_items')
             ->set('cover_override_url', $qb->createNamedParameter(null))
+            ->set('field_sources', $qb->createNamedParameter(json_encode($sources,JSON_THROW_ON_ERROR)))
             ->set('cover_revision', $qb->createNamedParameter(bin2hex(random_bytes(16))))
             ->set('cover_override_data', $qb->createNamedParameter($data))
             ->set('cover_override_mime_type', $qb->createNamedParameter($mime))
@@ -4083,13 +4091,22 @@ final class ItemService {
         if ($affected > 0) {
             $this->refreshReviewFilterFlags($userId, $itemId);
         }
+        $this->db->commit();
         return $affected > 0;
+        } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
     }
 
     public function clearManualCoverOverride(string $userId, int $itemId): bool {
+        $this->db->beginTransaction();
+        try {
+        $this->lockOwnedItem($userId,$itemId);
+        $current=$this->findItem($userId,$itemId);
+        if ($current===null) throw new \OutOfBoundsException('item_not_found');
+        $sources=$current['fieldSources'] ?? []; unset($sources['cover']);
         $qb = $this->db->getQueryBuilder();
         $affected = $qb->update('library_items')
             ->set('cover_override_url', $qb->createNamedParameter(null))
+            ->set('field_sources', $qb->createNamedParameter(json_encode($sources,JSON_THROW_ON_ERROR)))
             ->set('cover_revision', $qb->createNamedParameter(bin2hex(random_bytes(16))))
             ->set('cover_override_data', $qb->createNamedParameter(null))
             ->set('cover_override_mime_type', $qb->createNamedParameter(null))
@@ -4100,7 +4117,9 @@ final class ItemService {
         if ($affected > 0) {
             $this->refreshReviewFilterFlags($userId, $itemId);
         }
+        $this->db->commit();
         return $affected > 0;
+        } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
     }
 
     private function databaseColumnForField(string $field): ?string {

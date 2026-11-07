@@ -23,6 +23,7 @@ final class MetadataLookupController extends Controller {
         private OpenLibraryLookupService $lookup,
         private GoogleBooksLookupService $googleBooks,
         private SecurityAuditLogger $audit,
+        private \OCA\Library\Service\MetadataBatchService $batches,
     ) {
         parent::__construct($appName, $request);
     }
@@ -64,12 +65,15 @@ final class MetadataLookupController extends Controller {
             return $this->response(['error' => 'not_found'], 404);
         }
         try {
-            $edition = $this->provider()->edition($userId, $this->text('editionId'));
+            $adapter=$this->provider();
+            $edition = $this->batches->prepareEditor($userId,$itemId,$adapter===$this->googleBooks ? 'googlebooks' : 'openlibrary',$this->text('editionId'));
             $this->audit->info('library.metadata_lookup.edition', $userId, 'view', 'item', 'success', ['target_id' => $itemId]);
             return $this->response($edition);
         } catch (\InvalidArgumentException) {
             $this->audit->warning('library.metadata_lookup.edition', $userId, 'view', 'item', 'rejected', ['target_id' => $itemId, 'reason' => 'invalid_edition']);
             return $this->response(['error' => 'invalid_edition'], 400);
+        } catch (\DomainException $error) {
+            return $this->response(['error' => $error->getMessage() === 'job_limit' ? 'job_limit' : 'lookup_changed'], 409);
         } catch (\RuntimeException $error) {
             $this->audit->warning('library.metadata_lookup.edition', $userId, 'view', 'item', 'failure', ['target_id' => $itemId, 'reason' => $error->getMessage()]);
             if ($error->getMessage() === 'rate_limited') return $this->response(['error' => 'rate_limited'], 429);
@@ -77,6 +81,13 @@ final class MetadataLookupController extends Controller {
             if ($error->getMessage() === 'provider_unconfigured') return $this->response(['error' => 'provider_unconfigured'], 503);
             return $this->response(['error' => 'provider_unavailable'], 502);
         }
+    }
+
+    #[NoAdminRequired]
+    public function receipts(int $itemId): JSONResponse {
+        $uid=$this->ownedItemUserId($itemId);
+        if ($uid===null) return $this->response(['error'=>'not_found'],404);
+        return $this->response(['receipts'=>$this->batches->receiptsForItem($uid,$itemId)]);
     }
 
     private function ownedItemUserId(int $itemId): ?string {

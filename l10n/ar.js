@@ -1741,7 +1741,23 @@ OC.L10N.register(
             "حُدد %n حقلًا",
             "حُدد %n حقل"
         ],
-        "Applying reviewed changes: {done} of {total} books": "جارٍ تطبيق التغييرات المراجعة: {done} من أصل {total} كتب"
+        "Applying reviewed changes: {done} of {total} books": "جارٍ تطبيق التغييرات المراجعة: {done} من أصل {total} كتب",
+        "Compare covers": "مقارنة الأغلفة",
+        "Cover preview is unavailable or expired. Retry before selecting it.": "معاينة الغلاف غير متاحة أو انتهت صلاحيتها. أعد المحاولة قبل اختياره.",
+        "Cover replaced": "تم استبدال الغلاف",
+        "Current cover": "الغلاف الحالي",
+        "Loading…": "جارٍ التحميل…",
+        "Lookup change history": "سجل تغييرات البحث عن البيانات",
+        "No retained lookup changes for this book.": "لا توجد تغييرات بحث محفوظة لهذا الكتاب.",
+        "Preview cover from Open Library": "معاينة الغلاف من Open Library",
+        "Save or discard staged suggestions before choosing another edition.": "احفظ الاقتراحات المجهزة أو تجاهلها قبل اختيار طبعة أخرى.",
+        "Save or discard your edits before Undo.": "احفظ تعديلاتك أو تجاهلها قبل التراجع.",
+        "Saving covers from Google Books is not supported.": "حفظ الأغلفة من Google Books غير مدعوم.",
+        "Suggested cover": "الغلاف المقترح",
+        "The change could not be undone. Later edits and changed files are protected.": "تعذر التراجع عن التغيير. التعديلات اللاحقة والملفات المتغيرة محمية.",
+        "The cover changes only when you apply or save. Text-only updates keep your current cover.": "يتغير الغلاف فقط عند التطبيق أو الحفظ. تحديث النص وحده يحافظ على الغلاف الحالي.",
+        "Use this cover, replacing the current cover if present": "استخدام هذا الغلاف واستبدال الغلاف الحالي إن وجد",
+        "Cover storage is full. Delete older lookup receipts before retrying.": "مساحة تخزين الأغلفة ممتلئة. احذف سجلات بحث أقدم قبل إعادة المحاولة."
     },
     "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 );

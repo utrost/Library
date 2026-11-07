@@ -1632,7 +1632,23 @@
             "%n field selected",
             "%n fields selected"
         ],
-        "Applying reviewed changes: {done} of {total} books": "Applying reviewed changes: {done} of {total} books"
+        "Applying reviewed changes: {done} of {total} books": "Applying reviewed changes: {done} of {total} books",
+        "Compare covers": "Compare covers",
+        "Cover preview is unavailable or expired. Retry before selecting it.": "Cover preview is unavailable or expired. Retry before selecting it.",
+        "Cover replaced": "Cover replaced",
+        "Current cover": "Current cover",
+        "Loading…": "Loading…",
+        "Lookup change history": "Lookup change history",
+        "No retained lookup changes for this book.": "No retained lookup changes for this book.",
+        "Preview cover from Open Library": "Preview cover from Open Library",
+        "Save or discard staged suggestions before choosing another edition.": "Save or discard staged suggestions before choosing another edition.",
+        "Save or discard your edits before Undo.": "Save or discard your edits before Undo.",
+        "Saving covers from Google Books is not supported.": "Saving covers from Google Books is not supported.",
+        "Suggested cover": "Suggested cover",
+        "The change could not be undone. Later edits and changed files are protected.": "The change could not be undone. Later edits and changed files are protected.",
+        "The cover changes only when you apply or save. Text-only updates keep your current cover.": "The cover changes only when you apply or save. Text-only updates keep your current cover.",
+        "Use this cover, replacing the current cover if present": "Use this cover, replacing the current cover if present",
+        "Cover storage is full. Delete older lookup receipts before retrying.": "Cover storage is full. Delete older lookup receipts before retrying."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

@@ -52,7 +52,7 @@ final class OpenLibraryLookupService {
         }
         $query['fields'] = 'key,title,author_name,first_publish_year,edition_key,editions,editions.key,editions.title,editions.publish_date,editions.publisher,editions.language,editions.isbn';
         $query['limit'] = '6';
-        $cache = $this->caches->createDistributed('library-openlibrary-lookup');
+        $cache = $this->caches->createDistributed('library-openlibrary-lookup-v2');
         $key = hash('sha256', $userId . "\0" . json_encode($query, JSON_THROW_ON_ERROR));
         $cached = $cache->get($key);
         if (is_array($cached)) {
@@ -186,7 +186,7 @@ final class OpenLibraryLookupService {
         if ($id === null) {
             throw new \InvalidArgumentException('invalid_edition');
         }
-        $cache = $this->caches->createDistributed('library-openlibrary-lookup');
+        $cache = $this->caches->createDistributed('library-openlibrary-lookup-v2');
         $key = hash('sha256', $userId . "\0edition\0" . $id);
         $cached = $cache->get($key);
         if (is_array($cached)) {
@@ -247,6 +247,7 @@ final class OpenLibraryLookupService {
         if ($language !== null) $fields['language'] = $language;
         $result = ['provider' => 'Open Library', 'editionId' => $id, 'url' => self::BASE . '/books/' . $id, 'fields' => $fields,
             'isbn' => array_values($identifiers), 'languages' => array_slice($languages, 0, 4)];
+        foreach (array_slice(is_array($data['covers'] ?? null) ? $data['covers'] : [],0,4) as $cover) { if (is_int($cover) && $cover>0 && $cover<=2147483647) { $result['coverId']=$cover; break; } }
         return $result;
     }
 

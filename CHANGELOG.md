@@ -1,12 +1,15 @@
 # Changelog
 
-## Unreleased
+## 0.4.0-alpha.5 — development
 
 - Add per-book query/provider refinement, review filters, selected-field counts and conservative missing-field selection to bulk metadata lookup.
 - Bind approvals to review versions, reject stale selections and submit browser bulk applies in groups of ten with progress.
 - Preserve applied-change receipts and conditional Undo for 90 days after application, independently of 30-day suggestions; allow explicit receipt deletion.
 - Honor provider Retry-After cooldowns and expose normalized language suggestions in one-book and batch review.
 - Add deterministic provider fault checks, SQLite/MariaDB integration, focused desktop/mobile journeys and a synthetic 100k-book scale fixture. No new migration or full release certification.
+
+- Unify single-book and batch provider receipts, verified provenance and conditional Undo while retaining one editor Save/Discard transaction.
+- Add explicit Open Library cover comparison and approval, bounded private preview storage and atomic text/cover Save with original-cover restoration. Google Books cover saving remains unsupported.
 
 ## 0.4.0-alpha.4 — development
 
