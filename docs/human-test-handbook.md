@@ -2,7 +2,7 @@
 
 ## Development: selected-book metadata lookup
 
-Alpha.5 is the current development candidate. See the
+Alpha.5 is installed on developer NC34. See the
 [focused verification record](lookup-editor-covers-alpha5.md) and the
 [workflow and limitations](bulk-metadata-lookup.md). On a disposable catalogue,
 select two books and open **Find book details**; repeat from a personal list.
@@ -40,7 +40,7 @@ These checks target alpha.5; the stable App Store release remains 0.3.0.
   retry timing, and readable light/dark states. Manual assistive technology and
   linguistic review remain human acceptance work.
 
-**Current acceptance target: 0.3.0.** The signed stable archive, checksum and certification are recorded in the [release verification record](release-verification.md). Earlier RC checksums and results do not certify 0.3.0.
+**Stable release record: 0.3.0.** The signed stable archive, checksum and certification are recorded in the [release verification record](release-verification.md). Earlier RC checksums and results do not certify 0.3.0.
 
 ### Single-book provenance and optional covers
 

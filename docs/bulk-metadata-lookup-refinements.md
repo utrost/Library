@@ -1,8 +1,9 @@
 # Bulk lookup refinements: focused verification
 
-Date: 2026-11-07. Status: **unreleased source**, following deployed alpha.4.
-No developer-instance deployment, App Store publication or full release gate is
-represented by this record. All modified books and provider evidence were
+Date: 2026-11-07. This record captures the source checks performed after alpha.4.
+These refinements are now delivered in alpha.5; see the
+[installed checkpoint](lookup-editor-covers-alpha5.md#installed-checkpoint).
+No App Store publication or full release gate is represented by this record. All modified books and provider evidence were
 synthetic and disposable. Public-provider requests: zero.
 
 ## Changes and checks
