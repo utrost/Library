@@ -362,11 +362,7 @@ final class RootShareService {
         if ($managedId !== '') {
             try {
                 $share = $this->shares->getShareById($this->managedShareId($managedId));
-                if ($share->getShareType() !== IShare::TYPE_USER || $share->getShareOwner() !== $owner
-                    || $share->getSharedBy() !== $owner || $share->getSharedWith() !== $grant['recipient_user_id']
-                    || $share->getNodeId() !== (int)$grant['root_file_id']
-                    || (is_string($grant['recovery_token'] ?? null) && $grant['recovery_token'] !== ''
-                        && $share->getNote() !== self::MANAGED_NOTE_PREFIX . $grant['recovery_token'])) {
+                if ($share->getFullId() !== $this->managedShareId($managedId) || !$this->managedShareMatches($share, $grant)) {
                     throw new \RuntimeException('share_identity_changed');
                 }
                 $this->shares->deleteShare($share);
@@ -469,7 +465,7 @@ final class RootShareService {
     /** @return array<int, array<string, mixed>> */
     public function received(string $recipient): array {
         $result = $this->db->executeQuery('SELECT s.*,r.path,r.label,r.enabled FROM *PREFIX*library_root_shares s '
-            . 'INNER JOIN *PREFIX*library_roots r ON r.id=s.root_id AND r.user_id=s.owner_user_id AND r.enabled=1 '
+            . 'INNER JOIN *PREFIX*library_roots r ON r.id=s.root_id AND r.user_id=s.owner_user_id AND r.enabled=TRUE '
             . 'WHERE s.recipient_user_id=? AND s.revoked_at IS NULL ORDER BY s.id DESC LIMIT 101', [$recipient]);
         $rows = $result->fetchAll();
         $result->closeCursor();
@@ -812,7 +808,20 @@ final class RootShareService {
         }
     }
 
-    /** Resolve an interrupted create without ever selecting a manual Files share. */
+    /** Only an unchanged share with our exact recovery marker is safe to remove. */
+    private function managedShareMatches(IShare $share, array $grant): bool {
+        $marker = $grant['recovery_token'] ?? null;
+        return is_string($marker) && $marker !== ''
+            && $share->getShareType() === IShare::TYPE_USER
+            && $share->getShareOwner() === $grant['owner_user_id']
+            && $share->getSharedBy() === $grant['owner_user_id']
+            && $share->getSharedWith() === $grant['recipient_user_id']
+            && $share->getNodeId() === (int)$grant['root_file_id']
+            && $share->getPermissions() === Constants::PERMISSION_READ
+            && $share->getExpirationDate() === null
+            && $share->getNote() === self::MANAGED_NOTE_PREFIX . $marker;
+    }
+
     private function cleanupPendingShare(array $grant): void {
         try {
             $nodes = $this->files->getUserFolder((string)$grant['owner_user_id'])->getById((int)$grant['root_file_id']);
@@ -831,7 +840,7 @@ final class RootShareService {
                         continue;
                     }
                     $possible++;
-                    if ($share->getNote() === self::MANAGED_NOTE_PREFIX . $grant['recovery_token']) {
+                    if ($this->managedShareMatches($share, $grant)) {
                         $matches[] = $share;
                     }
                 }

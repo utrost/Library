@@ -57,6 +57,10 @@ import NcActions from '@nextcloud/vue/components/NcActions'
 import NcActionLink from '@nextcloud/vue/components/NcActionLink'
 import NcContent from '@nextcloud/vue/components/NcContent'
 import MetadataBatchLookup from './components/MetadataBatchLookup.vue'
+import CurationWorkbench from './components/CurationWorkbench.vue'
+import HomeDashboard from './components/HomeDashboard.vue'
+const curationOpen = ref(new URLSearchParams(window.location.search).get('curation') === '1')
+function closeCuration() { if (new URLSearchParams(window.location.search).get('curation') === '1') window.location.href = catalogueRootUrl.value; else curationOpen.value = false }
 let batchLookupChanged = false
 function closeBatchLookup() {
   batchLookupOpen.value = false
@@ -2278,11 +2282,11 @@ async function toggleStar(item, event) {
       <template #list>
         <NcAppNavigationList>
           <li class="library-navigation-group-label library-navigation-group-label--first"><h2>{{ t('library', 'Library') }}</h2></li>
-          <NcAppNavigationItem v-for="destination in catalogueNavigation.slice(0, 4)" :key="destination.key" :active="!batchLookupOpen && destination.active" :href="destination.href" :name="destination.name">
+          <NcAppNavigationItem v-for="destination in catalogueNavigation.slice(0, 4)" :key="destination.key" :active="!curationOpen && !batchLookupOpen && destination.active" :href="destination.href" :name="destination.name">
             <template #icon><NavigationIcon :name="destination.key" /></template>
           </NcAppNavigationItem>
           <li class="library-navigation-group-label"><h2>{{ t('library', 'Discover') }}</h2></li>
-          <NcAppNavigationItem v-for="destination in catalogueNavigation.slice(4)" :key="destination.key" :active="!batchLookupOpen && destination.active" :href="destination.href" :name="destination.name">
+          <NcAppNavigationItem v-for="destination in catalogueNavigation.slice(4)" :key="destination.key" :active="!curationOpen && !batchLookupOpen && destination.active" :href="destination.href" :name="destination.name">
             <template #icon><NavigationIcon :name="destination.key" /></template>
           </NcAppNavigationItem>
           <div v-for="collection in savedCollectionNavigation" :key="collection.key" class="library-navigation-saved-collection-row">
@@ -2300,9 +2304,10 @@ async function toggleStar(item, event) {
           <NcAppNavigationItem class="library-navigation-create-list" :href="`${listsUrl}&new=1`" :name="t('library', 'Create a new list')"><template #icon><NavigationIcon name="add" /></template></NcAppNavigationItem>
           <NcAppNavigationItem v-for="list in personalListNavigation" :key="`personal-list-${list.id}`" class="library-navigation-personal-list" :href="`${listsUrl}&listId=${list.id}`" :name="list.name"><template #icon><NavigationIcon name="lists" /></template></NcAppNavigationItem>
           <li class="library-navigation-tools">
-            <details :open="batchLookupOpen || isInference || reviewActive || isDuplicates">
+            <details :open="curationOpen || batchLookupOpen || isInference || reviewActive || isDuplicates">
               <summary><NavigationIcon name="chevron" class="library-navigation-disclosure-icon" /><span>{{ t('library', 'Review and cleanup') }}</span><span v-if="reviewCount > 0" class="library-navigation-tools-count">{{ reviewCount }}</span></summary>
               <nav :aria-label="t('library', 'Review and cleanup')">
+                <a :href="`${catalogueRootUrl}?curation=1`" :aria-current="curationOpen ? 'page' : undefined"><NavigationIcon name="review" /><span>{{ t('library', 'Review and organise') }}</span></a>
                 <a :href="`${catalogueRootUrl}?metadataLookup=1`" :aria-current="batchLookupOpen ? 'page' : undefined"><NavigationIcon name="review" /><span>{{ t('library', 'Book detail lookups') }}</span></a>
                 <a :href="reviewUrl" :aria-current="reviewActive ? 'page' : undefined"><NavigationIcon name="review" /><span>{{ t('library', 'Review') }}</span></a>
                 <a :href="`${catalogueRootUrl}?infer=1`" :aria-current="isInference ? 'page' : undefined"><NavigationIcon name="infer" /><span>{{ t('library', 'Extract metadata') }}</span></a>
@@ -2315,7 +2320,7 @@ async function toggleStar(item, event) {
         </NcAppNavigationList>
       </template>
       <template #footer>
-        <section v-if="!batchLookupOpen && !isAuthors && !isSeries && !isGenres && !isLists && !isInference && !isDuplicates && !isDetails && !isHome && !isShelves && !reviewActive" class="library-sidebar-filter-section" aria-labelledby="library-sidebar-filters-heading">
+        <section v-if="!curationOpen && !batchLookupOpen && !isAuthors && !isSeries && !isGenres && !isLists && !isInference && !isDuplicates && !isDetails && !isHome && !isShelves && !reviewActive" class="library-sidebar-filter-section" aria-labelledby="library-sidebar-filters-heading">
           <h2 id="library-sidebar-filters-heading">{{ t('library', 'Filters') }}</h2>
           <form method="get" class="library-filter-bar library-sidebar-filters" :aria-label="t('library', 'Catalogue search and filters')" @submit.prevent="applyAllSearchFilters">
             <input type="hidden" name="searchScope" :value="quickSearch.trim() ? 'title_description' : ''">
@@ -2352,13 +2357,14 @@ async function toggleStar(item, event) {
     <NcAppContent>
       <DeletionNotice />
   <div id="library-app" class="library-vue-catalogue library-app" :lang="catalogueState.language || 'en'" :dir="catalogueState.direction || 'ltr'" tabindex="-1">
-  <MetadataBatchLookup v-if="batchLookupOpen" :item-ids="selectedItemIds" :request-token="requestToken" @changed="batchLookupChanged = true" @close="closeBatchLookup" />
+  <CurationWorkbench v-if="curationOpen" :request-token="requestToken" :item-ids="selectedItemIds" @close="closeCuration()" @lookup="ids => { selectedItemIds = ids; curationOpen = false; batchLookupOpen = true }" @changed="batchLookupChanged = true" />
+  <MetadataBatchLookup v-else-if="batchLookupOpen" :item-ids="selectedItemIds" :request-token="requestToken" @changed="batchLookupChanged = true" @close="closeBatchLookup" />
   <PossibleDuplicates v-else-if="isDuplicates" :request-token="requestToken" :review-url="reviewUrl" />
   <PathInference v-else-if="isInference" :request-token="requestToken" />
   <Authors v-else-if="isAuthors" :request-token="requestToken" :catalogue-url="catalogueRootUrl" />
   <Series v-else-if="isSeries" :request-token="requestToken" :catalogue-url="catalogueRootUrl" />
   <Genres v-else-if="isGenres" :request-token="requestToken" :catalogue-url="catalogueRootUrl" />
-  <PersonalLists @lookup="ids => { selectedItemIds = ids; batchLookupOpen = true }" @changed="refreshPersonalListNavigation" v-else-if="isLists" :request-token="requestToken" :catalogue-url="catalogueRootUrl" :lists-url="listsUrl" />
+  <PersonalLists @organise="ids => { selectedItemIds = ids; curationOpen = true }" @lookup="ids => { selectedItemIds = ids; batchLookupOpen = true }" @changed="refreshPersonalListNavigation" v-else-if="isLists" :request-token="requestToken" :catalogue-url="catalogueRootUrl" :lists-url="listsUrl" />
   <FullDetails v-else-if="isDetails" :item-id="String(catalogueState.detailsId || '')" :request-token="requestToken" :catalogue-url="catalogueRootUrl" />
   <template v-else>
   <nav v-if="activeFilterChips.length > 0" class="library-active-filter-chips" :aria-label="t('library', 'Active filters')">
@@ -2429,6 +2435,7 @@ async function toggleStar(item, event) {
       <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Your library') }}</p>
       <h2 id="library-home-heading">{{ t('library', 'Home') }}</h2>
     </header>
+    <HomeDashboard :request-token="requestToken" :settings-url="settingsUrl" />
 
 
     <aside v-if="resettableFilterChips.length > 0" class="library-active-filter-callout" :aria-label="t('library', 'Active catalogue filters')">
@@ -2447,17 +2454,6 @@ async function toggleStar(item, event) {
         </article>
       </div>
       <p v-else class="library-muted library-home-row-empty">{{ t('library', 'Publications you open will appear here.') }}</p>
-    </section>
-
-    <section class="library-home-row" aria-labelledby="library-recent-heading">
-      <header><div><h3 id="library-recent-heading"><LabelHelp :text="t('library', 'The latest publications indexed from your shelves.')">{{ t('library', 'Recently added') }}</LabelHelp></h3></div><a :href="`${catalogueRootUrl}?sort=recent`">{{ t('library', 'View all') }}</a></header>
-      <div v-if="homeRows.recentlyAdded.length" class="library-home-card-row">
-        <article v-for="item in homeRows.recentlyAdded" :key="`recent-${item.id}`" class="library-cover-card library-home-card">
-          <a class="library-cover-link" :href="detailsLink(item.detailsUrl)" :aria-label="`${t('library', 'Details')}: ${item.title}`"><CatalogueCover :src="item.coverUrl" /></a>
-          <div class="library-cover-summary"><h4><a class="library-cover-title-button" :href="detailsLink(item.detailsUrl)"><bdi dir="auto">{{ item.title }}</bdi></a></h4><p v-if="item.creators" class="library-cover-creator"><bdi dir="auto">{{ item.displayCreators ?? item.creators }}</bdi></p><a class="library-cover-read" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpenBeforeNavigate(item, $event)">{{ t('library', 'Open') }}</a></div>
-        </article>
-      </div>
-      <p v-else class="library-muted library-home-row-empty">{{ t('library', 'Recently indexed publications will appear here.') }}</p>
     </section>
 
     <section class="library-home-row" aria-labelledby="library-home-shelves-heading">
@@ -2687,6 +2683,7 @@ async function toggleStar(item, event) {
         <template v-if="selectedItemIds.length">
           <span aria-live="polite">{{ n('library', '%n publication selected', '%n publications selected', selectedItemIds.length) }}</span>
         </template>
+        <button type="button" @click="curationOpen = true">{{ t('library', 'Organise selected books') }}</button>
         <button type="button" @click="batchLookupOpen = true">{{ t('library', 'Find book details') }}</button>
         <AddToList v-show="selectedItemIds.length" :item-ids="selectedItemIds" :request-token="requestToken" :lists-url="listsUrl" :preferred-list-id="addingToListId" />
         <select v-if="selectedItemIds.length" v-model="selectedBatchAction" :aria-label="t('library', 'More actions')">

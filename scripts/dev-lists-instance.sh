@@ -9,7 +9,7 @@ mkdir -p "$work_dir"
 env_file="$work_dir/$nc_version.env"
 action="${1:-start}"
 database="${LIBRARY_LISTS_DATABASE:-sqlite}"
-[[ "$database" == sqlite || "$database" == mysql ]] || { echo 'Supported fixture databases: sqlite, mysql' >&2; exit 2; }
+[[ "$database" == sqlite || "$database" == mysql || "$database" == pgsql ]] || { echo 'Supported fixture databases: sqlite, mysql, pgsql' >&2; exit 2; }
 
 owned_instance() {
   [[ "$(docker inspect --format '{{index .Config.Labels "library.disposable"}}' "$instance" 2>/dev/null)" == personal-lists ]]
@@ -55,6 +55,18 @@ case "$action" in
       [[ "$db_ready" == 1 ]] || { echo 'Fixture database initialization timed out' >&2; exit 1; }
       network_args=(--network "$instance-net")
     fi
+    if [[ "$database" == pgsql ]]; then
+      docker network create --label library.disposable=personal-lists "$instance-net" >/dev/null
+      docker run --rm -d --label library.disposable=personal-lists --name "$instance-db" --network "$instance-net" --network-alias db \
+        -e POSTGRES_DB=nextcloud -e POSTGRES_USER=library -e POSTGRES_PASSWORD=Disposable-database-2026 postgres:18-alpine >/dev/null
+      db_ready=0
+      for _ in $(seq 1 120); do
+        if docker exec "$instance-db" pg_isready -U library -d nextcloud >/dev/null 2>&1; then db_ready=1; break; fi
+        sleep 1
+      done
+      [[ "$db_ready" == 1 ]] || { echo 'Fixture database initialization timed out' >&2; exit 1; }
+      network_args=(--network "$instance-net")
+    fi
     docker run --rm -d --label library.disposable=personal-lists --name "$instance" "${network_args[@]}" -p 127.0.0.1::80 "nextcloud:$nc_version-apache" >/dev/null
     ready=0
     for _ in $(seq 1 120); do
@@ -65,6 +77,9 @@ case "$action" in
     db_args=(--database sqlite)
     if [[ "$database" == mysql ]]; then
       db_args=(--database mysql --database-host db --database-name nextcloud --database-user library --database-pass Disposable-database-2026)
+    fi
+    if [[ "$database" == pgsql ]]; then
+      db_args=(--database pgsql --database-host db --database-name nextcloud --database-user library --database-pass Disposable-database-2026)
     fi
     docker exec -u www-data "$instance" php occ maintenance:install "${db_args[@]}" --admin-user library-smoke --admin-pass 'Disposable-lists-2026' --data-dir /var/www/html/data
     port=$(docker port "$instance" 80/tcp | sed 's/.*://')

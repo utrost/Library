@@ -89,6 +89,7 @@ walkJavaScript(parseJavaScript(fs.readFileSync(path.join(root, 'src/personal-lis
 const phpFiles = [
   ...fs.readdirSync(path.join(root, 'templates')).filter((name) => name.endsWith('.php')).map((name) => `templates/${name}`),
   ...fs.readdirSync(path.join(root, 'lib/Controller')).filter((name) => name.endsWith('.php')).map((name) => `lib/Controller/${name}`),
+  ...['Search','Reference','Dashboard'].flatMap(dir=>fs.readdirSync(path.join(root, 'lib',dir)).filter(name=>name.endsWith('.php')).map(name=>`lib/${dir}/${name}`)),
   ...fs.readdirSync(path.join(root, 'lib/Settings')).filter((name) => name.endsWith('.php')).map((name) => `lib/Settings/${name}`),
 ]
 
@@ -109,7 +110,7 @@ function validatePhpTemplate(source, relative) {
   }
 }
 
-for (const relative of [...fs.readdirSync(path.join(root, 'src')).filter(file => file.endsWith('.js') && !file.endsWith('.test.js')).map(file => `src/${file}`), ...phpFiles]) {
+for (const relative of ['js/library-dashboard.js', ...fs.readdirSync(path.join(root, 'src')).filter(file => file.endsWith('.js') && !file.endsWith('.test.js')).map(file => `src/${file}`), ...phpFiles]) {
   const source = fs.readFileSync(path.join(root, relative), 'utf8')
   if (relative.endsWith('.js')) walkJavaScript(parseJavaScript(source, { sourceType: 'module' }))
   else {
@@ -136,6 +137,8 @@ for (const [key, reason] of Object.entries(allowlist)) {
   if (!keys.has(key) || typeof reason !== 'string' || reason.trim().length < 8) fail('invalid_allowlist_entry', key)
 }
 
+if (process.argv.includes('--list-keys')) { process.stdout.write(JSON.stringify([...keys].sort(), null, 2)); process.exit(0) }
+
 const catalogues = {}
 for (const locale of ['en', 'de', 'ar']) {
   const cataloguePath = path.join(root, 'l10n', `${locale}.json`)
@@ -147,6 +150,8 @@ for (const locale of ['en', 'de', 'ar']) {
   const translations = catalogues[locale]?.translations
   if (!translations || Array.isArray(translations) || typeof translations !== 'object') fail('malformed_catalogue', locale)
   for (const key of keys) {
+    // Arabic is frozen for 0.4: retain shipped strings and allow English fallback.
+    if (locale === 'ar' && !Object.hasOwn(translations, key)) continue
     const value = translations[key]
     if (!Object.hasOwn(translations, key) || value === '' || value == null) fail('missing_translation', `${locale}:${key}`)
     const values = Array.isArray(value) ? value : [value]
@@ -155,7 +160,7 @@ for (const locale of ['en', 'de', 'ar']) {
       fail('placeholder_mismatch', `${locale}:${key}`)
     }
   }
-  for (const key of Object.keys(translations)) if (!keys.has(key)) fail('stale_translation', `${locale}:${key}`)
+  for (const key of Object.keys(translations)) if (locale !== 'ar' && !keys.has(key)) fail('stale_translation', `${locale}:${key}`)
 }
 
 for (const locale of ['de', 'ar']) {
@@ -187,13 +192,14 @@ try {
 // source token preserved by its translation must be in this set. Arabic permits
 // no other Latin content token at all.
 const permittedLatinTokens = new Set([
-  'nextcloud', 'files', 'library', 'open', 'google', 'books', 'cloud', 'javascript', 'json', 'zip', 'tsv', 'cbz',
+  'text', 'notes', 'nextcloud', 'files', 'library', 'open', 'google', 'books', 'cloud', 'javascript', 'json', 'zip', 'tsv', 'cbz',
   'epub', 'pdf', 'pdfs', 'jpeg', 'png', 'webp', 'mime', 'isbn', 'issn', 'asin', 'ggkey', 'opds', 'api',
-  'rar', 'mib', 'px', 'yyyy', 'mm', 'dd', 'ctrl', 'delete', 'enter', 'esc', 'escape',
+  'rar', 'kib', 'mib', 'gib', 'utc', 'drm', 'px', 'yyyy', 'mm', 'dd', 'ctrl', 'delete', 'enter', 'esc', 'escape',
   'eco', 'rolleiflex', 'ocr', 'opf', 'cron', 'id', 'ids', 'url', 'urls',
 ])
 const permittedGermanSourceTokens = new Set([
   ...permittedLatinTokens,
+  'editor', 'upload', 'original', 'version', 'optional', 'exports', 'congress',
   'admin', 'app', 'batch', 'browser', 'chip', 'chips', 'comic', 'comics', 'container',
   'cover', 'details', 'export', 'fiction', 'genre', 'genres', 'name', 'filter', 'subjects', 'index', 'limit',
   'manifest', 'moment', 'plugin', 'plugins', 'private', 'route', 'scan', 'scans', 'scanner', 'science',
@@ -229,6 +235,7 @@ for (const locale of ['de', 'ar']) {
     if (!keys.has(key) || typeof reason !== 'string' || reason.length < 16) fail('invalid_fragment_allowlist_entry', `${locale}:${key}`)
   }
   for (const [key, raw] of Object.entries(catalogues[locale].translations)) {
+    if (locale === 'ar' && !keys.has(key)) continue
     for (const value of Array.isArray(raw) ? raw : [raw]) {
       const sourceValues = Array.isArray(catalogues.en.translations[key]) ? catalogues.en.translations[key] : [catalogues.en.translations[key]]
       const sourceTokens = new Set(sourceValues.flatMap(latinTokens).map((token) => token.toLowerCase()))
@@ -281,8 +288,9 @@ for (const locale of ['de', 'ar']) {
 for (const pluralKey of [...keys].filter((key) => key.startsWith('_') && key.includes('_::_'))) {
   if (!Array.isArray(catalogues.en.translations[pluralKey]) || catalogues.en.translations[pluralKey].length !== 2) fail('malformed_plural', `en:${pluralKey}`)
   if (!Array.isArray(catalogues.de.translations[pluralKey]) || catalogues.de.translations[pluralKey].length !== 2) fail('malformed_plural', `de:${pluralKey}`)
-  if (!Array.isArray(catalogues.ar.translations[pluralKey]) || catalogues.ar.translations[pluralKey].length !== 6) fail('malformed_plural', `ar:${pluralKey}`)
+  if (Object.hasOwn(catalogues.ar.translations, pluralKey) && (!Array.isArray(catalogues.ar.translations[pluralKey]) || catalogues.ar.translations[pluralKey].length !== 6)) fail('malformed_plural', `ar:${pluralKey}`)
   for (const locale of ['en', 'de', 'ar']) {
+    if (locale === 'ar' && !Object.hasOwn(catalogues.ar.translations, pluralKey)) continue
     const integrity = evaluatePluralPlaceholderIntegrity(pluralKey, catalogues[locale].translations[pluralKey])
     if (!integrity.pass) fail('plural_placeholder_mismatch', `${locale}:${pluralKey}`)
   }

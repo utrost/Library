@@ -1,6 +1,6 @@
 # Rough roadmap after v0.1
 
-Updated 2026-11-05. Library 0.3.0 is published in the App Store Stable channel. The [official roadmap](roadmap.md#product-direction) owns the release sequence. This companion defines future feature outcomes and acceptance. The first 0.4 implementation is in progress and is not yet certified or released.
+Updated 2026-11-07. Library 0.3.0 is published in the App Store Stable channel. The [official roadmap](roadmap.md#product-direction) owns the release sequence. This companion defines future feature outcomes and acceptance. Development alpha.5 includes one-book/bulk metadata enrichment and named-user read-only sharing. Stable 0.4 is not yet certified or released. See the [delivery tracker](https://github.com/utrost/Library/issues/220) for original targets, optional integrations and the scope decision.
 
 ## Current direction — 2026-11-05
 
@@ -18,7 +18,7 @@ Each release has one major feature family, delivered in small usable slices. Ver
 
 #### First read-only sharing slice
 
-An owner first shares one enabled, owned Library shelf read-only with a named local Nextcloud user in Files. Once the recipient accepts the Files share, the owner grants Library access. Recipients browse and search a permission-filtered catalogue, open files through Nextcloud, and see only publication metadata and covers from files they can currently read. Paths, ratings, reading status, lists, notes and diagnostics remain private. Revoking a Library grant hides the catalogue; the owner removes the separate Files share in Nextcloud Files if file access should end too. Groups, public links, shared corrections and admin-managed roots are later work. See [the first-iteration contract](v0.4-first-iteration.md) and [the tracking epic](https://github.com/utrost/Library/issues/180).
+An owner first shares one enabled, owned Library shelf read-only with a named local Nextcloud user in Files. Once the recipient accepts the Files share, the owner grants Library access. Alternatively, selected-book sharing grants a fixed list of up to 100 books without a Files folder share; recipients can download those books through Library. Recipients browse and search a permission-filtered catalogue, open files through Nextcloud, and see only publication metadata and covers from files they can currently read. Paths, ratings, reading status, lists, notes and diagnostics remain private. Revoking a Library grant hides the catalogue; the owner removes the separate Files share in Nextcloud Files if file access should end too. Groups, public links, shared corrections and admin-managed roots are later work. See [the first-iteration contract](v0.4-first-iteration.md) and [the tracking epic](https://github.com/utrost/Library/issues/180).
 
 #### First slice: Improve book details
 
@@ -376,3 +376,7 @@ Prefer this order unless testing says otherwise:
 That keeps Library faithful to its core idea: files stay in Nextcloud, metadata improvements stay inspectable, and user corrections stay safe.
 
 Latest author assignment implementation and developer verification: 0.3-alpha.2 report.
+
+## Alpha.6 source checkpoint — 2026-11-08
+
+The expanded user-approved 0.4 scope includes the Nextcloud integrations and previously deferred classifications, genre hierarchy/starter vocabulary and reviewed EPUB write-back. Source implementation and remaining acceptance are listed in [0.4 implementation status](0.4-implementation-status.md). This supersedes earlier deferral language for these features only. Installed development remains alpha.5; no stable 0.4 publication or functional acceptance is claimed.

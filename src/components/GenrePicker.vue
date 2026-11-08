@@ -1,4 +1,5 @@
 <script setup>
+import GenreStarters from './GenreStarters.vue'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { pickerIndex } from '../picker-keyboard.js'
 import { t } from '@nextcloud/l10n'
@@ -96,12 +97,13 @@ onBeforeUnmount(() => { clearTimeout(timer); controller?.abort() })
           <div class="library-genre-search-control">
             <label class="library-genre-search-label" for="library-details-genre-search">{{ t('library', 'Add a genre') }}</label>
             <input id="library-details-genre-search" v-model="search" type="search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="library-details-genre-suggestions" :aria-expanded="focused && results.length > 0" :aria-activedescendant="focused && activeIndex >= 0 ? `library-details-genre-option-${results[activeIndex]?.id}` : undefined" :placeholder="t('library', 'Search genres')" :title="t('library', 'Type at least 3 letters to search genres.')" :disabled="busy || disabled" @focus="focused = true" @input="focused = true" @blur="focused = false" @keydown="onKeydown">
-            <ul v-if="focused && results.length" id="library-details-genre-suggestions" role="listbox"><li v-for="(genre, index) in results" :id="`library-details-genre-option-${genre.id}`" :key="genre.id" role="option" :aria-selected="activeIndex === index"><button type="button" :class="{ 'is-active': activeIndex === index }" @mousedown.prevent @click="assign(genre)">{{ genre.display_name }}</button></li></ul>
+            <ul v-if="focused && results.length" id="library-details-genre-suggestions" role="listbox"><li v-for="(genre, index) in results" :id="`library-details-genre-option-${genre.id}`" :key="genre.id" role="option" :aria-selected="activeIndex === index"><button type="button" :class="{ 'is-active': activeIndex === index }" @mousedown.prevent @click="assign(genre)">{{ genre.display_name }}<small v-if="genre.parent_name"> · {{ genre.parent_name }}</small></button></li></ul>
           </div>
           <small v-if="searching" role="status">{{ t('library', 'Searching…') }}</small>
           <button v-if="searched && !searching && !error && !matchedCount" type="button" class="button secondary" :disabled="busy || disabled" @click="create">{{ t('library', 'Create and add genre') }}</button>
         </div>
       </div>
+      <GenreStarters :request-token="requestToken" :disabled="busy || disabled" @created="genre => assign(genre)" />
       <a class="library-genre-review" :href="`${catalogueUrl}?genres=1#genre-review`">{{ t('library', 'Review genre suggestions') }}</a>
     </div>
   </section>

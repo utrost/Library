@@ -9,7 +9,7 @@ use OCA\Library\Exception\ListConflictException;
 final class AuthorAssignmentService {
     public const MAX_BOOKS = 500;
     public const MAX_LARGE_BOOKS = 5000;
-    public function __construct(private IDBConnection $db, private DuplicateIndexService $duplicateIndex) {}
+    public function __construct(private IDBConnection $db, private DuplicateIndexService $duplicateIndex,private ?ChangeHistoryService $history=null) {}
     private function rows(string $sql, array $params = [], bool $lock = false): array {
         $r = $this->db->executeQuery($sql . ($lock && $this->db->getDatabaseProvider() !== 'sqlite' ? ' FOR UPDATE' : ''), $params);
         try { return $r->fetchAll(); } finally { $r->closeCursor(); }
@@ -124,6 +124,7 @@ final class AuthorAssignmentService {
             $encoded = json_encode($payload, JSON_THROW_ON_ERROR);
             if (strlen($encoded) > 8 * 1024 * 1024) throw new \LengthException('author_operation_limit');
             $this->insert('library_author_operations', ['source_name' => $s['source']['display_name'], 'target_name' => $s['target']['display_name'], 'book_count' => count($s['items']), 'is_merge' => (int)$s['merge'], 'id' => $id, 'user_id' => $uid, 'created_at' => time(), 'undone' => 0, 'payload' => $encoded]);
+            foreach ($s['links'] as $itemId=>$unused) $this->history?->operation($uid,(int)$itemId,'author_assignment',$id,['authors'=>[$s['source']['display_name']]],['authors'=>[$s['target']['display_name']]]);
             if ($taskId !== null) $this->finishTask($uid, $taskId, $id, $claimToken);
             $this->db->commit();
             return ['id' => $id, 'books' => count($s['items'])];
@@ -219,6 +220,7 @@ final class AuthorAssignmentService {
             $this->invalidateDuplicateHints($uid, array_map('intval', array_keys($s['links'])));
             $this->duplicateIndex->changedMany($uid, array_map('intval', array_keys($s['links'])));
             $this->db->executeStatement('UPDATE *PREFIX*library_author_operations SET undone=1 WHERE user_id=? AND id=?', [$uid, $id]);
+            foreach ($s['links'] as $itemId=>$unused) $this->history?->operation($uid,(int)$itemId,'author_undo',$id,['authors'=>[$s['target']['display_name']]],['authors'=>[$s['source']['display_name']]]);
             if ($taskId !== null) $this->finishTask($uid, $taskId, $id, $claimToken);
             $this->db->commit();
         } catch (\Throwable $e) { $this->db->rollBack(); throw $e; }

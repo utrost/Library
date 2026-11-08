@@ -2,7 +2,7 @@
 
 **Current stable release: 0.3.0.** The accepted RC3 functionality is unchanged. The exact signed package passed NC33–35 certification and is published in the App Store Stable channel; see the [release verification record](release-verification.md).
 
-**Developer instance: signed 0.4.0-alpha.2.** Google Books lookup and its administrator key settings are deployed for testing. This development build is not an App Store release; provider acceptance and the full compatibility matrix remain open. Selected-book sharing is implemented in source and locally checked; see the [checkpoint](sharing-selected-books-2026-11-07.md). It is not deployed yet.
+**Developer instance: signed 0.4.0-alpha.5.** Single-book and bulk metadata lookup, normalized languages, provenance/conditional Undo, explicit Open Library cover comparison and named-user read-only sharing (including selected-book sharing without folder access) are deployed for testing. Google Books cover saving remains unsupported. This is not an App Store release; provider-policy and release acceptance remain open. See the [installed checkpoint](lookup-editor-covers-alpha5.md) and [remaining-work tracker](https://github.com/utrost/Library/issues/220).
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical; those features are retained in stable 0.3.0.
 
@@ -20,7 +20,13 @@ Pre-release architecture: [review](pre-release-architecture-review.md) and [impl
 
 Status: **0.3.0** is available in the App Store Stable channel. The preserved private **0.2.0-beta.3** package remains an upgrade-test baseline.
 
-Last updated: 2026-11-07
+Last updated: 2026-11-08
+
+## Current implementation expansion
+
+The user approved the remaining 0.4 work plus classification pickers, optional genre hierarchy/starter vocabulary and explicit in-file metadata write-back. Alpha.6 source implements these first slices and the Nextcloud integrations; deployment and functional acceptance remain open. See the [scope ledger](0.4-implementation-status.md) and [source contract](curation-alpha6.md). New Arabic translation/UI work is excluded.
+
+The earlier blanket source-write deferral below is historical. The current boundary permits **separately reviewed EPUB 2/3 metadata write-back on writable local filesystem storage**, with retained originals and guarded recovery. Remote/encrypted source writes are refused before opening a writable stream; Library-only editing remains available. Ordinary metadata Save and scans remain Library-only. Adjacent OPF/JSON, PDF and comic-archive write-back remain outside this implementation.
 
 ## Product direction
 
@@ -45,9 +51,27 @@ The release themes below guide sequencing. They are not delivery dates or claims
 
 **Nextcloud integration across releases:** stage book-linked Notes/Text documents, Unified Search, Smart Picker/link previews and a native Nextcloud Dashboard widget in 0.4; connect reader highlights and passage links to notes in 0.5; explore permission-aware links to Collectives and knowledge retrieval in 0.6. These are optional, independently deliverable integration slices, not a requirement to install every companion app. Notes remain user-owned documents with one authoritative copy; Library owns book/note relationships and reading anchors. Existing list notes and file comments retain their current meaning. See the [integration track](post-v0.1-roadmap.md#nextcloud-integration-across-releases).
 
-### Remaining 0.3 release gates
+### Current 0.4 implementation and follow-up tracking
 
-Before starting the new release track:
+The installed alpha.5 scope is metadata enrichment and the first read-only sharing slice. The wider target scope above remains recorded; moving it to later releases is a recommendation awaiting an explicit scope decision, not an implementation claim.
+
+| Work | Current status | Tracking |
+| --- | --- | --- |
+| Provider policy, attribution and retention | Decision and resulting integration work remain; Google cover saving disabled | [#181](https://github.com/utrost/Library/issues/181) |
+| Alternative editions and match explanations | Bounded Open Library edition browsing in development; not installed in alpha.5 | [#183](https://github.com/utrost/Library/issues/183) |
+| Complete curation export/restore | Original 0.4 target; partial metadata export is not complete recovery | [#221](https://github.com/utrost/Library/issues/221) |
+| Broader bulk organisation | Original target; extend existing bulk/entity tools | [#222](https://github.com/utrost/Library/issues/222) |
+| Persistent incoming-books/cleanup inbox | Original target; connect existing review queues | [#223](https://github.com/utrost/Library/issues/223) |
+| Unified change history | Original target; provider receipts already delivered | [#224](https://github.com/utrost/Library/issues/224) |
+| Home and library-health dashboards | Original target; evolve existing surfaces | [#225](https://github.com/utrost/Library/issues/225) |
+| Notes/Text, Unified Search, Smart Picker, native Dashboard | Optional independent integrations | [#226](https://github.com/utrost/Library/issues/226), [#227](https://github.com/utrost/Library/issues/227), [#228](https://github.com/utrost/Library/issues/228), [#229](https://github.com/utrost/Library/issues/229) |
+| Documentation and release preparation | Reconcile delivered behavior; prepare release after explicit approval | [#230](https://github.com/utrost/Library/issues/230), [#231](https://github.com/utrost/Library/issues/231) |
+
+Write-back (#150), classification/genre hierarchy (#146/#148/#149), additional commercial providers (#200/#201), AI extraction and deeper reader integration remain separate candidate/optional tracks. Open historical implementation issues must be read with their delivery checkpoints; an open acceptance checklist does not mean its feature is absent. Acceptance remains tracked in #187, #194 and #211.
+
+### Historical 0.3 release gates (completed release; retained for context)
+
+The published stable 0.3.0 verification supersedes this pre-release checklist. It is retained as historical planning, not as outstanding 0.4 work:
 
 - Commit the current documentation/test maintenance and close or explicitly retire unique legacy diagnostic coverage gaps; see the [maintenance audit](testing-maintenance-audit-2026-10-20.md).
 - Build, sign and audit one final candidate from committed source. Certify that exact archive on NC33–35 fresh and upgraded installations, with current schema and critical-operation checks across the declared SQLite, MariaDB and PostgreSQL engines.
@@ -58,7 +82,7 @@ Before starting the new release track:
 
 These are acceptance gates, not newly discovered implementation defects. The [App Store checklist](app-store-readiness.md) and [human handbook](human-test-handbook.md#current-03-human-cases) retain the operational detail.
 
-## Active 0.3 track
+## Historical 0.3 development track
 
 | Area | State | Next decision or work |
 | --- | --- | --- |
@@ -591,7 +615,7 @@ Current priority order:
 3. **P2 — Discovery by publication structure.** Series and periodicals UX is the next common-use priority. Search/filter/pagination are implemented, and Catalogue supports filtering and sorting by series or periodical title through the existing publication field. A top series and periodicals panel lists item counts and links to the dedicated publication discovery page, with empty-state guidance when no series metadata exists. **Publication contents** provides read-only issue/date grouping, including stable order, year/month and volume buckets, conservative gap hints, and an **Unknown issue/date** bucket. The publication year filter has landed as read-only discovery, and Creator filtering supports indexed individual authors and compatible full-field saved filters. Active filter chips have landed as read-only navigation so users can remove one filter. Built-in useful views now cover daily destinations and cleanup queues, while cleanup presentation is owned by Review's five groups: **Suggested updates**, **Needs details**, **File problems**, **Cover problems**, and **Imported changes**. In-app custom collections remain named Catalogue filter combinations. Richer issue grouping polish, issue-level metadata editing, and next/previous issue routes remain future work.
 4. **P3 — Scan lifecycle repair controls.** Queued per-root scans and progress/history exist, metadata-error retry works from Library settings, missing-file recheck works from the same repair surface, and **Cancel queued scan** can stop jobs before they start. Cooperative running-job cancellation has landed and stops at scan progress checkpoints. Scan jobs now summarize added, moved/renamed, unchanged, missing and metadata-error counts and Settings shows a post-scan **Changes found** panel with links to changed, missing and errored review views. Missing pieces are scheduled/resumable scans and completion/failure notifications.
 5. **P4 — Cover quality path.** Preview/CBZ/placeholder covers are good enough for browsing, first EPUB cover extraction from package manifests has landed, the per-detail cover refresh affordance can retry the cover route with no-store response headers while the detail page keeps the cover-source explanation on the refresh action, uploaded manual cover override/revert can fix individual bad covers, and batch cover refresh can request fresh no-store cover previews for selected visible catalogue items. Alpha.158 makes legacy remote URL values inert and keeps rendering same-origin. Missing pieces are an app-owned cover cache and crop/rebuild workflows.
-6. **P5 — Metadata portability.** Corrected metadata export exists, **Metadata import preview** landed, the first apply flow applies matched corrected metadata to existing Library items, a read-only sidecar manifest maps corrected rows to suggested `.library.json` paths, sidecar manifest restore can preview/apply those manifest metadata rows back onto matched scanned items, and a sidecar ZIP can download those proposed JSON files without touching source folders. Source-folder OPF/JSON sidecar write-back and full fresh-install restore are intentionally outside the app roadmap; external file-first tooling should own that workflow.
+6. **P5 — Metadata portability.** Corrected metadata export exists, **Metadata import preview** landed, the first apply flow applies matched corrected metadata to existing Library items, a read-only sidecar manifest maps corrected rows to suggested `.library.json` paths, sidecar manifest restore can preview/apply those manifest metadata rows back onto matched scanned items, and a sidecar ZIP can download those proposed JSON files without touching source folders. Historical boundary: source-folder OPF/JSON sidecar write-back was deferred. The approved alpha.6 expansion adds reviewed curation restore and a separate EPUB in-file write-back workflow; adjacent sidecars remain deferred. See the current source contract above.
 7. **P6 — Root/onboarding/shared-library polish.** Root lifecycle works, typed root-delete confirmation is in place for destructive app-row cleanup, recovery copy now explains export/backup/rescan consequences before deleting a root, and first-run/empty-state guidance explains the add-root → scan → browse path. Remaining release polish is richer validation and eventually admin-managed shared-root provisioning.
 
 Tag result feedback has landed, and one-click suggested tag buttons have landed for the existing detail-page Nextcloud tag workflow: after add attempts, Library reports added, already assigned, empty and not-assignable outcomes while keeping catalogue cards browse-only and tags separate from Library-native subjects/classifications. The picker only offers currently unassigned visible/assignable tags. Batch tagging now applies or removes a Nextcloud tag from selected visible items up to the safety cap; batch tag removal reports requested/removed/not-tagged/skipped counts. Batch metadata reset has landed for selected visible scanner-conflict items. Batch cover refresh has landed as a read-only no-store retry for selected visible cover URLs. Richer batch metadata changes, app-owned batch cover cache/rebuild and bulk taxonomy workflows remain future work.

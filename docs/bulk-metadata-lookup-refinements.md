@@ -78,6 +78,8 @@ maximum concurrent load or a production download-time bound.
 
 Build/module closure, translation validation and whitespace checks pass. The
 frontend is 1,105,203 bytes against the existing 1,320,000-byte package limit. No GitHub Actions
-or full CI was run. Remaining provider policy, single-book provenance, covers,
+or full CI was run. At this historical checkpoint, remaining work included provider policy, single-book provenance, covers,
 concurrency, cross-version/database and manual accessibility acceptance remains
 open in the linked issues; this is not a claim that the bulk epic is complete.
+
+Current status: alpha.5 now includes single-book provenance/Undo and Open Library covers; see [the installed checkpoint](lookup-editor-covers-alpha5.md). Google cover persistence and provider-policy acceptance remain open.

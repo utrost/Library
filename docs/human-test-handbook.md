@@ -539,3 +539,89 @@ Notes/privacy concerns:
 - Release-package change: H03-01, H03-03, H03-05 and H03-09 on the exact installed package, plus checksum and installed-version evidence. H03-17–H03-26 cover the current editor and browsing controls. Historical cases live in the separate archive.
 - Book deletion: H03-23 using disposable files only.
 - Shared controls/layout: H03-09 and H03-24–H03-26 in both themes.
+
+## Development after alpha.5: alternative editions (not installed yet)
+
+Tracked in [#183](https://github.com/utrost/Library/issues/183). In one-book Find book details and bulk lookup, search Open Library, choose **Other editions**, page forwards/backwards, inspect language/format/ISBN, then compare an edition and explicitly select fields. Original candidates remain available. Confirm changing a bulk edition clears only that row's previous approvals; Save/Discard, Apply and conditional Undo retain their existing behavior. ISBN matches and related-work editions must have distinct explanations. See [bounds and pending acceptance](lookup-edition-browsing.md).
+
+## Alpha.6 expanded curation — remaining acceptance
+
+The following is the complete acceptance checklist, not a claim that every item has passed. Completed focused runs are recorded separately in [alpha.6 verification](curation-alpha6-verification.md). Stable remains 0.3.0 and the installed development checkpoint remains alpha.5. Read [scope, limits and recovery](curation-alpha6.md) before enabling source-write trials. Do not use personal books for destructive or failure-injection journeys. New Arabic translation/UI work is outside this slice.
+
+### Upgrade and ownership
+
+- Preserve a populated alpha.5 database/appdata/Files backup. Upgrade with alpha.6; check the ten new tables, nullable unavailable list references, genre parent/closure and indexes against the XML reference. Rerun migration registration and verify existing books, lists, grants and file bytes remain unchanged.
+- Delete a disposable catalogue entry: curation/history/note links must disappear, list entries become unavailable, and source/note Files stay intact. Delete a disposable account through Nextcloud: private records and recovery files must disappear without changing another account. Repeat cleanup safely.
+- Repeat relevant schema/transaction cases on SQLite, MariaDB and PostgreSQL. Do not infer database compatibility from PHP lint.
+- Use two unrelated accounts and a named-user sharing recipient. Guess other owners' book, note, hierarchy, job, archive and backup IDs; each must reveal no private data. Recipients must not see owner notes/history/private dashboard activity or gain write access.
+
+### Incoming books and organisation
+
+- Import books into two shelves across known indexing dates. Open Incoming books, filter one shelf/day, mark Done, defer a row, reload and return from Details. Confirm batch, filter and cursor remain. A later source or canonical relationship change must reopen review; a no-change rescan must not.
+- Exercise an empty 50-record filtered window with older matching records. Next must remain usable. Open existing metadata/duplicate review controls and return; completed inbox decisions must survive.
+- From catalogue, collection and a personal list, select exact IDs and prepare author add/remove/replace, series/part, genre, language and publisher jobs. Check names and before/after values, ordering and empty replacement. Skip/include a row; no writes before approval.
+- Apply with one stale revision and one unavailable source. Other rows may succeed; conflicts must remain visible. Pause/reload/resume, cancel midway and Undo applied rows. A later edit, cover/source change or file replacement must block Undo. Race two workers and review tabs; inspect atomic metadata/index/history outcomes and lease recovery.
+
+### Portable curation
+
+- With author/series indexing pending or failed, export must explain why it cannot start. A restore that encounters pending author indexing must pause without creating a partial author; resume after indexing and check exactly one author is created.
+- Export profiles/portraits, redirects, hierarchy, multiple authors, a cover override, removed genres, languages, list order/notes, unavailable entries, saved searches, extraction patterns/rules and retained history. Inspect the version/coverage/exclusion manifest. Confirm no API key, sharing grant, provider cache, source bytes or note body.
+- Restore source Files into an isolated account, configure matching shelves and scan. Upload the archive, reload halfway and resume with the same file. Different content under an existing archive key must fail. Check record/total limits, malformed UTF-8/JSON/version, missing/ambiguous destination files and cross-owner references.
+- Upload an empty archive: completion must explicitly report no changes. Test an identical retry at quota, framing/manifest allowance, a 15 MB record, 128 KiB review and 512 KiB imported-history bounds. Oversized review records must show a conflict without expanding the whole review response.
+- Inspect book and non-book review details. Skip records and observe dependent conflicts. Approve explicitly; repeat requests and interrupt the worker without duplicating lists/profiles or applying a row twice. Preserve destination custom genre parents and report missing shelf/changed settings rather than broadening filters.
+- Modify a matched book after preview. Restore must refuse its stale row. Verify folder rules contain destination file IDs, unavailable list entries do not bind old numeric IDs, and note links never create/delete note files. Download/archive deletion/expiry must remain bounded. A restore is not a replacement for Files/database backup.
+
+### Genre hierarchy, classifications and history
+
+- Create custom genres, opt into starter labels, move/rename a subtree, reject a cycle and stale tree revision, and reject deleting a used parent. Browse a parent containing a book assigned to both parent and child; count it once. Child assignment must not add a parent chip. Race assignment/removal with hierarchy deletion.
+- Keep imported untyped classifications unchanged. Add/remove multiple LCC/DDC/UDC/RVK/BK/ASB/custom values, select existing suggestions, use raw editing, Save/Discard and stale-edit rejection. Keyboard/mobile layout must keep the scheme and notation usable.
+- Change a source file directly in Files before the scanner notices, then attempt history Undo: it must reject the stale source and preserve the newer metadata.
+- Inspect manual, import, scanner acceptance, path, personal, cover, provider and entity events. Check before/after labels and private retention. Exercise ordinary and provider Undo; imported history must never execute old source-account Undo authorization.
+
+### EPUB source-write trials
+
+- For complex metadata, verify that the error names the affected field. Deselect it and preview an ordinary field; both the refused attempt and preview must leave source bytes unchanged. `tests/gui/details/writeback-complex.spec.ts` uses the `complex` mode of the disposable HTTP fixture.
+- `tests/php/epub_conformance_fixtures.php` generates EPUB 2/3 originals, reviewed copies and cleared-author copies for an independent EPUBCheck run. Set `LIBRARY_EPUBCHECK_OUTPUT` to a private existing directory and run the generated six files through the official validator. Validation does not replace the reader checks below.
+
+- Use disposable EPUB 2 and 3 files with independent original hashes and a reader. Preview and apply each supported field; compare OPF and every content/image entry, reopen in the reader and verify source reconciliation. Cancel or expire a preview without changing bytes.
+- Reject remote/encrypted storage before opening any writable stream, even if its temporary stream is seekable. Verify scanning, reading and Library-only editing still work. Change a supported mount to unsupported/read-only after preview and confirm Apply also refuses it.
+- Reject read-only/nonseekable storage, stale source ID/etag, replaced paths, malformed/oversized ZIP/XML, unsafe names, encrypted/signed/rights-managed books, multiple renditions and complex selected refinements. Other formats and sidecars remain unchanged.
+- Interrupt before first write, during write and after final bytes but before status persistence. Verify retained originals, same-stream rollback, explicit recovery state and no retry overwriting unrelated replacement bytes. Unresolved originals must remain downloadable and protected from deletion/expiry.
+- Restore an unchanged written file; refuse a newer edited version. Delete a resolved backup explicitly. Verify 15-minute preview, seven-day resolved-backup retention, five-job limit, source-write history and partial reconciliation messages. **Do not deploy this workflow before these acceptance checks pass.**
+
+### Nextcloud and Home
+
+- Use a book title containing Markdown image/link syntax and HTML. A generated reading-note heading must show literal title text and make no remote requests when opened in Text. Text may normalize the Markdown itself when opening it; check visible content and links, not byte identity after handing the document to Text. Without an editor, Files navigation must not rewrite it.
+- Create, attach, rename/move, unlink and delete/revoke a note; the stable link must follow current file permission and never delete its document. Try Text/Notes enabled and disabled, a subdirectory Nextcloud install and a large note folder.
+- Test Unified Search with short/valid/empty/identifier queries, multiple pages and revoked Files access. It must use no external provider. Smart Picker previews must be private to the viewer; copying a URL must not grant access or return a cached private preview to another user.
+- Enable the native Dashboard widget, change Up next list, delete/hide a listed book, simulate unavailable cover/API and use keyboard/mobile navigation. Recently opened is not reader-position progress.
+- Delete the selected Up next list: Home and the native Dashboard must fall back to To-read books.
+- Configure Home cards, empty lists, long names, dark/light themes and errors/retry. Health counts must appear asynchronously with a timestamp; review links must retain their intended filters. Record latency and payload/query counts on synthetic 100k data before claiming the two-second target.
+- Capture replacement screenshots only from reproducible disposable data after these journeys pass. Record package hash/version, exact environment and outstanding failures separately from source build/lint evidence.
+
+### Focused local alpha.6 harnesses
+
+These commands create or require labelled disposable containers. Use a preserved alpha.5 archive and a private evidence directory outside the repository. They do not deploy to the developer catalogue, sign a package or run GitHub Actions.
+
+```bash
+LIBRARY_UPGRADE_FROM_ARCHIVE=/private/fixtures/library-alpha5.tar.gz \
+LIBRARY_LISTS_DATABASE=mysql \
+bash scripts/smoke-curation-upgrade.sh
+```
+
+Repeat with `sqlite` and `pgsql`; use `NC_VERSION` for the Nextcloud version under test. The harness keeps evidence private and removes its fixture unless `LIBRARY_KEEP_FIXTURE=1` is set. `scripts/smoke-curation-concurrency.sh` requires `LIBRARY_LISTS_CONTAINER`; `scripts/smoke-curation-transfer.sh` requires distinct labelled `LIBRARY_TRANSFER_SOURCE` and `LIBRARY_TRANSFER_TARGET` containers. Both use synthetic files only.
+
+The focused GUI suites include `tests/gui/details/curation-alpha6.spec.ts` and `curation-scale.spec.ts`. The former requires the fixture's explicit Playwright environment and installed PHP worker helper; the latter requires the synthetic scale account and `PW_SCALE_FIXTURE=1`. Do not point either at a personal catalogue. Provider browser tests require their deterministic seeded receipts and must not make live provider calls by accident.
+
+Additional repeatable fixtures:
+
+- `scripts/smoke-writeback-permissions.sh` requires `LIBRARY_LISTS_CONTAINER`. It previews a writable named-user share, revokes write permission, checks refused Apply and retained originals, restores permission, then verifies Apply/Restore and removes both accounts.
+- `scripts/smoke-writeback-storage.sh` requires distinct labelled `LIBRARY_STORAGE_SOURCE` and `LIBRARY_STORAGE_TARGET` Nextcloud containers, with Files external enabled on the target. It creates isolated accounts and a temporary DAV mount, checks writable/read-only refusal, and removes its mounts, accounts and network. `tests/php/writeback_storage_integration.php encrypted` additionally checks a disposable encryption-enabled instance; never enable encryption on a developer or personal instance for this test.
+- `tests/php/curation_lifecycle_integration.php` creates and deletes a 52-book owner for review pagination, rescans, defer/hidden state, catalogue deletion and account-deletion cleanup.
+- `scripts/smoke-curation-boundary.sh` creates 5,000 actual source PDFs and runs prepare/Apply/Undo. It requires `LIBRARY_LISTS_CONTAINER`, enforces the disposable label, and deletes its fixture by default. Set `LIBRARY_KEEP_BOUNDARY_FIXTURE=1` only when continuing with the archive scale or browser checks.
+- `tests/php/curation_archive_scale.php` streams the retained 5,000-book fixture through export/upload/review/restore and hashes all source files. `tests/php/writeback_large_integration.php` creates a 127 MiB EPUB, verifies streaming and exact restoration, then tests rejection above 128 MiB. Both require `LIBRARY_DISPOSABLE_FIXTURE=1`.
+- `tests/php/curation_http_fixture.php` seeds disposable owner/outsider accounts for `curation-access.spec.ts`; `german` adds long translated names for `curation-german.spec.ts`, `text` prepares literal-title notes for `curation-notes-text.spec.ts`, and `complex` adds a multiple-title EPUB for `writeback-complex.spec.ts`. Supply its private JSON via `PW_CURATION_HTTP_FIXTURE`. The Text suite toggles Text only on the labelled container and restores it enabled in `finally`. Run these suites serially and clean up their accounts afterward.
+- `tests/php/epub_reader_fixture.php` imports the six generated conformance EPUBs into a new disposable account. It requires `LIBRARY_DISPOSABLE_FIXTURE=1` and `LIBRARY_EPUBCHECK_OUTPUT`. With EPUB Viewer installed, pass its private JSON as `PW_EPUB_READER_FIXTURE` to `epub-reader.spec.ts`, along with that fixture's `PW_USER`/`PW_PASSWORD`. Run `cleanup` afterward. Keep companion-app console diagnostics separate from Library failures and do not claim general reader certification from one reader/version.
+- `curation-boundary.spec.ts` requires `PW_CURATION_BOUNDARY_FIXTURE` pointing to the retained boundary fixture. It records cold navigation and repeated page timings without pixel-match assertions. `metadata/lookup-editions.spec.ts` requires deterministic receipts from `tests/php/lookup_editions_browser_fixture.php`, never live provider traffic.
+
+Keep source-install evidence separate from release-package hashes, integrity checks and deployment evidence. A future signed candidate must repeat its required acceptance checks; these development runs do not replace that step.

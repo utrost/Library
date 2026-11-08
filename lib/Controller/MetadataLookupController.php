@@ -58,6 +58,26 @@ final class MetadataLookupController extends Controller {
     }
 
     #[NoAdminRequired]
+    public function editions(int $itemId): JSONResponse {
+        $uid = $this->ownedItemUserId($itemId);
+        if ($uid === null) return $this->response(['error' => 'not_found'], 404);
+        try {
+            if ($this->provider() !== $this->lookup) throw new \InvalidArgumentException('invalid_provider');
+            $offset = $this->request->getParam('offset', '0');
+            if (!is_string($offset) || !preg_match('/^(?:0|[1-9][0-9]{0,2})$/D', $offset)) throw new \InvalidArgumentException('invalid_offset');
+            $page = $this->lookup->editions($uid, $this->text('workId'), (int)$offset);
+            $this->audit->info('library.metadata_lookup.editions', $uid, 'view', 'item', 'success', ['target_id' => $itemId, 'target_count' => count($page['results'])]);
+            return $this->response($page);
+        } catch (\InvalidArgumentException) {
+            return $this->response(['error' => 'invalid_edition_page'], 400);
+        } catch (\RuntimeException $error) {
+            $code = $error->getMessage();
+            return $this->response(['error' => in_array($code, ['rate_limited', 'provider_disabled'], true) ? $code : 'provider_unavailable'],
+                $code === 'rate_limited' ? 429 : ($code === 'provider_disabled' ? 503 : 502));
+        }
+    }
+
+    #[NoAdminRequired]
     public function edition(int $itemId): JSONResponse {
         $userId = $this->ownedItemUserId($itemId);
         if ($userId === null) {

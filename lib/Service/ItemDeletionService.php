@@ -8,6 +8,7 @@ use OCP\IDBConnection;
 /** Removes catalogue rows and their derived data; reading-list entries remain tombstones. */
 final class ItemDeletionService {
     private const ITEM_CHILDREN = [
+        'library_change_history','library_book_notes','library_inbox_state',
         'library_item_facets', 'library_item_search_grams', 'library_item_identifiers',
         'library_item_authors', 'library_item_series', 'library_item_genres', 'library_genre_candidates', 'library_language_candidates', 'library_infer_results',
         'library_dup_terms', 'library_dup_index',

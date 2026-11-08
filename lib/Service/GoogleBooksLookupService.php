@@ -72,9 +72,6 @@ final class GoogleBooksLookupService {
                 continue;
             }
             $isbns = $this->isbns($info);
-            if ($isbn !== '' && !isset($isbns[$isbn])) {
-                continue;
-            }
             $result = $this->volumeResult($volume, $id);
             $results[] = [
                 'provider' => 'Google Books',
@@ -85,7 +82,7 @@ final class GoogleBooksLookupService {
                 'publisher' => $result['fields']['publisher'] ?? '',
                 'isbn' => array_slice(array_values($isbns), 0, 4),
                 'languages' => $this->boundedStrings(isset($info['language']) ? [$info['language']] : null, 1, 16),
-                'match' => $isbn !== '' ? 'isbn' : 'title_author',
+                'match' => $isbn !== '' ? (isset($isbns[$isbn]) ? 'isbn' : 'isbn_mismatch') : 'title_author',
                 'url' => $result['url'],
             ];
             $cache->set($this->volumeCacheKey($userId, $key, $id), $result, 900);
@@ -228,7 +225,21 @@ final class GoogleBooksLookupService {
                 $body=$response->getBody(); if (is_resource($body)) fclose($body);
                 throw $retry;
             }
+            if ($response->getStatusCode() === 403) {
+                $stream=$response->getBody();$body='';
+                if (is_resource($stream)) { try { $body=stream_get_contents($stream,65537); } finally { fclose($stream); } }
+                $error=is_string($body) && strlen($body)<=65536 ? json_decode($body,true,16) : null;
+                $reasons=array_column(is_array($error['error']['errors'] ?? null) ? $error['error']['errors'] : [],'reason');
+                if (array_intersect($reasons,['dailyLimitExceeded','quotaExceeded','rateLimitExceeded','userRateLimitExceeded'])) {
+                    $seconds=in_array('dailyLimitExceeded',$reasons,true) ? 86400 : 3600;
+                    $retry=\OCA\Library\Exception\MetadataProviderRetryException::fromHeader($response->getHeader('retry-after') ?: (string)$seconds);
+                    $until=(int)floor(microtime(true)*1000)+$retry->retryAfter*1000;
+                    $this->db->executeStatement('UPDATE *PREFIX*library_lookup_quota SET next_at_ms=? WHERE provider=? AND next_at_ms<?',[$until,'googlebooks',$until]);throw $retry;
+                }
+                throw new \RuntimeException('provider_unavailable');
+            }
             if ($response->getStatusCode() !== 200) {
+                $stream=$response->getBody();if (is_resource($stream)) fclose($stream);
                 throw new \RuntimeException('provider_unavailable');
             }
             $length = $response->getHeader('content-length');
@@ -236,6 +247,7 @@ final class GoogleBooksLookupService {
                 $length = $length[0] ?? '';
             }
             if (is_string($length) && preg_match('/^[0-9]+$/D', $length) && (float)$length > self::MAX_BODY) {
+                $stream=$response->getBody();if (is_resource($stream)) fclose($stream);
                 throw new \RuntimeException('provider_unavailable');
             }
             $stream = $response->getBody();

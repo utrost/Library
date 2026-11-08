@@ -1,0 +1,25 @@
+<?php
+declare(strict_types=1);
+// Generate synthetic publications for an independent EPUBCheck before/after comparison.
+require __DIR__.'/../../lib/WriteBack/ComplexMetadataException.php';
+require __DIR__.'/../../lib/WriteBack/EpubMetadataWriter.php';
+$out=getenv('LIBRARY_EPUBCHECK_OUTPUT');if(!$out||!is_dir($out))throw new RuntimeException('Supply an existing private fixture directory');
+$writer=new \OCA\Library\WriteBack\EpubMetadataWriter();
+$item=['title'=>'Reviewed & literal <title>','authorSyncStatus'=>0,'canonicalAuthors'=>[['name'=>'Second Fixture'],['name'=>'First Fixture']],'authors'=>['Imported Fixture'],'publisher'=>'Example & Fixture Press','language'=>'en;de','publicationDate'=>'2026-01-02','description'=>'A synthetic <plain text> description.','subjects'=>['Example subject','Second subject'],'identifiers'=>[['valid'=>true,'scheme'=>'isbn','normalizedValue'=>'9780306406157']]];
+foreach(['2.0','3.0'] as $version){
+ $stem=$out.'/epub-'.($version==='2.0'?'2':'3');$source=$stem.'-original.epub';$z=new ZipArchive();if($z->open($source,ZipArchive::CREATE|ZipArchive::OVERWRITE)!==true)throw new RuntimeException('Fixture ZIP failed');
+ $z->addFromString('mimetype','application/epub+zip');$z->setCompressionName('mimetype',ZipArchive::CM_STORE);
+ $z->addFromString('META-INF/container.xml','<?xml version="1.0"?><container xmlns="urn:oasis:names:tc:opendocument:xmlns:container" version="1.0"><rootfiles><rootfile full-path="EPUB/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>');
+ $navItem=$version==='2.0'?'<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>':'<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>';
+ $modified=$version==='3.0'?'<meta property="dcterms:modified">2026-01-01T00:00:00Z</meta>':'';
+ $z->addFromString('EPUB/content.opf','<?xml version="1.0" encoding="UTF-8"?><package xmlns="http://www.idpf.org/2007/opf" version="'.$version.'" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="uid">urn:uuid:2efda158-5fa5-4de6-9e92-0123456789ab</dc:identifier><dc:title>Original synthetic publication</dc:title><dc:language>en</dc:language><dc:creator>Original Fixture</dc:creator><dc:publisher>Example Press</dc:publisher><dc:date>2026-01-01</dc:date><dc:description>Generated test publication.</dc:description><dc:subject>Fixture</dc:subject>'.$modified.'</metadata><manifest><item id="chapter" href="chapter.xhtml" media-type="application/xhtml+xml"/><item id="style" href="style.css" media-type="text/css"/><item id="image" href="pixel.png" media-type="image/png"/>'.$navItem.'</manifest><spine'.($version==='2.0'?' toc="ncx"':'').'><itemref idref="chapter"/></spine></package>');
+ $z->addFromString('EPUB/chapter.xhtml','<?xml version="1.0" encoding="UTF-8"?><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head><title>Fixture chapter</title><link rel="stylesheet" type="text/css" href="style.css"/></head><body><h1>Fixture chapter</h1><p>This paragraph and its formatting must survive metadata correction.</p><p><em>Emphasis</em> and an <a href="#ending">internal link</a> remain intact.</p><h2 id="ending">Ending</h2><p>End of the generated publication.</p><p><img src="pixel.png" alt="Fixture image" width="16" height="16"/></p></body></html>');
+ $z->addFromString('EPUB/style.css','body { font-family: serif; } h1 { margin-top: 1em; color: rgb(40, 60, 80); }');
+ $z->addFromString('EPUB/pixel.png',base64_decode('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAGUlEQVQokWPUsAlgIAUwkaR6VMOohiGlAQBZ3gDUz1CKUwAAAABJRU5ErkJggg==',true));
+ if($version==='2.0')$z->addFromString('EPUB/toc.ncx','<?xml version="1.0" encoding="UTF-8"?><ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1"><head><meta name="dtb:uid" content="urn:uuid:2efda158-5fa5-4de6-9e92-0123456789ab"/><meta name="dtb:depth" content="1"/><meta name="dtb:totalPageCount" content="0"/><meta name="dtb:maxPageNumber" content="0"/></head><docTitle><text>Original synthetic publication</text></docTitle><navMap><navPoint id="chapter" playOrder="1"><navLabel><text>Fixture chapter</text></navLabel><content src="chapter.xhtml"/></navPoint></navMap></ncx>');
+ else $z->addFromString('EPUB/nav.xhtml','<?xml version="1.0" encoding="UTF-8"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en"><head><title>Contents</title></head><body><nav epub:type="toc"><h1>Contents</h1><ol><li><a href="chapter.xhtml">Fixture chapter</a></li></ol></nav></body></html>');
+ if(!$z->close())throw new RuntimeException('Fixture ZIP close failed');
+ $changed=$stem.'-reviewed.epub';copy($source,$changed);$writer->prepare($changed,$item,\OCA\Library\WriteBack\EpubMetadataWriter::FIELDS);
+ $empty=$stem.'-cleared-authors.epub';copy($source,$empty);$writer->prepare($empty,array_replace($item,['canonicalAuthors'=>[]]),['authors']);
+ foreach([$source,$changed,$empty] as $file)echo basename($file).' '.hash_file('sha256',$file)."\n";
+}

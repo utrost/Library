@@ -86,7 +86,7 @@ $messages = [
                                 'cleanup-pending' => $l->t('Cleanup pending'),
                                 'awaiting-acceptance' => $l->t('Waiting for the recipient to accept the Files share'),
                                 default => $l->t('Access changed. Review sharing settings and source permissions.'),
-                            }); ?></span></div>
+                            }); ?></span><?php if ($grant['status'] === 'cleanup-pending'): ?><p class="library-muted"><?php p($l->t('Automatic cleanup preserves Files shares that were changed or cannot be identified. Review the share in Files. If you remove it there, retry Remove access to finish Library cleanup.')); ?></p><?php endif; ?></div>
                             <form method="post" action="<?php p($indexUrl . '/' . (int)$grant['id'] . '/revoke'); ?>"><input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>"><button class="button secondary" type="submit" aria-label="<?php p($l->t('Remove access for %s to %s', [(string)$grant['recipientName'] . ' (' . (string)$grant['recipientId'] . ')', (string)$grant['rootLabel']])); ?>"><?php p($l->t('Remove access')); ?></button></form>
                         </li>
                     <?php endforeach; ?>

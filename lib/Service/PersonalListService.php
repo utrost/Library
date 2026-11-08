@@ -108,7 +108,7 @@ final class PersonalListService {
             $entries[] = [
                 'id' => (int)$row['id'], 'note' => (string)$row['note'],
                 'position' => (int)$row['position'], 'number' => ($page - 1) * self::PAGE_SIZE + $index + 1,
-                'book' => $book,
+                'book' => $book, 'unavailableTitle'=>(string)($row['unavailable_title'] ?? ''),
             ];
         }
         return ['list' => $list, 'entries' => $entries, 'total' => $total, 'page' => $page, 'pages' => $pages];

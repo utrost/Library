@@ -36,16 +36,17 @@ final class GenreService {
         return $name;
     }
     private function key(string $name): string { return hash('sha256', 'genre-v1:' . mb_convert_case($this->name($name), MB_CASE_FOLD, 'UTF-8')); }
-    private function genre(string $uid, int $genreId): array {
-        $genre = $this->rows('SELECT id,display_name FROM *PREFIX*library_genres WHERE user_id=? AND id=?', [$uid, $genreId])[0] ?? null;
+    public function genre(string $uid, int $genreId): array {
+        $genre = $this->rows('SELECT id,display_name,parent_id FROM *PREFIX*library_genres WHERE user_id=? AND id=?', [$uid, $genreId])[0] ?? null;
         if ($genre === null) throw new \OutOfBoundsException('genre');
+        $genre['treeRevision']=(int)($this->rows('SELECT revision FROM *PREFIX*library_genre_tree_state WHERE user_id=?',[$uid])[0]['revision'] ?? 0);
         return $genre;
     }
     public function selected(string $uid, int $genreId): array { return $this->genre($uid, $genreId); }
     public function directory(string $uid, string $search = '', int $page = 1, string $sort = 'name', bool $previews = false): array {
         if (mb_strlen($search) > 255 || $page < 1 || $page > 100000) throw new \InvalidArgumentException('search_or_page');
         $order = match ($sort) { 'name' => 'g.display_name,g.id', 'name_desc' => 'g.display_name DESC,g.id DESC', default => throw new \InvalidArgumentException('sort') };
-        $sql = 'SELECT g.id,g.display_name,(SELECT COUNT(*) FROM *PREFIX*library_item_genres l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id AND i.marked_for_deletion_at IS NULL WHERE l.user_id=g.user_id AND l.genre_id=g.id AND l.active=1) AS book_count FROM *PREFIX*library_genres g WHERE g.user_id=?';
+        $sql = 'SELECT g.id,g.display_name,g.parent_id,p.display_name AS parent_name,(SELECT COUNT(DISTINCT l.item_id) FROM *PREFIX*library_item_genres l INNER JOIN *PREFIX*library_items i ON i.id=l.item_id AND i.user_id=l.user_id AND i.marked_for_deletion_at IS NULL WHERE l.user_id=g.user_id AND (l.genre_id=g.id OR EXISTS (SELECT 1 FROM *PREFIX*library_genre_tree gt WHERE gt.user_id=g.user_id AND gt.ancestor_id=g.id AND gt.descendant_id=l.genre_id)) AND l.active=1) AS book_count FROM *PREFIX*library_genres g LEFT JOIN *PREFIX*library_genres p ON p.id=g.parent_id AND p.user_id=g.user_id WHERE g.user_id=?';
         $params = [$uid];
         if (trim($search) !== '') {
             $sql .= " AND LOWER(g.display_name) LIKE ? ESCAPE '!'";
@@ -58,22 +59,96 @@ final class GenreService {
             foreach ($entries as &$entry) $entry['books'] = $books[(int)$entry['id']] ?? [];
             unset($entry);
         }
-        return ['genres' => $entries, 'page' => $page, 'hasNext' => count($list) > 50];
+        return ['treeRevision'=>(int)($this->rows('SELECT revision FROM *PREFIX*library_genre_tree_state WHERE user_id=?',[$uid])[0]['revision'] ?? 0),'genres' => $entries, 'page' => $page, 'hasNext' => count($list) > 50];
     }
     public function create(string $uid, string $name): array {
         $name = $this->name($name); $key = $this->key($name);
-        $this->db->insertIfNotExist('*PREFIX*library_genres', ['user_id' => $uid, 'display_name' => $name, 'comparison_key' => $key], ['user_id', 'comparison_key']);
-        return $this->rows('SELECT id,display_name FROM *PREFIX*library_genres WHERE user_id=? AND comparison_key=?', [$uid, $key])[0];
+        $this->db->beginTransaction();
+        try {
+            $this->db->insertIfNotExist('*PREFIX*library_genre_tree_state',['user_id'=>$uid,'revision'=>0],['user_id']);
+            $this->db->executeStatement('UPDATE *PREFIX*library_genre_tree_state SET revision=revision WHERE user_id=?',[$uid]);
+            $this->db->insertIfNotExist('*PREFIX*library_genres', ['user_id' => $uid, 'display_name' => $name, 'comparison_key' => $key], ['user_id', 'comparison_key']);
+            $genre=$this->rows('SELECT id,display_name FROM *PREFIX*library_genres WHERE user_id=? AND comparison_key=?', [$uid, $key])[0];
+            $this->db->commit();return $genre;
+        } catch (\Throwable $e) { $this->db->rollBack();throw $e; }
+    }
+    /** One parent, at most eight levels; only explicit assignments appear as book chips. */
+    public function updateHierarchy(string $uid,int $id,string $name,?int $parent,int $revision): array {
+        $name=$this->name($name);
+        $this->db->beginTransaction();
+        try {
+            $this->db->insertIfNotExist('*PREFIX*library_genre_tree_state',['user_id'=>$uid,'revision'=>0],['user_id']);
+            $changed=$this->db->executeStatement('UPDATE *PREFIX*library_genre_tree_state SET revision=revision+1 WHERE user_id=? AND revision=?',[$uid,$revision]);
+            if ($changed!==1) throw new \DomainException('tree_changed');
+            $current=$this->genre($uid,$id);
+            if ($parent!==null) $this->genre($uid,$parent);
+            $desc=$this->rows('SELECT descendant_id AS id,depth FROM *PREFIX*library_genre_tree WHERE user_id=? AND ancestor_id=? ORDER BY descendant_id LIMIT 2001',[$uid,$id]);
+            if (count($desc)>2000) throw new \LengthException('subtree_limit');
+            $desc[]=['id'=>$id,'depth'=>0];$ids=array_map('intval',array_column($desc,'id'));
+            if ($parent!==null && in_array($parent,$ids,true)) throw new \InvalidArgumentException('genre_cycle');
+            $ancestors=$parent===null ? [] : $this->rows('SELECT ancestor_id AS id,depth FROM *PREFIX*library_genre_tree WHERE user_id=? AND descendant_id=? ORDER BY depth LIMIT 9',[$uid,$parent]);
+            if ($parent!==null) $ancestors[]=['id'=>$parent,'depth'=>0];
+            foreach ($ancestors as $a) foreach ($desc as $d) if ((int)$a['depth']+(int)$d['depth']+1>7) throw new \InvalidArgumentException('genre_depth');
+            $key=$this->key($name);
+            if ($this->rows('SELECT id FROM *PREFIX*library_genres WHERE user_id=? AND comparison_key=? AND id<>?',[$uid,$key,$id])) throw new \InvalidArgumentException('duplicate_genre');
+            $oldAncestors=array_column($this->rows('SELECT ancestor_id FROM *PREFIX*library_genre_tree WHERE user_id=? AND descendant_id=?',[$uid,$id]),'ancestor_id');
+            foreach ($oldAncestors as $oldAncestor) foreach (array_chunk($ids,200) as $chunk) $this->db->executeStatement('DELETE FROM *PREFIX*library_genre_tree WHERE user_id=? AND ancestor_id=? AND descendant_id IN ('.implode(',',array_fill(0,count($chunk),'?')).')',array_merge([$uid,$oldAncestor],$chunk));
+            foreach ($ancestors as $a) foreach ($desc as $d) $this->db->insertIfNotExist('*PREFIX*library_genre_tree',['user_id'=>$uid,'ancestor_id'=>(int)$a['id'],'descendant_id'=>(int)$d['id'],'depth'=>(int)$a['depth']+(int)$d['depth']+1],['user_id','ancestor_id','descendant_id']);
+            $this->db->executeStatement('UPDATE *PREFIX*library_genres SET display_name=?,comparison_key=?,parent_id=? WHERE user_id=? AND id=?',[$name,$key,$parent,$uid,$id]);
+            $this->db->commit();
+        } catch (\Throwable $e) { $this->db->rollBack();throw $e; }
+        return $this->genre($uid,$id);
+    }
+    public function removeUnused(string $uid,int $id,int $revision): void {
+        $this->db->beginTransaction();
+        try {
+            $this->db->insertIfNotExist('*PREFIX*library_genre_tree_state',['user_id'=>$uid,'revision'=>0],['user_id']);
+            if ($this->db->executeStatement('UPDATE *PREFIX*library_genre_tree_state SET revision=revision+1 WHERE user_id=? AND revision=?',[$uid,$revision])!==1) throw new \DomainException('tree_changed');
+            $this->genre($uid,$id);
+            if ($this->rows('SELECT id FROM *PREFIX*library_genres WHERE user_id=? AND parent_id=? LIMIT 1',[$uid,$id]) || $this->rows('SELECT item_id FROM *PREFIX*library_item_genres WHERE user_id=? AND genre_id=? AND active=1 LIMIT 1',[$uid,$id])) throw new \DomainException('genre_in_use');
+            $this->db->executeStatement('DELETE FROM *PREFIX*library_item_genres WHERE user_id=? AND genre_id=?',[$uid,$id]);
+            $this->db->executeStatement('DELETE FROM *PREFIX*library_genre_mappings WHERE user_id=? AND genre_id=?',[$uid,$id]);
+            $this->db->executeStatement('DELETE FROM *PREFIX*library_genre_tree WHERE user_id=? AND (ancestor_id=? OR descendant_id=?)',[$uid,$id,$id]);
+            $this->db->executeStatement('DELETE FROM *PREFIX*library_genres WHERE user_id=? AND id=?',[$uid,$id]);
+            $this->db->commit();
+        } catch (\Throwable $e) { $this->db->rollBack();throw $e; }
+    }
+    /** Bounded child-inclusive browsing uses DISTINCT, never counts a book twice. */
+    public function descendants(string $uid,int $id): array {
+        $this->genre($uid,$id);
+        $rows=$this->rows('SELECT g.id,g.display_name,t.depth FROM *PREFIX*library_genre_tree t INNER JOIN *PREFIX*library_genres g ON g.id=t.descendant_id AND g.user_id=t.user_id WHERE t.user_id=? AND t.ancestor_id=? ORDER BY t.depth,g.display_name,g.id LIMIT 2001',[$uid,$id]);
+        return ['genres'=>array_slice($rows,0,2000),'limited'=>count($rows)>2000];
+    }
+    public function starter(string $uid,string $key): array {
+        if (!isset(GenreVocabulary::ENTRIES[$key])) throw new \InvalidArgumentException('starter');
+        [$name,$parentKey]=GenreVocabulary::ENTRIES[$key];
+        $this->db->beginTransaction();
+        try {
+        $this->db->insertIfNotExist('*PREFIX*library_genre_tree_state',['user_id'=>$uid,'revision'=>0],['user_id']);
+        $this->db->executeStatement('UPDATE *PREFIX*library_genre_tree_state SET revision=revision WHERE user_id=?',[$uid]);
+        // Reuse existing equivalent labels without moving or renaming custom identities.
+        $existing=$this->rows('SELECT id FROM *PREFIX*library_genres WHERE user_id=? AND comparison_key=?',[$uid,$this->key($name)]);
+        if ($existing) { $result=$this->genre($uid,(int)$existing[0]['id']);$this->db->commit();return $result; }
+            $parent=$parentKey===null ? null : $this->starter($uid,$parentKey);
+            $genre=$this->create($uid,$name);
+            $result=$this->updateHierarchy($uid,(int)$genre['id'],$name,$parent===null ? null : (int)$parent['id'],(int)$this->genre($uid,(int)$genre['id'])['treeRevision']);
+            $this->db->commit();return $result;
+        } catch (\Throwable $e) { $this->db->rollBack();throw $e; }
     }
     public function assign(string $uid, int $itemId, int $genreId, bool $active): array {
         if ($itemId < 1) throw new \InvalidArgumentException('item');
+        $this->db->beginTransaction();
+        try {
+        $this->db->insertIfNotExist('*PREFIX*library_genre_tree_state',['user_id'=>$uid,'revision'=>0],['user_id']);
+        $this->db->executeStatement('UPDATE *PREFIX*library_genre_tree_state SET revision=revision WHERE user_id=?',[$uid]);
         $genre = $this->genre($uid, $genreId);
         if (!$this->rows('SELECT id FROM *PREFIX*library_items WHERE user_id=? AND id=?', [$uid, $itemId])) throw new \OutOfBoundsException('book');
         $this->db->insertIfNotExist('*PREFIX*library_item_genres', ['user_id' => $uid, 'item_id' => $itemId,
             'genre_id' => $genreId, 'active' => (int)$active, 'assignment_source' => 'manual'], ['user_id', 'item_id', 'genre_id']);
         $this->db->executeStatement('UPDATE *PREFIX*library_item_genres SET active=?,assignment_source=? WHERE user_id=? AND item_id=? AND genre_id=?',
             [(int)$active, 'manual', $uid, $itemId, $genreId]);
-        return ['genre' => $genre, 'active' => $active];
+        $this->db->commit();return ['genre' => $genre, 'active' => $active];
+        } catch (\Throwable $e) { $this->db->rollBack();throw $e; }
     }
     public function suggestions(string $uid): array {
         $rows = $this->rows('SELECT c.candidate_key,MIN(c.display_name) AS display_name,MIN(c.source_kind) AS source_kind,COUNT(*) AS book_count FROM *PREFIX*library_genre_candidates c LEFT JOIN *PREFIX*library_genre_mappings m ON m.user_id=c.user_id AND m.candidate_key=c.candidate_key WHERE c.user_id=? AND m.candidate_key IS NULL GROUP BY c.candidate_key ORDER BY COUNT(*) DESC,c.candidate_key LIMIT 51', [$uid]);
@@ -92,11 +167,19 @@ final class GenreService {
     }
     /** A missing or inactive link is an explicit user decision and is never reactivated by a scan. */
     private function linkMapped(string $uid, int $itemId, int $genreId): bool {
-        $existing = $this->rows('SELECT active FROM *PREFIX*library_item_genres WHERE user_id=? AND item_id=? AND genre_id=?', [$uid, $itemId, $genreId]);
-        if ($existing !== []) return false;
-        $this->db->insertIfNotExist('*PREFIX*library_item_genres', ['user_id' => $uid, 'item_id' => $itemId,
-            'genre_id' => $genreId, 'active' => 1, 'assignment_source' => 'approved'], ['user_id', 'item_id', 'genre_id']);
-        return true;
+        $this->db->beginTransaction();
+        try {
+            // Use the same order as editor mutations: book, then account genre state.
+            $this->db->executeStatement('UPDATE *PREFIX*library_items SET id=id WHERE user_id=? AND id=?',[$uid,$itemId]);
+            $this->db->insertIfNotExist('*PREFIX*library_genre_tree_state',['user_id'=>$uid,'revision'=>0],['user_id']);
+            $this->db->executeStatement('UPDATE *PREFIX*library_genre_tree_state SET revision=revision WHERE user_id=?',[$uid]);
+            $q=$this->db->getQueryBuilder();$q->select('id')->from('library_genres')->where($q->expr()->eq('user_id',$q->createNamedParameter($uid)))->andWhere($q->expr()->eq('id',$q->createNamedParameter($genreId)));
+            if ($this->db->getDatabaseProvider()!=='sqlite') $q->forUpdate();
+            $r=$q->executeQuery();$exists=$r->fetchOne();$r->closeCursor();
+            if (!$exists || !$this->rows('SELECT id FROM *PREFIX*library_items WHERE user_id=? AND id=?',[$uid,$itemId]) || $this->rows('SELECT active FROM *PREFIX*library_item_genres WHERE user_id=? AND item_id=? AND genre_id=?',[$uid,$itemId,$genreId])) { $this->db->commit();return false; }
+            $this->db->insertIfNotExist('*PREFIX*library_item_genres',['user_id'=>$uid,'item_id'=>$itemId,'genre_id'=>$genreId,'active'=>1,'assignment_source'=>'approved'],['user_id','item_id','genre_id']);
+            $this->db->commit();return true;
+        } catch (\Throwable $e) { $this->db->rollBack();throw $e; }
     }
     public function applyMapped(?string $uid = null, int $limit = 200): int {
         $limit = max(1, min(500, $limit));

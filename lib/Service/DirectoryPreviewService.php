@@ -20,6 +20,12 @@ final class DirectoryPreviewService {
         if ($ids === []) return [];
         $parts = []; $params = [];
         foreach ($ids as $index => $id) {
+            if ($kind === 'genre') {
+                // Match the directory's descendant-inclusive count without duplicating a book.
+                $parts[] = 'SELECT ' . (int)$id . ' AS entry_id,p.item_id FROM (SELECT DISTINCT l.item_id FROM (SELECT ? AS genre_id UNION ALL SELECT descendant_id AS genre_id FROM *PREFIX*library_genre_tree WHERE user_id=? AND ancestor_id=?) members INNER JOIN *PREFIX*library_item_genres l ON l.genre_id=members.genre_id AND l.user_id=? INNER JOIN *PREFIX*library_items visible ON visible.id=l.item_id AND visible.user_id=l.user_id AND visible.marked_for_deletion_at IS NULL WHERE l.active=1 ORDER BY l.item_id LIMIT 3) p';
+                array_push($params, (int)$id, $uid, (int)$id, $uid);
+                continue;
+            }
             $parts[] = 'SELECT ' . (int)$id . ' AS entry_id,p.item_id FROM (SELECT DISTINCT l.item_id FROM *PREFIX*' . $table . ' l INNER JOIN *PREFIX*library_items visible ON visible.id=l.item_id AND visible.user_id=l.user_id AND visible.marked_for_deletion_at IS NULL WHERE l.user_id=? AND l.' . $column . '=?' . $extra . ' ORDER BY l.item_id LIMIT 3) p';
             array_push($params, $uid, (int)$id);
         }

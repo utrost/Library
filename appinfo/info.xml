@@ -4,8 +4,12 @@
     <id>library</id>
     <name>Library</name>
     <summary>Publication catalogue for files stored in Nextcloud Files</summary>
-    <description><![CDATA[Library adds a publication-specific catalogue, metadata cleanup workflow, search and browsing interface on top of ordinary Nextcloud files. Source files remain canonical in Nextcloud Files; Library stores app-owned indexes, extracted metadata and user edits. Create private reading lists with notes, infer metadata from filenames and paths with preview and reversible approval, review potential duplicates, and schedule incremental scans. In this development version, you can explicitly look up book details from Open Library and share a shelf read-only with another Nextcloud user. Library does not provide a built-in reader. This version targets Nextcloud 33–35.]]></description>
-    <version>0.4.0-alpha.5</version>
+    <description><![CDATA[Library helps you browse, organise and improve books, comics, magazines and papers stored in Nextcloud Files. Search your catalogue, browse covers and authors, create private reading lists, review metadata inferred from filenames, and schedule incremental scans.
+
+This development version adds optional book-detail lookup through Open Library and Google Books, reviewed bulk metadata changes, and read-only sharing of shelves or selected books with other Nextcloud users. Curation tools include incoming-book review, change history, portable curation archives, linked Files notes, genre hierarchies and classification controls. Nextcloud Search, Smart Picker and Dashboard integrations keep books accessible from other apps.
+
+Normal metadata editing stays in Library. A separate, explicitly confirmed workflow can write selected fields into supported EPUB 2/3 files on writable local filesystem storage, with retained originals and guarded recovery. Remote and encrypted source storage is not supported by that write-back workflow. Library does not provide a built-in reader; Open uses your installed Nextcloud viewer. This version targets Nextcloud 33–35.]]></description>
+    <version>0.4.0-alpha.6</version>
     <licence>AGPL-3.0-or-later</licence>
     <author>Library contributors</author>
     <namespace>Library</namespace>
@@ -34,6 +38,7 @@
         </uninstall>
     </repair-steps>
     <background-jobs>
+        <job>OCA\Library\BackgroundJob\CurationJob</job>
         <job>OCA\Library\BackgroundJob\MetadataLookupJob</job>
         <job>OCA\Library\BackgroundJob\ScheduledScanJob</job>
         <job>OCA\Library\BackgroundJob\MaintenanceJob</job>

@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.4.0-alpha.6 — development source, not deployed
+
+- Add durable incoming-book review and reviewed background organisation with per-book conflicts, progress and conditional Undo.
+- Add private change history and versioned curation archives with destination-owned restore matching, bounded background work and resumable uploads.
+- Add linked Files notes, Unified Search, Smart Picker and native Dashboard integration; configurable Home cards and background health counts.
+- Add optional genre hierarchy/starter vocabulary and scheme-aware classifications.
+- Add separately confirmed EPUB 2/3 metadata write-back with staged originals, guarded source writes, restore and recovery evidence.
+- Add Open Library edition browsing and Google attribution/quota refinements.
+- Update English/German strings and the schema/reference documentation. Existing Arabic remains available; new Arabic UI work is excluded.
+- Fix the migration cursor name and PostgreSQL boolean predicates found by populated source-upgrade tests; add missing write-back and classification routes.
+- Reduce incoming-review and Home query cost on a synthetic 100k-book catalogue; keep catalogue ownership checks and bounded result pages.
+- Refuse remote/encrypted source write-back before opening writable streams; seekable temporary streams do not establish safe commit/rollback. Library-only metadata edits remain available.
+- Validate staged originals before EPUB writes and rollback; retain unresolved recovery copies and reject stale or replaced source files.
+- Identify the selected field when complex EPUB metadata prevents write-back; let users preserve it and preview other fields without changing the source.
+- Make archive restore resumable after worker failure, preserve validated source evidence, explain conflicts, and show named relationships and cover removal before approval.
+- Improve keyboard typeahead, accessible labels, independent notes/history failures, native Dashboard layout and mobile review tables.
+- Require exact recovery markers and unchanged permissions before removing a legacy managed Files share; retain changed shares with manual recovery guidance.
+- Check live source revisions before history Undo, isolate background-worker failures and discard late editor responses after navigating to another book.
+- Preserve archive quota retries, include framing in size budgets, bound review responses and accept empty archives without errors.
+- Refuse incomplete relationship exports and explain indexing-related restore pauses; escape imported titles in generated reading notes.
+- Restore edition-browser keyboard focus and fall back to To-read books when Home's selected list is deleted.
+- Add focused populated-upgrade, cross-database restore, concurrency, source-byte recovery and browser fixtures. Signed-package acceptance remains outstanding; source checks are not release certification.
+
 ## 0.4.0-alpha.5 — development
 
 - Add per-book query/provider refinement, review filters, selected-field counts and conservative missing-field selection to bulk metadata lookup.

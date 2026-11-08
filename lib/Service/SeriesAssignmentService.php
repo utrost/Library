@@ -8,7 +8,7 @@ use OCP\IDBConnection;
 /** Reviewed moves and merges of the primary series identity; source metadata stays intact. */
 final class SeriesAssignmentService {
     public const MAX_BOOKS = 500;
-    public function __construct(private IDBConnection $db) {}
+    public function __construct(private IDBConnection $db,private ?ChangeHistoryService $history=null) {}
     private function rows(string $sql, array $params = [], bool $lock = false): array {
         $result = $this->db->executeQuery($sql . ($lock && $this->db->getDatabaseProvider() !== 'sqlite' ? ' FOR UPDATE' : ''), $params);
         try { return $result->fetchAll(); } finally { $result->closeCursor(); }
@@ -100,6 +100,7 @@ final class SeriesAssignmentService {
             $this->insert('library_series_operations', ['id' => $id, 'user_id' => $uid, 'created_at' => time(), 'undone' => 0,
                 'source_name' => $snapshot['source']['display_name'] ?? '', 'target_name' => $snapshot['target']['display_name'],
                 'book_count' => 1, 'is_merge' => 0, 'payload' => $payload]);
+            $this->history?->operation($uid,$itemId,'series_assignment',$id,['series'=>$snapshot['source']['display_name'] ?? ''],['series'=>$snapshot['target']['display_name']]);
             $this->db->commit();
             return ['id' => $id, 'books' => 1];
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
@@ -133,6 +134,7 @@ final class SeriesAssignmentService {
             $this->insert('library_series_operations', ['id' => $id, 'user_id' => $uid, 'created_at' => time(), 'undone' => 0,
                 'source_name' => $snapshot['source']['display_name'], 'target_name' => $snapshot['target']['display_name'],
                 'book_count' => count($snapshot['items']), 'is_merge' => (int)$snapshot['merge'], 'payload' => $encoded]);
+            foreach ($snapshot['links'] as $itemId=>$unused) $this->history?->operation($uid,(int)$itemId,'series_assignment',$id,['series'=>$snapshot['source']['display_name']],['series'=>$snapshot['target']['display_name']]);
             $this->db->commit();
             return ['id' => $id, 'books' => count($snapshot['items'])];
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
@@ -173,6 +175,7 @@ final class SeriesAssignmentService {
                 $this->insert('library_item_series', $link);
             }
             if ($before['merge']) $this->db->executeStatement('UPDATE *PREFIX*library_series SET merged_into=NULL,revision=revision+1 WHERE user_id=? AND id=?', [$uid, (int)$before['source']['id']]);
+            foreach ($before['links'] as $itemId=>$unused) $this->history?->operation($uid,(int)$itemId,'series_undo',$id,['series'=>$before['target']['display_name']],['series'=>$before['source']['display_name']]);
             $this->db->executeStatement('UPDATE *PREFIX*library_series_operations SET undone=1 WHERE user_id=? AND id=?', [$uid, $id]);
             $this->db->commit();
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
@@ -198,6 +201,7 @@ final class SeriesAssignmentService {
             $link['revision'] = (int)$payload['after']['revision'] + 1;
             $this->insert('library_item_series', $link);
         }
+        $this->history?->operation($uid,$itemId,'series_undo',$id,['series'=>$before['target']['display_name']],['series'=>$before['source']['display_name'] ?? '']);
         $this->db->executeStatement('UPDATE *PREFIX*library_series_operations SET undone=1 WHERE user_id=? AND id=?', [$uid, $id]);
     }
 }

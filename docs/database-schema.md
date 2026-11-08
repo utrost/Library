@@ -1,6 +1,6 @@
 # Database schema reference
 
-Snapshot: **0.4 development source tree**, 2026-11-07. Covers 45 app-owned tables through `Version000400Date20261107120000`. The 0.4 migrations add root-scoped named-user grants, selected-book Library-only snapshots, durable selected-book lookup runs, and a global external-lookup pacing slot. They have not yet passed the exact-package multi-version and physical-schema checks required before release. The 0.3 schema passed NC33–35 certification across SQLite, MariaDB and PostgreSQL; see the release record.
+Snapshot: **0.4 development source tree**, 2026-11-08. Covers 55 app-owned tables through `Version000400Date20261108100000`. The 0.4 migrations add root-scoped named-user grants, selected-book Library-only snapshots, durable selected-book lookup runs, and a global external-lookup pacing slot. They have not yet passed the exact-package multi-version and physical-schema checks required before release. The 0.3 schema passed NC33–35 certification across SQLite, MariaDB and PostgreSQL; see the release record.
 
 ## Schema ownership
 
@@ -27,7 +27,7 @@ The [Nextcloud database XSD](https://apps.nextcloud.com/schema/apps/database.xsd
 | `library_item_series` | 9 | 2 | Book-to-series slots with source name, part number and assignment provenance. |
 | `library_series_state` | 2 | 1 | Per-user series backfill and edit coordination. |
 | `library_series_operations` | 9 | 2 | Account-private move/merge snapshots and conditional Undo history. |
-| `library_genres` | 4 | 3 | Account-owned curated genre names and comparison keys. |
+| `library_genres` | 5 | 4 | Account-owned curated genre names and comparison keys. |
 | `library_item_genres` | 5 | 2 | Book-to-genre assignments, including inactive manually removed links. |
 | `library_genre_candidates` | 5 | 2 | Per-book source, subject and folder suggestion evidence. |
 | `library_genre_mappings` | 3 | 2 | Account-wide accepted or ignored suggestion decisions. |
@@ -127,3 +127,24 @@ A reviewed book with the same incoming credit hash stays synchronized without ch
 ### Bulk lookup development migration
 
 `Version000400Date20261107120000` adds `library_lookup_jobs` without changing existing book rows. Re-running the migration is safe. An application rollback must stop the new worker; retaining the additive table preserves outstanding review receipts. A database restore is required to restore already changed book values after their receipts expire. See [bulk lookup](bulk-metadata-lookup.md).
+
+## Alpha.6 curation additions (source only)
+
+The additive `Version000400Date20261108100000` migration adds ten tables:
+
+| Table | Purpose / important constraints |
+| --- | --- |
+| `library_change_history` | Private item/time evidence, 180-day expiry; no source binaries. |
+| `library_book_notes` | Unique owner/book/file relationships; no note bodies. |
+| `library_inbox_state` | Unique owner/book decision and saved revision; deferred-until timestamp. |
+| `library_curation_jobs` | Durable reviewed selections/specifications, worker lease and expiry. |
+| `library_curation_rows` | Unique job/book before/after evidence and apply/Undo outcomes. |
+| `library_writeback_jobs` | Owner/book recovery state and file hashes; original/candidate bytes live in private appdata. |
+| `library_portable_jobs` | Versioned export/restore progress, byte budget, stage/cursor and expiry. |
+| `library_portable_rows` | Unique job/kind/source-key archive records and destination review/mapping. |
+| `library_genre_tree` | Owner-scoped ancestor/descendant closure with depth; no self edges. |
+| `library_genre_tree_state` | Owner revision and serialization for hierarchy mutations. |
+
+`library_genres.parent_id` is nullable; the owner/parent/id index supports child lookup. `library_files` gains an owner/first-indexed/id index. `library_items` gains an owner/user-edited/updated-at/id index. `library_list_entries` gains nullable `unavailable_title` and permits null item/file references for restored unavailable entries; original IDs never identify an unrelated destination book.
+
+The XML reference includes these fields/indexes. Physical schema checks and a populated alpha.5 upgrade have **not** run for this checkpoint. Rollback requires the old package plus its database/appdata backup; explicit source writes additionally require Files/original backups. See [curation recovery](curation-alpha6.md#upgrade-and-rollback).
