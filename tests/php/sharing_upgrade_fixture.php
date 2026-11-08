@@ -65,7 +65,7 @@ if ($mode === 'seed') {
     $list = $lists->create($owner, 'Upgrade preserved list', 'Private fixture description');
     $lists->add($owner, $list['id'], $list['revision'], array_map('intval', array_column($books, 'id')));
     $first = (int)$books[0]['id'];
-    $db->executeStatement('UPDATE *PREFIX*library_items SET description=?,personal_rating=4,starred=1 WHERE id=? AND user_id=?', ['Private fixture correction', $first, $owner]);
+    $db->executeStatement('UPDATE *PREFIX*library_items SET description=?,personal_rating=4,starred=TRUE WHERE id=? AND user_id=?', ['Private fixture correction', $first, $owner]);
     $share = $shares->newShare();
     $share->setShareType(IShare::TYPE_USER)->setSharedBy($owner)->setShareOwner($owner)
         ->setSharedWith('library-recipient')->setNode($folder)->setPermissions(Constants::PERMISSION_READ);
@@ -76,7 +76,16 @@ if ($mode === 'seed') {
     echo "populated_alpha2_seeded=true books=3 list_entries=3 files_grants=1\n";
 } elseif ($mode === 'verify') {
     $state = json_decode(file_get_contents($statePath), true, 512, JSON_THROW_ON_ERROR);
-    check(snapshot() == $state['snapshot'], 'upgrade changed existing catalogue, lists or grants');
+    $current = snapshot();
+    // Additive alpha.6 field: pre-existing list entries must retain its empty default.
+    foreach ($current['entries'] as &$entry) {
+        if (array_key_exists('unavailable_title', $entry)) {
+            check($entry['unavailable_title'] === null, 'upgrade changed unavailable entry title');
+            unset($entry['unavailable_title']);
+        }
+    }
+    unset($entry);
+    check($current == $state['snapshot'], 'upgrade changed existing catalogue, lists or grants');
     check($shares->getShareById($state['filesShareId'])->getPermissions() === Constants::PERMISSION_READ, 'Files share changed');
     $grant = $sharing->received('library-recipient')[0] ?? null;
     check($grant !== null && $grant['accessMode'] === 'files', 'existing grant lost Files-backed mode');

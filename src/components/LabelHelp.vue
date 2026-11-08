@@ -7,17 +7,24 @@ let timer
 const helpName = ref(t('library', 'Help'))
 const labelId = `${id}-label`
 onMounted(() => {
-  helpName.value = t('library', 'Help: {label}', { label: anchor.value?.querySelector('span')?.textContent?.trim() || anchor.value?.closest('label')?.textContent?.replace('?', '').trim() || t('library', 'More information') })
   const label = anchor.value?.closest('label')
-  const control = label?.querySelector('input, select, textarea')
+  const control = label?.querySelector('input, select, textarea') || (label?.htmlFor ? document.getElementById(label.htmlFor) : null)
   const heading = anchor.value?.closest('h1, h2, h3, h4')
+  const slotText = anchor.value?.querySelector('span')?.textContent?.trim()
+  const source = (label || heading)?.cloneNode(true)
+  source?.querySelectorAll('.library-label-help, input, select, textarea').forEach(node => node.remove())
+  const visibleName = slotText || source?.textContent?.replace(/\s+/g, ' ').trim()
+  helpName.value = t('library', 'Help: {label}', { label: visibleName || t('library', 'More information') })
   if (label && control && !label.htmlFor) {
     control.id ||= `${id}-control`
     label.htmlFor = control.id
   }
-  // Help buttons must not become part of the control/heading's accessible name.
+  // A help-only component has an empty slot. Never point a control at that empty span.
   for (const element of [control, heading]) {
-    if (element && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) element.setAttribute('aria-labelledby', labelId)
+    if (element && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      if (slotText) element.setAttribute('aria-labelledby', labelId)
+      else if (visibleName) element.setAttribute('aria-label', visibleName)
+    }
   }
 })
 async function show() {

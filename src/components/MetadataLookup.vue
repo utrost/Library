@@ -1,6 +1,8 @@
 <script setup>
+import GoogleBooksAttribution from './GoogleBooksAttribution.vue'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import LookupCover from './LookupCover.vue'
+import LookupCandidates from './LookupCandidates.vue'
 import { n, t } from '@nextcloud/l10n'
 
 const props = defineProps({
@@ -23,6 +25,8 @@ const error = ref('')
 const results = ref([])
 const searched = ref(false)
 const edition = ref(null)
+const editionPage = ref(null)
+const activity = ref('search')
 const selectedFields = ref([])
 const notice = ref('')
 let generation = 0
@@ -45,6 +49,7 @@ watch(() => [props.item.id, props.item.metadataRevision], () => {
   author.value = props.item.canonicalAuthors?.[0]?.name || props.item.creators?.split(/[;,]/)[0]?.trim() || ''
   mode.value = isbn.value ? 'isbn' : 'title'
   results.value = []
+  editionPage.value = null
   edition.value = null
   searched.value = false
   notice.value = ''
@@ -57,6 +62,7 @@ watch(provider, () => {
   error.value = ''
   notice.value = ''
   results.value = []
+  editionPage.value = null
   edition.value = null
   selectedFields.value = []
   searched.value = false
@@ -77,6 +83,8 @@ async function request(path, values, signal) {
     ? t('library', 'Finish or cancel active lookups, or delete an old run before starting another.')
     : response.status === 429
     ? t('library', '{provider} is busy. Wait a moment and try again.', { provider: providerName.value })
+    : failure.error === 'invalid_edition_page'
+    ? t('library', 'This edition page is unavailable. Search again to refresh the results.')
     : response.status === 400
     ? t('library', 'Enter a valid ISBN or at least three title characters.')
     : failure.error === 'provider_unconfigured'
@@ -90,10 +98,12 @@ async function request(path, values, signal) {
 async function search() {
   if (busy.value || props.disabled || props.staged) return
   const current = ++generation
+  activity.value = 'search'
   busy.value = true
   error.value = ''
   notice.value = ''
   results.value = []
+  editionPage.value = null
   edition.value = null
   searched.value = false
   requestController = new AbortController()
@@ -106,8 +116,25 @@ async function search() {
   } catch (cause) { if (current === generation && cause.name !== 'AbortError') error.value = cause.message }
   finally { if (current === generation) { busy.value = false; requestController = null } }
 }
+async function browseEditions(values) {
+  if (busy.value || props.disabled || props.staged) return
+  const current = ++generation
+  activity.value = 'editions'
+  busy.value = true
+  error.value = ''
+  notice.value = ''
+  edition.value = null
+  selectedFields.value = []
+  requestController = new AbortController()
+  try {
+    const page = await request('/editions', values, requestController.signal)
+    if (current === generation) editionPage.value = page
+  } catch (cause) { if (current === generation && cause.name !== 'AbortError') error.value = cause.message }
+  finally { if (current === generation) { busy.value = false; requestController = null } }
+}
 async function choose(candidate) {
   if (busy.value || props.disabled || props.staged) return
+  activity.value = 'edition'
   const current = ++generation
   busy.value = true
   error.value = ''
@@ -152,21 +179,20 @@ function stage() {
     <div class="library-metadata-lookup-content">
       <p>{{ t('library', 'Choose a provider, then search explicitly. Your ISBN or title and author are sent only to the selected provider when you choose Search. Suggestions change nothing until you review and save.') }}</p>
       <p v-if="staged">{{ t('library', 'Save or discard staged suggestions before choosing another edition.') }}</p>
+      <p>{{ t('library', 'Other editions requests a page from Open Library only when selected. Check edition details before accepting any changes.') }}</p>
       <form class="library-metadata-lookup-form" @submit.prevent="search">
-        <label>{{ t('library', 'Provider') }} <select v-model="provider" :disabled="disabled || staged"><option value="openlibrary">{{ t('library', 'Open Library') }}</option><option value="googlebooks">{{ t('library', 'Google Books') }}</option></select></label>
+        <GoogleBooksAttribution v-if="provider === 'googlebooks'" /><label>{{ t('library', 'Provider') }} <select v-model="provider" :disabled="disabled || staged"><option value="openlibrary">{{ t('library', 'Open Library') }}</option><option value="googlebooks">{{ t('library', 'Google Books') }}</option></select></label>
         <label>{{ t('library', 'Search by') }} <select v-model="mode" :disabled="busy || disabled || staged"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="title">{{ t('library', 'Title and author') }}</option></select></label>
         <label v-if="mode === 'isbn'">{{ t('library', 'ISBN') }} <input v-model="isbn" inputmode="text" maxlength="50" :disabled="busy || disabled || staged"></label>
         <template v-else><label>{{ t('library', 'Title') }} <input v-model="title" maxlength="200" :disabled="busy || disabled || staged"></label><label>{{ t('library', 'Author') }} <input v-model="author" maxlength="200" :disabled="busy || disabled || staged"></label></template>
-        <button type="submit" class="button secondary" :disabled="busy || disabled || staged || (mode === 'isbn' ? !isbn.trim() : title.trim().length < 3)">{{ busy ? t('library', 'Searching…') : t('library', 'Search {provider}', { provider: providerName }) }}</button>
+        <button type="submit" class="button secondary" :disabled="busy || disabled || staged || (mode === 'isbn' ? !isbn.trim() : title.trim().length < 3)">{{ busy && activity === 'search' ? t('library', 'Searching…') : t('library', 'Search {provider}', { provider: providerName }) }}</button>
       </form>
-      <p v-if="busy" role="status" aria-live="polite">{{ t('library', 'Searching {provider}…', { provider: providerName }) }}</p>
+      <p v-if="busy" role="status" aria-live="polite">{{ activity === 'editions' ? t('library', 'Loading other editions…') : activity === 'edition' ? t('library', 'Loading edition details…') : t('library', 'Searching {provider}…', { provider: providerName }) }}</p>
       <p v-if="error" role="alert" class="library-full-details-error">{{ error }}</p>
       <p v-if="notice" role="status" class="library-full-details-feedback">{{ notice }}</p>
       <p v-if="searched && !results.length" role="status">{{ t('library', 'No matching editions found. Try the title and author search or edit the book directly.') }}</p>
       <p v-if="searched && results.length" role="status">{{ n('library', '%n matching edition found. Choose one to compare.', '%n matching editions found. Choose one to compare.', results.length) }}</p>
-      <ul v-if="results.length" class="library-metadata-lookup-results" :aria-label="t('library', 'Matching editions')">
-        <li v-for="candidate in results" :key="candidate.editionId"><button type="button" class="button secondary" :aria-label="`${t('library', 'Compare edition')} ${candidate.editionId}: ${candidate.title}`" :disabled="busy || disabled || staged" @click="choose(candidate)">{{ candidate.title }}</button><span class="library-muted">{{ [candidate.authors?.join(', '), candidate.publisher, candidate.year, candidate.languages?.join(', '), candidate.match === 'isbn' ? t('library', 'ISBN match') : ''].filter(Boolean).join(' · ') }}</span></li>
-      </ul>
+      <LookupCandidates v-if="results.length" :results="results" :edition-page="editionPage" :disabled="busy || disabled || staged" :compare-label="t('library', 'Compare edition')" @choose="choose" @editions="browseEditions" />
       <div v-if="edition" class="library-metadata-lookup-review">
         <h3>{{ t('library', 'Selected edition') }} · {{ edition.editionId }}</h3>
         <p>{{ t('library', 'Compare this edition with your current book details. Select only fields you want to stage.') }} <a :href="edition.url" target="_blank" rel="noopener noreferrer">{{ t('library', 'View source at {provider}', { provider: providerName }) }}</a></p>
@@ -187,8 +213,6 @@ function stage() {
 .library-metadata-lookup-content p { margin: 0; }
 .library-metadata-lookup-form { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; }
 .library-metadata-lookup-form label { display: grid; gap: .25rem; min-width: min(100%, 13rem); flex: 1; }
-.library-metadata-lookup-results { display: grid; gap: .5rem; margin: 0; padding-left: 1.25rem; }
-.library-metadata-lookup-results li { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
 .library-metadata-lookup-review { display: grid; gap: .75rem; }
 .library-metadata-lookup-field { display: grid; grid-template-columns: minmax(8rem, .8fr) repeat(2, minmax(0, 1fr)); gap: .75rem; padding: .65rem 0; border-top: 1px solid var(--color-border); }
 .library-metadata-lookup-field p { white-space: pre-wrap; overflow-wrap: anywhere; }

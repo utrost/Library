@@ -21,7 +21,7 @@ final class MetadataBatchController extends Controller {
     #[NoAdminRequired]
     public function control(string $id): JSONResponse { return $this->respond(fn($uid)=>$this->batches->control($uid,$id,$this->text('action'))); }
     #[NoAdminRequired]
-    public function review(string $id,int $itemId): JSONResponse { return $this->respond(fn($uid)=>$this->batches->review($uid,$id,$itemId,$this->text('action'),['fields'=>$this->list('fields'),'editionId'=>$this->text('editionId'),'provider'=>$this->text('provider'),'isbn'=>$this->text('isbn'),'title'=>$this->text('title',800),'author'=>$this->text('author',800),'reviewVersion'=>$this->request->getParam('reviewVersion',0)])); }
+    public function review(string $id,int $itemId): JSONResponse { return $this->respond(fn($uid)=>$this->batches->review($uid,$id,$itemId,$this->text('action'),['workId'=>$this->text('workId'),'offset'=>$this->request->getParam('offset',0),'fields'=>$this->list('fields'),'editionId'=>$this->text('editionId'),'provider'=>$this->text('provider'),'isbn'=>$this->text('isbn'),'title'=>$this->text('title',800),'author'=>$this->text('author',800),'reviewVersion'=>$this->request->getParam('reviewVersion',0)])); }
     #[NoAdminRequired]
     public function apply(string $id): JSONResponse { return $this->respond(fn($uid)=>$this->batches->applySelected($uid,$id,$this->selectedRows())); }
     #[NoAdminRequired]

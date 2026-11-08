@@ -65,7 +65,7 @@ $provider=new OpenLibraryLookupService(\OC::$server->get(IClientService::class),
 $service=new MetadataBatchService($db,$items,\OC::$server->get(InferenceBatchService::class),$provider,\OC::$server->get(GoogleBooksLookupService::class),$config,\OC::$server->get(ILockingProvider::class));
 foreach ($ids as $id) {
     $item=$items->findItem($uid,$id);
-    $query=['title'=>$item['title'],'author'=>'Example Writer','fields'=>'key,title,author_name,first_publish_year,edition_key,editions,editions.key,editions.title,editions.publish_date,editions.publisher,editions.language,editions.isbn','limit'=>'6'];
+    $query=['title'=>$item['title'],'author'=>'Example Writer','fields'=>'key,title,author_name,first_publish_year,edition_key,editions,editions.key,editions.title,editions.publish_date,editions.publisher,editions.language,editions.isbn,editions.physical_format','limit'=>'6'];
     $cache->set(hash('sha256',$uid."\0".json_encode($query,JSON_THROW_ON_ERROR)),[['editionId'=>'OL1M','title'=>'Synthetic edition','authors'=>['Example Writer'],'publisher'=>'Example Press','year'=>'2025','isbn'=>['9780306406157'],'languages'=>['en'],'url'=>'https://openlibrary.org/books/OL1M','match'=>'title_author']]);
 }
 $cache->set(hash('sha256',$uid."\0edition\0OL1M"),['editionId'=>'OL1M','fields'=>['publisher'=>'Example Press','description'=>'Synthetic description'],'isbn'=>['9780306406157'],'url'=>'https://openlibrary.org/books/OL1M']);
@@ -205,7 +205,7 @@ $service->control($uid,$racing['id'],'delete');
 
 // Selection shortcut requires reviewed, unique ISBN evidence and never writes metadata.
 $items->updateItem($uid,$ids[18],['identifiers'=>[['scheme'=>'isbn','displayValue'=>'9780306406157']]]);
-$isbnQuery=['isbn'=>'9780306406157','fields'=>'key,title,author_name,first_publish_year,edition_key,editions,editions.key,editions.title,editions.publish_date,editions.publisher,editions.language,editions.isbn','limit'=>'6'];
+$isbnQuery=['isbn'=>'9780306406157','fields'=>'key,title,author_name,first_publish_year,edition_key,editions,editions.key,editions.title,editions.publish_date,editions.publisher,editions.language,editions.isbn,editions.physical_format','limit'=>'6'];
 $match=['editionId'=>'OL2M','title'=>'Lookup fixture 19','authors'=>['Example Writer'],'publisher'=>'Example Press','year'=>'2025','isbn'=>['9780306406157'],'languages'=>['en'],'url'=>'https://openlibrary.org/books/OL2M','match'=>'isbn'];
 $cache->set(hash('sha256',$uid."\0".json_encode($isbnQuery,JSON_THROW_ON_ERROR)),[$match]);
 $cache->set(hash('sha256',$uid."\0edition\0OL2M"),['editionId'=>'OL2M','fields'=>['title'=>'Lookup fixture 19','publisher'=>'Example Press'],'isbn'=>['9780306406157'],'url'=>'https://openlibrary.org/books/OL2M']);
@@ -264,6 +264,27 @@ review($service,$uid,$languageJob['id'],$ids[20],'choose',['editionId'=>'OL1M'])
 check($service->get($uid,$languageJob['id'])['rows'][0]['proposals']===[],'fill-missing protects existing language set');
 $service->control($uid,$languageJob['id'],'delete');
 $cache->set(hash('sha256',$uid."\0edition\0OL1M"),['editionId'=>'OL1M','fields'=>['publisher'=>'Example Press','description'=>'Synthetic description'],'isbn'=>['9780306406157'],'url'=>'https://openlibrary.org/books/OL1M']);
+
+// Explicit alternative-edition browsing invalidates prior selections and remains tied to the original work.
+$editionBook=$ids[45];$editionItem=$items->findItem($uid,$editionBook);
+$query=['title'=>$editionItem['title'],'author'=>'Example Writer','fields'=>'key,title,author_name,first_publish_year,edition_key,editions,editions.key,editions.title,editions.publish_date,editions.publisher,editions.language,editions.isbn,editions.physical_format','limit'=>'6'];
+$candidate=['editionId'=>'OL1M','workId'=>'OL1W','title'=>'Original fixture edition','authors'=>['Example Writer'],'isbn'=>[],'languages'=>['en'],'url'=>'https://openlibrary.org/books/OL1M','match'=>'title_author'];
+$cache->set(hash('sha256',$uid."\0".json_encode($query,JSON_THROW_ON_ERROR)),[$candidate]);
+$alternate=['editionId'=>'OL4M','workId'=>'OL1W','title'=>'Alternate fixture edition','authors'=>[],'isbn'=>[],'languages'=>['de'],'url'=>'https://openlibrary.org/books/OL4M','match'=>'work_edition'];
+$cache->set(hash('sha256',$uid."\0editions\0OL1W\0" . '0'),['workId'=>'OL1W','offset'=>0,'results'=>[$alternate],'previousOffset'=>null,'nextOffset'=>8,'limited'=>false]);
+$cache->set(hash('sha256',$uid."\0edition\0OL4M"),['editionId'=>'OL4M','fields'=>['publisher'=>'Alternate Fixture Press'],'isbn'=>[],'url'=>'https://openlibrary.org/books/OL4M']);
+$editionJob=$service->create($uid,[$editionBook],'openlibrary',['publisher'],'missing');$service->advance();
+rejects(InvalidArgumentException::class,fn()=>review($service,$uid,$editionJob['id'],$editionBook,'editions',['workId'=>'OL999W','offset'=>0]));
+rejects(InvalidArgumentException::class,fn()=>review($service,$uid,$editionJob['id'],$editionBook,'editions',['workId'=>'OL1W','offset'=>1]));
+rejects(InvalidArgumentException::class,fn()=>review($service,$uid,$editionJob['id'],$editionBook,'choose',['editionId'=>'OL4M']));
+review($service,$uid,$editionJob['id'],$editionBook,'choose',['editionId'=>'OL1M']);$service->advance();review($service,$uid,$editionJob['id'],$editionBook,'select',['fields'=>['publisher']]);
+$oldReview=$service->get($uid,$editionJob['id'])['rows'][0]['reviewVersion'];
+review($service,$uid,$editionJob['id'],$editionBook,'editions',['workId'=>'OL1W','offset'=>0]);$service->advance();
+$row=$service->get($uid,$editionJob['id'])['rows'][0];check($row['selected']===[] && !isset($row['edition']),'edition browsing removes previous approvals');
+check($row['editionPage']['results'][0]['editionId']==='OL4M','alternative edition page persisted');
+rejects(DomainException::class,fn()=>$service->review($uid,$editionJob['id'],$editionBook,'select',['fields'=>['publisher'],'reviewVersion'=>$oldReview]));
+review($service,$uid,$editionJob['id'],$editionBook,'choose',['editionId'=>'OL4M']);$service->advance();review($service,$uid,$editionJob['id'],$editionBook,'select',['fields'=>['publisher']]);review($service,$uid,$editionJob['id'],$editionBook,'apply',[]);
+check($items->findItem($uid,$editionBook)['publisher']==='Alternate Fixture Press','reviewed alternative edition can be applied');review($service,$uid,$editionJob['id'],$editionBook,'undo',[]);check($items->findItem($uid,$editionBook)['publisher']==='','alternative edition Undo restores original');$service->control($uid,$editionJob['id'],'delete');
 
 // Leave one deterministic persisted run for installed-browser checks.
 $job=$service->create($uid,[$ids[5],$ids[6]],'openlibrary',['publisher','description'],'missing');

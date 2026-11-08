@@ -91,9 +91,9 @@ Focused results are recorded in [first implementation verification](bulk-metadat
 
 Track the remaining work under #181–#186 and #206–#212:
 
-- Provider cover comparison/application (#210).
-- Single-book provenance and Undo parity (#185); staging is still the existing
-  one-book draft workflow, while batch changes use durable provider receipts.
+- Provider-policy and attribution acceptance (#181); Open Library cover
+  comparison/application (#210) and single-book provenance/Undo parity (#185)
+  are installed in alpha.5. Google cover persistence remains unsupported.
 - Broader matching/conflict explanations, Google-specific 403 quota responses,
   provider policy review and real external-service acceptance.
 - Real concurrent-process load, populated upgrades and acceptance across the
@@ -101,6 +101,10 @@ Track the remaining work under #181–#186 and #206–#212:
   fixture is not a production browser or external-network latency benchmark.
 - Manual screen-reader review and full dark/RTL visual inspection.
 
-Normalized language suggestions are implemented, with broader filter/index and
-single-book provenance acceptance still tracked in #212/#185. Do not represent
+Normalized language suggestions and single-book provenance are implemented in
+alpha.5; broader acceptance remains tracked in #212/#185. Do not represent
 focused local verification as release certification.
+
+## Development after alpha.5
+
+Explicit **Other editions** browsing is described in [the edition contract](lookup-edition-browsing.md). The original matches remain available, while each bounded work-edition page runs through the background queue. Browsing clears that row's prior edition/cover approvals; other books are unchanged. This source change is not installed yet.

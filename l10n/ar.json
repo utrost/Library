@@ -1538,7 +1538,6 @@
         "Enter a valid ISBN or at least three title characters.": "أدخل رقم ISBN صالحًا أو ثلاثة أحرف على الأقل من العنوان.",
         "Enter at least three characters": "أدخل ثلاثة أحرف على الأقل",
         "Find book details": "البحث عن بيانات الكتاب",
-        "ISBN match": "تطابق ISBN",
         "Library access is hidden, but Files share cleanup is pending. Retry Remove access.": "أُخفي الوصول إلى المكتبة، لكن إزالة مشاركة الملفات ما زالت معلّقة. أعد محاولة إزالة الوصول.",
         "Library access was removed.": "تمت إزالة الوصول إلى المكتبة.",
         "Manage shared libraries": "إدارة المكتبات المشتركة",
@@ -1756,7 +1755,22 @@
         "The change could not be undone. Later edits and changed files are protected.": "تعذر التراجع عن التغيير. التعديلات اللاحقة والملفات المتغيرة محمية.",
         "The cover changes only when you apply or save. Text-only updates keep your current cover.": "يتغير الغلاف فقط عند التطبيق أو الحفظ. تحديث النص وحده يحافظ على الغلاف الحالي.",
         "Use this cover, replacing the current cover if present": "استخدام هذا الغلاف واستبدال الغلاف الحالي إن وجد",
-        "Cover storage is full. Delete older lookup receipts before retrying.": "مساحة تخزين الأغلفة ممتلئة. احذف سجلات بحث أقدم قبل إعادة المحاولة."
+        "Cover storage is full. Delete older lookup receipts before retrying.": "مساحة تخزين الأغلفة ممتلئة. احذف سجلات بحث أقدم قبل إعادة المحاولة.",
+        "This provider edition contains the searched ISBN. Check its language, format and publication date before choosing.": "تحتوي هذه الطبعة لدى المزود على رقم ISBN المطلوب. تحقّق من لغتها وصيغتها وتاريخ نشرها قبل الاختيار.",
+        "Another edition of this work. It may be a translation or a different format; it is not a verified match for your book.": "طبعة أخرى من هذا العمل. قد تكون ترجمة أو بصيغة مختلفة؛ لم يتم التحقق من مطابقتها لكتابك.",
+        "Title/author search result. Similar titles can refer to different books; compare the edition details before choosing.": "نتيجة بحث بالعنوان أو المؤلف. قد تشير العناوين المتشابهة إلى كتب مختلفة؛ قارن تفاصيل الطبعة قبل الاختيار.",
+        "Other editions": "طبعات أخرى",
+        "Provider order, eight entries per page. Missing details are not inferred from the original work.": "بترتيب المزود، ثمانية إدخالات في كل صفحة. لا تُستنتج التفاصيل المفقودة من العمل الأصلي.",
+        "No usable editions on this page. Try another page or refine your search.": "لا توجد طبعات صالحة للاستخدام في هذه الصفحة. جرّب صفحة أخرى أو عدّل بحثك.",
+        "Edition pages": "صفحات الطبعات",
+        "Previous editions": "الطبعات السابقة",
+        "Next editions": "الطبعات التالية",
+        "Edition browsing is limited to 200 entries. Search by ISBN to find a specific edition beyond this limit.": "يقتصر تصفح الطبعات على 200 إدخال. ابحث برقم ISBN للعثور على طبعة محددة بعد هذا الحد.",
+        "This edition page is unavailable. Search again to refresh the results.": "صفحة الطبعات هذه غير متاحة. ابحث مجددًا لتحديث النتائج.",
+        "Loading other editions…": "جارٍ تحميل طبعات أخرى…",
+        "Loading edition details…": "جارٍ تحميل تفاصيل الطبعة…",
+        "Other editions requests a page from Open Library only when selected. Check edition details before accepting any changes.": "لا يطلب خيار الطبعات الأخرى صفحة من Open Library إلا عند اختياره. تحقّق من تفاصيل الطبعة قبل قبول أي تغييرات.",
+        "Other editions queued. Previous edition approvals were cleared; other books are unchanged.": "أُضيف طلب الطبعات الأخرى إلى قائمة الانتظار. أُزيلت الموافقات السابقة على الطبعة؛ لم تتغير الكتب الأخرى."
     },
     "pluralForm": "nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);"
 }

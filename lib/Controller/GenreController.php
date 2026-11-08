@@ -21,6 +21,21 @@ final class GenreController extends Controller {
         return $result;
     }); }
     #[NoAdminRequired]
+    public function update(int $genreId): JSONResponse { return $this->respond(function($uid) use($genreId) {
+        $revision=$this->request->getParam('revision');$parent=$this->request->getParam('parentId');
+        if (!is_int($revision) || $revision<0 || ($parent!==null && (!is_int($parent) || $parent<1))) throw new \InvalidArgumentException();
+        if ($this->text('action')==='delete') { $this->genres->removeUnused($uid,$genreId,$revision);return ['deleted'=>true]; }
+        return $this->genres->updateHierarchy($uid,$genreId,$this->text('name'),$parent,$revision);
+    }); }
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function children(int $genreId): JSONResponse { return $this->respond(fn($uid)=>$this->genres->descendants($uid,$genreId)); }
+    #[NoAdminRequired]
+    #[NoCSRFRequired]
+    public function starters(): JSONResponse { return $this->respond(fn($uid)=>['entries'=>\OCA\Library\Service\GenreVocabulary::all()]); }
+    #[NoAdminRequired]
+    public function addStarter(): JSONResponse { return $this->respond(fn($uid)=>$this->genres->starter($uid,$this->text('key'))); }
+    #[NoAdminRequired]
     public function create(): JSONResponse { return $this->respond(fn($uid) => $this->genres->create($uid, $this->text('name'))); }
     #[NoAdminRequired]
     #[NoCSRFRequired]
@@ -49,7 +64,9 @@ final class GenreController extends Controller {
         $user = $this->session->getUser();
         if ($user === null) return new JSONResponse(['error' => 'unauthenticated'], 401, $headers);
         try { return new JSONResponse($action($user->getUID()), 200, $headers); }
-        catch (\InvalidArgumentException) { return new JSONResponse(['error' => 'invalid_input'], 422, $headers); }
+        catch (\DomainException $error) { return new JSONResponse(['error'=>in_array($error->getMessage(),['tree_changed','genre_in_use'],true) ? $error->getMessage() : 'changed_or_in_use'],409,$headers); }
+        catch (\LengthException) { return new JSONResponse(['error'=>'subtree_limit'],422,$headers); }
+        catch (\InvalidArgumentException $error) { return new JSONResponse(['error' => in_array($error->getMessage(),['genre_cycle','genre_depth','duplicate_genre'],true) ? $error->getMessage() : 'invalid_input'], 422, $headers); }
         catch (\OutOfBoundsException) { return new JSONResponse(['error' => 'not_found'], 404, $headers); }
         catch (\Throwable $error) { $this->logger->error('Library genre operation failed', ['exception' => $error]); return new JSONResponse(['error' => 'operation_failed'], 500, $headers); }
     }

@@ -113,9 +113,11 @@ final class MetadataBatchService {
         try {
             $this->assertCurrent($job['user_id'],$row);
             $provider=($row['provider'] ?? $job['payload']['provider'])==='googlebooks' ? $this->googleBooks : $this->openLibrary;
-            $result=$row['phase']==='search'
-                ? $provider->search($job['user_id'],$row['query']['isbn'],$row['query']['title'],$row['query']['author'])
-                : $provider->edition($job['user_id'],$row['editionId']);
+            $result=match ($row['phase']) {
+                'search' => $provider->search($job['user_id'],$row['query']['isbn'],$row['query']['title'],$row['query']['author']),
+                'editions' => $this->openLibrary->editions($job['user_id'],$row['editionWorkId'],$row['editionOffset']),
+                default => $provider->edition($job['user_id'],$row['editionId']),
+            };
         } catch (\Throwable $e) {
             $retryAfter=$e instanceof \OCA\Library\Exception\MetadataProviderRetryException ? $e->retryAfter : 0;
             $error=$e instanceof MetadataConflictException ? 'stale_book' : ($e instanceof \OutOfBoundsException ? 'unavailable' :
@@ -134,6 +136,8 @@ final class MetadataBatchService {
                     $row['retryAt']=time()+max($retryAfter,min(300,15*(2**$row['attempts'])));
                 } elseif ($row['phase']==='search') {
                     $row['results']=$result; $row['status']=$result ? 'matches' : 'no_match'; unset($row['error']);
+                } elseif ($row['phase']==='editions') {
+                    $row['editionPage']=$result; $row['status']='matches'; unset($row['error']);
                 } else {
                     $row['edition']=$result; $row['status']='ready'; $row['selected']=[]; unset($row['error']);
                 }
@@ -223,9 +227,21 @@ final class MetadataBatchService {
             } elseif ($action==='skip') {
                 if (in_array($row['status'],['applied','undone'],true)) throw new \DomainException('invalid_transition');
                 $row['status']='skipped'; $row['selected']=[];
+            } elseif ($action==='editions') {
+                if (($row['provider'] ?? $job['payload']['provider'])!=='openlibrary'
+                    || !in_array($row['status'],['matches','ready'],true)
+                    || !is_string($data['workId'] ?? null) || !is_int($data['offset'] ?? null)
+                    || $data['offset']<0 || $data['offset']>192 || $data['offset']%8!==0
+                    || !in_array($data['workId'],array_column($row['results'],'workId'),true)) throw new \InvalidArgumentException('invalid_edition_page');
+                if (in_array($job['status'],['cancelled','paused'],true)) throw new \DomainException('resume_required');
+                $this->assertCurrent($uid,$row);
+                $row['editionWorkId']=$data['workId']; $row['editionOffset']=$data['offset'];
+                $row['phase']='editions'; $row['status']='queued'; $row['attempts']=0; $row['retryAt']=0;
+                unset($row['edition'],$row['editionId'],$row['cover'],$row['editionPage']);
+                $row['selected']=[]; $job['status']='running';
             } elseif ($action==='choose') {
                 if (!in_array($row['status'],['matches','ready'],true) || !is_string($data['editionId'] ?? null)
-                    || !in_array($data['editionId'],array_column($row['results'],'editionId'),true)) throw new \InvalidArgumentException('invalid_edition');
+                    || !in_array($data['editionId'],array_column(array_merge($row['results'],$row['editionPage']['results'] ?? []),'editionId'),true)) throw new \InvalidArgumentException('invalid_edition');
                 if (in_array($job['status'],['cancelled','paused'],true)) throw new \DomainException('resume_required');
                 $this->assertCurrent($uid,$row);
                 $row['editionId']=$data['editionId']; $row['phase']='edition'; $row['status']='queued'; $row['attempts']=0; $row['retryAt']=0;
@@ -237,7 +253,7 @@ final class MetadataBatchService {
                 $query=$this->query($data);
                 $this->assertCurrent($uid,$row);
                 $row['provider']=$provider; $row['query']=$query; $row['phase']='search';
-                $row['results']=[]; $row['selected']=[]; unset($row['edition'],$row['editionId'],$row['error'],$row['cover']);
+                $row['results']=[]; $row['selected']=[]; unset($row['edition'],$row['editionId'],$row['error'],$row['cover'],$row['editionPage'],$row['editionWorkId'],$row['editionOffset']);
                 $row['status']='queued'; $row['attempts']=0; $row['retryAt']=0; $job['status']='running';
             } elseif ($action==='retry') {
                 if (!in_array($row['status'],['failed','no_match','skipped'],true) || in_array($job['status'],['cancelled','paused'],true)) throw new \DomainException('invalid_transition');

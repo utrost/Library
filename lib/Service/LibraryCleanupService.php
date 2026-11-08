@@ -7,7 +7,7 @@ use OCP\BackgroundJob\IJobList;
 use OCA\Library\BackgroundJob\ScanJob;
 
 final class LibraryCleanupService {
-    public function __construct(private IDBConnection $db, private IConfig $config, private IJobList $jobs, private ?AuthorPhotoService $authorPhotos = null) {}
+    public function __construct(private IDBConnection $db, private IConfig $config, private IJobList $jobs, private ?AuthorPhotoService $authorPhotos = null,private ?\OCP\Files\IAppData $appData = null) {}
     /** One-time, bounded repair for index rows left by older deletion and edit paths. */
     public function repairOrphanIndexes(int $limit = 20000): int {
         $tables = ['library_item_identifiers', 'library_item_facets', 'library_item_search_grams'];
@@ -97,12 +97,13 @@ final class LibraryCleanupService {
             foreach ($ids as $id) {
                 $qb = $this->db->getQueryBuilder(); $qb->delete('library_list_entries')->where($qb->expr()->eq('list_id', $qb->createNamedParameter($id)))->executeStatement();
             }
-            foreach (['library_lookup_jobs', 'library_scan_changes', 'library_scan_schedule', 'library_dup_hints', 'library_dup_terms', 'library_dup_index', 'library_dup_state', 'library_dup_keys', 'library_dup_books', 'library_dup_pairs', 'library_dup_choices', 'library_dup_jobs', 'library_infer_results', 'library_infer_jobs', 'library_inference_batches', 'library_item_facets', 'library_item_search_grams', 'library_item_identifiers', 'library_items', 'library_item_authors', 'library_authors', 'library_author_state', 'library_author_operations', 'library_author_tasks', 'library_item_series', 'library_series', 'library_series_state', 'library_series_operations', 'library_item_genres', 'library_genre_candidates', 'library_genre_mappings', 'library_genres', 'library_language_candidates', 'library_language_mappings', 'library_value_mappings', 'library_files', 'library_roots', 'library_scan_jobs', 'library_saved_collections', 'library_lists'] as $table) {
+            foreach (['library_portable_rows','library_portable_jobs','library_writeback_jobs','library_genre_tree', 'library_genre_tree_state', 'library_change_history', 'library_book_notes', 'library_inbox_state', 'library_curation_rows', 'library_curation_jobs', 'library_lookup_jobs', 'library_scan_changes', 'library_scan_schedule', 'library_dup_hints', 'library_dup_terms', 'library_dup_index', 'library_dup_state', 'library_dup_keys', 'library_dup_books', 'library_dup_pairs', 'library_dup_choices', 'library_dup_jobs', 'library_infer_results', 'library_infer_jobs', 'library_inference_batches', 'library_item_facets', 'library_item_search_grams', 'library_item_identifiers', 'library_items', 'library_item_authors', 'library_authors', 'library_author_state', 'library_author_operations', 'library_author_tasks', 'library_item_series', 'library_series', 'library_series_state', 'library_series_operations', 'library_item_genres', 'library_genre_candidates', 'library_genre_mappings', 'library_genres', 'library_language_candidates', 'library_language_mappings', 'library_value_mappings', 'library_files', 'library_roots', 'library_scan_jobs', 'library_saved_collections', 'library_lists'] as $table) {
                 $qb = $this->db->getQueryBuilder(); $qb->delete($table)->where($qb->expr()->eq('user_id', $qb->createNamedParameter($uid)))->executeStatement();
             }
             $this->db->commit();
         } catch (\Throwable $e) { $this->db->rollBack(); throw $e; }
         $this->authorPhotos?->deleteUser($uid);
+        try { $this->appData?->getFolder('writeback-'.hash('sha256',$uid))->delete(); } catch (\OCP\Files\NotFoundException) {}
         foreach ([ScanJob::class, \OCA\Library\BackgroundJob\InferenceAnalysisJob::class, \OCA\Library\BackgroundJob\DuplicateJob::class, \OCA\Library\BackgroundJob\DuplicateIndexJob::class] as $class) {
         $arguments = [];
         foreach ($this->jobs->getJobsIterator($class, null, 0) as $job) {

@@ -2,6 +2,7 @@
 import { ref, watch, onBeforeUnmount } from 'vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
+import GoogleBooksAttribution from './GoogleBooksAttribution.vue'
 const props = defineProps({ itemId: Number, revision: String, requestToken: String, disabled: Boolean })
 const emit = defineEmits(['undone'])
 const opened = ref(false), busy = ref(false), error = ref(''), receipts = ref([])
@@ -37,7 +38,7 @@ const labels = { title: t('library', 'Title'), subtitle: t('library', 'Subtitle'
     <p v-if="busy" role="status">{{ t('library', 'Updating…') }}</p><p v-if="error" role="alert">{{ error }}</p>
     <p v-if="disabled">{{ t('library', 'Save or discard your edits before Undo.') }}</p>
     <p v-if="!busy && !receipts.length">{{ t('library', 'No retained lookup changes for this book.') }}</p>
-    <article v-for="row in receipts" :key="row.jobId">
+    <article v-for="row in receipts" :key="row.jobId"><GoogleBooksAttribution v-if="row.receipt.provider === 'googlebooks'" />
       <p><a :href="row.receipt.url" target="_blank" rel="noopener noreferrer">{{ row.receipt.provider === 'googlebooks' ? 'Google Books' : 'Open Library' }}</a> · {{ new Date(row.receipt.appliedAt * 1000).toLocaleString() }}</p>
       <dl><template v-for="(value, field) in row.receipt.after" :key="field"><dt>{{ labels[field] || field }}</dt><dd>{{ display(row.receipt.before[field]) }} → {{ display(value) }}</dd></template></dl>
       <p v-if="row.receipt.cover">{{ t('library', 'Cover replaced') }}</p>

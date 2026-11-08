@@ -50,9 +50,9 @@ final class OpenLibraryLookupService {
         if ($isbn === '' && $author !== '') {
             $query['author'] = $author;
         }
-        $query['fields'] = 'key,title,author_name,first_publish_year,edition_key,editions,editions.key,editions.title,editions.publish_date,editions.publisher,editions.language,editions.isbn';
+        $query['fields'] = 'key,title,author_name,first_publish_year,edition_key,editions,editions.key,editions.title,editions.publish_date,editions.publisher,editions.language,editions.isbn,editions.physical_format';
         $query['limit'] = '6';
-        $cache = $this->caches->createDistributed('library-openlibrary-lookup-v2');
+        $cache = $this->caches->createDistributed('library-openlibrary-lookup-v3');
         $key = hash('sha256', $userId . "\0" . json_encode($query, JSON_THROW_ON_ERROR));
         $cached = $cache->get($key);
         if (is_array($cached)) {
@@ -105,7 +105,7 @@ final class OpenLibraryLookupService {
                 if (is_array($publisher)) {
                     $publisher = $publisher[0] ?? '';
                 }
-                $published = $edition['publish_date'] ?? $work['first_publish_year'] ?? '';
+                $published = $edition['publish_date'] ?? ''; // Work publication year is not edition evidence.
                 if (is_array($published)) {
                     $published = $published[0] ?? '';
                 }
@@ -115,6 +115,8 @@ final class OpenLibraryLookupService {
                 }
                 $results[$id] = [
                     'editionId' => $id,
+                    'workId' => $this->workId($work['key'] ?? null),
+                    'format' => mb_substr(is_string($edition['physical_format'] ?? null) ? $edition['physical_format'] : '', 0, 100),
                     'title' => mb_substr($candidateTitle, 0, 300),
                     'authors' => $this->boundedStrings($work['author_name'] ?? null, 5, 160),
                     'year' => mb_substr(is_scalar($published) ? (string)$published : '', 0, 80),
@@ -168,6 +170,8 @@ final class OpenLibraryLookupService {
         }
         return [[
             'editionId' => $id,
+            'workId' => $this->workId($edition['works'][0]['key'] ?? null),
+            'format' => mb_substr(is_string($edition['physical_format'] ?? null) ? $edition['physical_format'] : '', 0, 100),
             'title' => mb_substr($title, 0, 300),
             'authors' => [],
             'year' => mb_substr(is_string($date) ? $date : '', 0, 80),
@@ -179,6 +183,58 @@ final class OpenLibraryLookupService {
         ]];
     }
 
+    /** Explicit bounded browsing; no automatic per-work fan-out or provider pagination URLs.
+     * @return array<string, mixed>
+     */
+    public function editions(string $userId, string $workId, int $offset = 0): array {
+        $this->ensureEnabled();
+        $id = $this->workId($workId);
+        if ($id === null || $offset < 0 || $offset > 192 || $offset % 8 !== 0) {
+            throw new \InvalidArgumentException('invalid_edition_page');
+        }
+        $cache = $this->caches->createDistributed('library-openlibrary-lookup-v3');
+        $key = hash('sha256', $userId . "\0editions\0" . $id . "\0" . $offset);
+        $cached = $cache->get($key);
+        if (is_array($cached)) return $cached;
+        $data = $this->fetchJson(self::BASE . '/works/' . $id . '/editions.json?limit=9&offset=' . $offset);
+        if (!is_array($data['entries'] ?? null) || !array_is_list($data['entries'])) {
+            throw new \RuntimeException('provider_unavailable');
+        }
+        $results = [];
+        foreach (array_slice($data['entries'], 0, 8) as $entry) {
+            if (!is_array($entry)) continue;
+            $editionId = $this->editionId(is_string($entry['key'] ?? null) ? $entry['key'] : '');
+            if ($editionId === null || !is_string($entry['title'] ?? null) || trim($entry['title']) === '') continue;
+            // A returned entry must name the requested work; unrelated entries cannot become candidates.
+            $works = is_array($entry['works'] ?? null) ? $entry['works'] : [];
+            if (!array_filter($works, fn ($work): bool => is_array($work) && $this->workId($work['key'] ?? null) === $id)) continue;
+            $edition = $this->editionResult($entry, $editionId);
+            $results[$editionId] = [
+                'editionId' => $editionId, 'workId' => $id,
+                'title' => mb_substr($entry['title'], 0, 300), 'authors' => [],
+                'publisher' => $edition['fields']['publisher'] ?? '',
+                'year' => mb_substr(is_string($entry['publish_date'] ?? null) ? $entry['publish_date'] : '', 0, 80),
+                'format' => mb_substr(is_string($entry['physical_format'] ?? null) ? $entry['physical_format'] : '', 0, 100),
+                'isbn' => array_slice($edition['isbn'], 0, 4), 'languages' => $edition['languages'],
+                'match' => 'work_edition', 'url' => $edition['url'],
+            ];
+            $cache->set(hash('sha256', $userId . "\0edition\0" . $editionId), $edition, 900);
+        }
+        $more = count($data['entries']) > 8;
+        $result = ['workId' => $id, 'offset' => $offset, 'results' => array_values($results),
+            'previousOffset' => $offset > 0 ? $offset - 8 : null,
+            'nextOffset' => $more && $offset < 192 ? $offset + 8 : null,
+            'limited' => $more && $offset === 192];
+        $cache->set($key, $result, 900);
+        return $result;
+    }
+
+    private function workId(mixed $value): ?string {
+        if (!is_string($value)) return null;
+        $value = str_starts_with($value, '/works/') ? substr($value, 7) : $value;
+        return preg_match('/^OL[1-9][0-9]*W$/D', $value) ? $value : null;
+    }
+
     /** @return array<string, mixed> */
     public function edition(string $userId, string $editionId): array {
         $this->ensureEnabled();
@@ -186,7 +242,7 @@ final class OpenLibraryLookupService {
         if ($id === null) {
             throw new \InvalidArgumentException('invalid_edition');
         }
-        $cache = $this->caches->createDistributed('library-openlibrary-lookup-v2');
+        $cache = $this->caches->createDistributed('library-openlibrary-lookup-v3');
         $key = hash('sha256', $userId . "\0edition\0" . $id);
         $cached = $cache->get($key);
         if (is_array($cached)) {

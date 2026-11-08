@@ -1,5 +1,7 @@
 <script setup>
+import GoogleBooksAttribution from './GoogleBooksAttribution.vue'
 import LookupCover from './LookupCover.vue'
+import LookupCandidates from './LookupCandidates.vue'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { t, n } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
@@ -130,8 +132,9 @@ function control(action) { act(async () => { job.value = await request(`/${job.v
 function rowAction(row, action, extra = {}) {
   act(async () => {
     job.value = await request(`/${job.value.id}/books/${row.id}`, { action, reviewVersion: row.reviewVersion, ...extra })
+    if (action === 'editions') notice.value = t('library', 'Other editions queued. Previous edition approvals were cleared; other books are unchanged.')
     if (['apply', 'undo'].includes(action)) emit('changed')
-    if (['apply', 'undo', 'skip'].includes(action)) { pinnedRow.value = row.id; await nextTick(); document.getElementById(`lookup-book-${row.id}`)?.focus({ preventScroll: true }) }
+    if (['apply', 'undo', 'skip', 'editions'].includes(action)) { pinnedRow.value = row.id; await nextTick(); document.getElementById(`lookup-book-${row.id}`)?.focus({ preventScroll: true }) }
     if (action === 'apply' || action === 'undo') notice.value = action === 'apply' ? t('library', 'Changes applied. Continue with the next book.') : t('library', 'Changes undone. Later edits are protected.')
   })
 }
@@ -176,6 +179,7 @@ onBeforeUnmount(() => { disposed = true; generation++; clearTimeout(timer) })
 </script>
 
 <template>
+<GoogleBooksAttribution v-if="provider === 'googlebooks' || job?.provider === 'googlebooks'" />
   <section class="library-batch-lookup" :aria-busy="busy" :aria-label="t('library', 'Find book details')">
     <header class="library-batch-toolbar"><h2>{{ t('library', 'Find book details') }}</h2><button type="button" @click="close">{{ t('library', 'Back to browsing') }}</button></header>
     <p v-if="busy" role="status">{{ t('library', 'Updating…') }}</p>
@@ -245,17 +249,13 @@ onBeforeUnmount(() => { disposed = true; generation++; clearTimeout(timer) })
           <button type="submit" :disabled="busy || !searchDraft.provider || (!searchDraft.isbn.trim() && searchDraft.title.trim().length < 3)">{{ t('library', 'Search this book') }}</button>
           <button type="button" :disabled="busy" @click="searchDraft = null">{{ t('library', 'Cancel') }}</button>
         </form>
+        <p v-if="row.phase === 'editions' && ['queued', 'working'].includes(row.status)" role="status">{{ t('library', 'Loading other editions…') }}</p>
         <p v-if="row.retryAt > Date.now() / 1000 && row.status === 'queued'">{{ t('library', 'Retry after {time}', { time: new Date(row.retryAt * 1000).toLocaleString() }) }}</p>
         <p v-if="row.applyError" role="alert">{{ failure(row.applyError) }}</p>
         <p v-if="row.error">{{ failure(row.error) }}</p>
         <details v-if="row.results.length && ['matches', 'ready'].includes(row.status)" :open="row.status === 'matches'">
           <summary>{{ t('library', 'Edition matches') }}</summary>
-          <ul><li v-for="match in row.results" :key="match.editionId">
-            <strong>{{ match.title }}</strong> · {{ display(match.authors) }} · {{ match.publisher }} · {{ match.year }}
-            <p>{{ t('library', 'ISBN') }}: {{ display(match.isbn) || '—' }} · {{ t('library', 'Language') }}: {{ display(match.languages) || '—' }}</p>
-            <a :href="match.url" target="_blank" rel="noopener noreferrer">{{ t('library', 'Provider source') }}</a>
-            <button type="button" :disabled="busy || ['paused', 'cancelled'].includes(job.status)" @click="rowAction(row, 'choose', { editionId: match.editionId })">{{ t('library', 'Review this edition') }}</button>
-          </li></ul>
+          <LookupCandidates :results="row.results" :edition-page="row.editionPage || null" :disabled="busy || ['paused', 'cancelled'].includes(job.status)" @choose="rowAction(row, 'choose', { editionId: $event.editionId })" @editions="rowAction(row, 'editions', $event)" />
         </details>
         <details v-if="row.receipt">
           <summary>{{ t('library', 'Change receipt') }}</summary>

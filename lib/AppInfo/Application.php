@@ -8,6 +8,10 @@ use OCP\AppFramework\App;
 
 class Application extends App implements \OCP\AppFramework\Bootstrap\IBootstrap {
     public function register(\OCP\AppFramework\Bootstrap\IRegistrationContext $context): void {
+        $context->registerDashboardWidget(\OCA\Library\Dashboard\LibraryWidget::class);
+        $context->registerSearchProvider(\OCA\Library\Search\BookProvider::class);
+        $context->registerSearchProvider(\OCA\Library\Search\AuthorProvider::class);
+        $context->registerReferenceProvider(\OCA\Library\Reference\BookReferenceProvider::class);
         $context->registerEventListener(\OCP\User\Events\UserDeletedEvent::class, \OCA\Library\Listener\UserDeletedListener::class);
         foreach ([
             \OCP\Files\Events\Node\NodeCreatedEvent::class,

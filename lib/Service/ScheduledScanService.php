@@ -69,7 +69,7 @@ final class ScheduledScanService {
                 $this->lock($uid); $state = $this->status($uid);
                 if (!$state['interval'] || !$state['nextRunAt'] || $state['nextRunAt'] > $now) { $this->db->commit(); continue; }
                 $user = $this->users->get($uid);
-                $r = $this->db->executeQuery('SELECT id FROM *PREFIX*library_roots WHERE user_id = ? AND enabled = 1 LIMIT 1', [$uid]);
+                $r = $this->db->executeQuery('SELECT id FROM *PREFIX*library_roots WHERE user_id = ? AND enabled = TRUE LIMIT 1', [$uid]);
                 $hasRoots = (bool)$r->fetchOne(); $r->closeCursor();
                 if (!$user || !$user->isEnabled() || !$hasRoots) {
                     $this->postpone($uid, $now + $state['interval']); $result['skipped']++;
@@ -137,7 +137,7 @@ final class ScheduledScanService {
     }
 
     public static function rootsDigest(IDBConnection $db, string $uid): string {
-        $r = $db->executeQuery('SELECT id,path FROM *PREFIX*library_roots WHERE user_id = ? AND enabled = 1 ORDER BY id', [$uid]);
+        $r = $db->executeQuery('SELECT id,path FROM *PREFIX*library_roots WHERE user_id = ? AND enabled = TRUE ORDER BY id', [$uid]);
         $hash = hash_init('sha256');
         while ($row = $r->fetch()) hash_update($hash, (int)$row['id'] . "\0" . (string)$row['path'] . "\n");
         $r->closeCursor();

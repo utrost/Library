@@ -1,40 +1,33 @@
 # Decision record: explicit book-details lookup
 
-Status: provisional provider adapters, 2026-11-06. Tracks [#181](https://github.com/utrost/Library/issues/181), [#182](https://github.com/utrost/Library/issues/182) and [#199](https://github.com/utrost/Library/issues/199); the full provider contract is unfinished.
+Status: installed development alpha.5 contract, updated 2026-11-07. Provider policy/attribution/retention acceptance remains open in [#181](https://github.com/utrost/Library/issues/181). Exact-package evidence: [alpha.5 checkpoint](lookup-editor-covers-alpha5.md). This document does not certify a stable 0.4 release.
 
 ## User action and data boundary
 
-The owner opens **Find book details** on one book and selects Open Library or Google Books. Opening the section or the book makes no provider request. Choosing Search sends either a validated ISBN or title and optional author to the selected provider. The UI discloses this before the request. The owner then chooses an edition or volume, compares each supported field with the current unsaved draft, and stages selected differences. Save/Discard and the existing revision check remain authoritative. A failed or disabled external service must never stop local book editing.
+The owner opens **Find book details**, chooses Open Library or Google Books and explicitly searches by validated ISBN or title/optional author. Merely opening a book/section never contacts a provider. Search disclosure explains what leaves the instance. The selected edition is compared against the unsaved draft; accepted differences are staged into the ordinary Save/Discard workflow. Provider failure never blocks manual editing.
 
-The first adapter uses fixed Open Library HTTPS endpoints, accepts no caller-supplied host or URL, disables redirects, bounds response size and duration, and parses responses as untrusted JSON. Search is limited to six works and two editions per work, with at most eight results. ISBN searches accept only a valid ISBN and require an exact normalized ISBN in the returned edition evidence. Edition IDs must match Open Library's book identifier shape. No scan, batch, page load or recipient action invokes the provider.
+Both adapters use fixed HTTPS endpoints and bounded streamed JSON, duration and result counts. Caller-supplied URLs are not accepted. The Open Library ISBN endpoint permits only its specifically validated edition redirect; general redirects are disabled. A normalized ISBN match requires the returned edition to contain that ISBN. Title/author results are candidates, not verified identity. No passive browsing, scan or recipient action initiates lookup. Explicit bounded bulk jobs are described in [the batch contract](bulk-metadata-lookup.md).
 
-The cache key includes a one-way hash of the account ID and request. Positive and empty search results and edition details expire after 15 minutes. A database-backed slot spaces uncached provider requests at least one second apart across workers; contention returns a retryable error. Audit events record item ID, outcome and result count without private queries or raw provider responses. The adapter does not persist provider credentials or provider data outside its short-lived cache; selected values become ordinary manual book edits.
+Account-scoped positive/empty caches expire after 15 minutes. Database-backed provider slots pace requests across workers; provider cooldown and retries are bounded. Audit events record bounded identifiers/counts/outcomes, never private query text, provider payloads or credentials.
 
-An administrator manages both providers under **Administration settings → Library → Book metadata lookup**. Google Books requires a server API key stored as the `google_books_api_key` Library app value. The password field is blank on every page load; leaving it blank preserves the key, and removal is explicit. Open Library needs no key. The existing `openlibrary_lookup_enabled` and `google_books_lookup_enabled` app values remain available for operators. The server sends the Google key in the `X-Goog-Api-Key` HTTP header; URLs, browser responses, audit events and cache keys contain no raw key. Google Books has a separate cross-worker one-second slot and account-scoped 15-minute cache. Missing credentials produce an explicit configuration error. Goodreads and Amazon remain feasibility questions under #200 and #201.
+## Provider settings
 
-## Result boundary
+Administrators manage provider enablement and the Google Books server API key in **Administration settings → Library → Book metadata lookup**. The password field stays blank; leaving it blank preserves the key and removal is explicit. Open Library needs no key. Google receives its key through the `X-Goog-Api-Key` header, not URLs or browser responses. Missing configuration is actionable. Goodreads and Amazon remain feasibility work (#200/#201).
 
-Search results carry source edition ID and URL, title, author names, publication evidence, publisher, ISBNs, language evidence and the match kind. Edition details expose title, subtitle, publisher, year/date, description and subjects as candidate fields. The editor stages those six supported fields and any explicitly selected ISBNs after checksum validation. Language codes remain evidence only. Open Library's source link remains available during review. No cover reuse occurs in this slice.
+## Suggestions, provenance and reversal
 
-Google Books volume results use fixed HTTPS endpoints, reject redirects, bound query and response size, and verify requested ISBNs against validated volume identifiers. Its case-sensitive volume ID can be selected as a GGKEY; language is evidence only. No provider cover is copied. This iteration does not persist source/field provenance and therefore cannot offer source-aware reversal; accepted values have the same semantics as any other manual correction. The [selective apply issue](https://github.com/utrost/Library/issues/185) must add a versioned receipt, atomic provenance and conditional reversal before this is considered full metadata completion. Cross-provider ranking, credential-storage review, terms and attribution review, and the privacy/accessibility matrix remain release gates under [#181](https://github.com/utrost/Library/issues/181) and [#187](https://github.com/utrost/Library/issues/187).
+Supported suggestions include title, subtitle, publisher, publication year/date, description, subjects, normalized languages and checksum-validated ISBNs; Google volume IDs can be selected as GGKEYs. Unknown language evidence remains visible without silently applying an unsupported value. Canonical author/series/genre editing remains in the ordinary editor.
 
-## Selected-book batch development (2026-11-07)
+Edition comparison retains server-owned provider evidence bound to the book and revision. Save commits selected provider fields and manual sibling edits atomically. Unchanged accepted suggestions retain source attribution; manually modified values remain user edits. Selected ISBN subsets have their own provenance. Receipts unify one-book and bulk lookup history; conditional Undo preserves unrelated manual sibling edits and refuses later revisions or changed sources. Identical Save retries are idempotent; changed approval replays are rejected.
 
-The working tree adds an explicit, bounded batch workflow using the existing
-adapters. See [bulk metadata lookup](bulk-metadata-lookup.md) for consent, fields,
-worker leases, retention, atomic receipts and remaining acceptance work. Earlier
-statements above about no batch caller and no receipts describe the single-book
-slice; they still apply to single-book staging. This addition does not enable
-passive, scheduled or scan-triggered provider queries.
+Suggestions are retained for 30 days; applied receipts for 90 days after Apply. Deleting suggestions can retain applied receipts; deleting receipts removes Undo history without reverting books. These retention mechanisms are implemented, but their provider-policy acceptance is still open under #181.
 
+## Covers
 
-## Unreleased follow-up: normalized languages and bulk review
+Open Library covers require an explicit preview, current/suggested comparison and separate selection. Fixed numeric cover endpoints, safe raster validation, quotas and private same-origin previews protect the boundary. Approval expires after 30 minutes; receipt originals follow the receipt retention period. Covers are never implicitly approved by the strong-match shortcut. See [the cover contract](lookup-editor-covers-alpha5.md) for exact bounds.
 
-The initial slice above describes deployed alpha.4 and earlier behavior. Current
-unreleased source adds normalized language proposals in both lookup interfaces;
-raw evidence remains visible and unsupported codes cannot be selected. Batch
-changes have source-aware receipts and conditional Undo with independent receipt
-retention. One-book staging still awaits provenance/Undo parity under #185.
-See [bulk workflow](bulk-metadata-lookup.md) and
-[focused verification](bulk-metadata-lookup-refinements.md). Provider covers and
-full provider-policy/release acceptance remain open.
+Google Books permanent cover saving remains unsupported pending provider-policy review. Source links do not by themselves complete the required policy/branding review.
+
+## Development after alpha.5
+
+[Alternative edition browsing](lookup-edition-browsing.md) adds explicit paged Open Library work-edition choices in one-book and bulk lookup. It is source work, not part of the installed alpha.5 package. Cross-provider ranking and stable release acceptance are not claimed complete. See [remaining work](https://github.com/utrost/Library/issues/220).

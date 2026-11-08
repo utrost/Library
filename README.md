@@ -8,6 +8,12 @@ Library is an open-source Nextcloud app ([AGPL-3.0-or-later](LICENSE)) with a se
 
 Current release: [`0.3.0`](https://github.com/utrost/Library/releases/tag/v0.3.0). It supports Nextcloud 33–35 and includes responsive title/description search on large catalogues. See [release status](RELEASE.md) and the [verification record](docs/release-verification.md).
 
+## Development status
+
+The public stable release remains **0.3.0**. The **0.4.0-alpha.6 source** adds reviewed curation/restore, bulk organisation, book history, Nextcloud integrations, genre hierarchy, classification controls and explicit EPUB write-back. These changes are not yet deployed or certified. The installed development checkpoint remains alpha.5.
+
+See the [implementation and acceptance ledger](docs/0.4-implementation-status.md), [feature limits and recovery contract](docs/curation-alpha6.md), and [human test handbook](docs/human-test-handbook.md). Existing release screenshots describe their tagged package; replacement alpha.6 screenshots must use disposable data after installed acceptance.
+
 ## What it does
 
 - scan folders already visible in Nextcloud Files; browse covers or a list with shelves and saved filter collections;
@@ -50,7 +56,7 @@ Screenshots were captured on an isolated Nextcloud 34 instance, using the [Engli
 
 Follow [Your first library](docs/first-library.md) for a screenshot walkthrough. EPUB/comic reading depends on the viewer apps installed on your server; downloading the source remains available.
 
-## Current scope
+## Stable 0.3 scope
 
 Library keeps source files in place. Scans and edits write to Library-owned tables and metadata records. Metadata import has a preview step before anything is applied.
 

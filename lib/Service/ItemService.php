@@ -135,6 +135,7 @@ final class ItemService {
         private ?GenreDisplayService $genreDisplay = null,
         private ?LanguageReviewService $languageReviewService = null,
         private ?MetadataValueMappingService $valueMappings = null,
+        private ?ChangeHistoryService $changeHistory = null,
     ) {
     }
 
@@ -180,7 +181,7 @@ final class ItemService {
     public function canReuseV9ScannerMetadata(string $uid,int $fileId): bool {
         $result=$this->db->executeQuery(
             'SELECT i.id FROM *PREFIX*library_items i WHERE i.user_id=? AND i.library_file_id=?'
-            . " AND NOT EXISTS (SELECT 1 FROM *PREFIX*library_item_identifiers idn WHERE idn.user_id=i.user_id AND idn.item_id=i.id AND idn.scheme='issn' AND idn.user_edited=0 AND idn.source IN ('epub-opf','opf','sidecar-opf','pdf-info'))",
+            . " AND NOT EXISTS (SELECT 1 FROM *PREFIX*library_item_identifiers idn WHERE idn.user_id=i.user_id AND idn.item_id=i.id AND idn.scheme='issn' AND idn.user_edited=FALSE AND idn.source IN ('epub-opf','opf','sidecar-opf','pdf-info'))",
             [$uid,$fileId],
         );
         try {return $result->fetch()!==false;} finally {$result->closeCursor();}
@@ -289,6 +290,7 @@ final class ItemService {
         $itemId = (int)$this->db->lastInsertId('library_items');
         $row = $this->scannerDatabaseValues($metadataCandidate) + ['user_edited'=>0, 'has_cover_override'=>0];
         $this->persistScannerIndexes($userId, $itemId, $file, $metadataCandidate, $row, null);
+        if ($this->changeHistory) $this->changeHistory->record($userId,$itemId,'scan',[],$this->findItem($userId,$itemId));
     }
 
     /** Lock canonical metadata while respecting a concurrent user correction; never load cover blobs. */
@@ -452,6 +454,7 @@ final class ItemService {
 
     /** Called inside InferenceBatchService's transaction after locking and snapshot validation. */
     public function writeInferenceState(string $userId, int $itemId, array $values): void {
+        $before=$this->changeHistory ? $this->findItem($userId,$itemId) : null;
         $allowed = ['creators', 'metadata_source', 'user_edited', 'field_sources', 'identifiers_json'];
         foreach (InferenceChangeSet::FIELDS as [$column]) $allowed[] = $column;
         if (array_diff(array_keys($values), $allowed)) throw new \InvalidArgumentException('invalid_fields');
@@ -475,9 +478,10 @@ final class ItemService {
         $this->refreshReviewFilterFlags($userId, $itemId);
         $this->refreshItemFacetIndex($userId, $itemId, $item['subjects'], $item['classifications'], $this->typeaheadScalarFacets($item));
         $this->refreshItemSearchIndex($userId, $itemId);
+        if ($before && $item) $this->changeHistory?->record($userId,$itemId,'path',$before,$item);
     }
 
-    public function updateItem(string $userId, int $itemId, array $metadata, ?string $expectedRevision = null, ?array $editorLinks = null, ?array $acceptedSources = null): void {
+    public function updateItem(string $userId, int $itemId, array $metadata, ?string $expectedRevision = null, ?array $editorLinks = null, ?array $acceptedSources = null, string $changeKind = 'manual'): void {
         $explicitAuthors = array_key_exists('authors', $metadata);
         $metadata = $this->validateEditableMetadata($metadata);
         $hasIdentifierUpdate = array_key_exists('identifiers', $metadata);
@@ -581,12 +585,16 @@ final class ItemService {
             );
             if (in_array('identifiers', $changedFields, true)) $this->syncItemIdentifiers($userId, $itemId, $identifiers);
             $this->refreshItemSearchIndex($userId, $itemId);
+            $saved = $this->findItem($userId, $itemId);
+            if ($saved !== null) $this->changeHistory?->record($userId, $itemId, $acceptedSources !== null && $changeKind === 'manual' ? 'provider' : $changeKind, $existing, $saved, $acceptedSources ?? []);
             $this->db->commit();
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
     }
 
     /** Save the visible relationships with the publication fields in the same transaction. */
     private function applyEditorLinks(string $uid, int $itemId, array $item, array $links): void {
+        $this->db->insertIfNotExist('*PREFIX*library_genre_tree_state',['user_id'=>$uid,'revision'=>0],['user_id']);
+        $this->db->executeStatement('UPDATE *PREFIX*library_genre_tree_state SET revision=revision WHERE user_id=?',[$uid]);
         $ids = static function (mixed $value): array {
             if (!is_array($value) || !array_is_list($value) || count($value) > 128) throw new \InvalidArgumentException('editor_links');
             $result = [];
@@ -648,8 +656,9 @@ final class ItemService {
         }
 
         foreach ($genres as $genreId) {
-            $result = $this->db->executeQuery('SELECT id FROM *PREFIX*library_genres WHERE user_id=? AND id=?', [$uid, $genreId]);
-            $found = $result->fetch() !== false; $result->closeCursor();
+            $genreQuery=$this->db->getQueryBuilder();$genreQuery->select('id')->from('library_genres')->where($genreQuery->expr()->eq('user_id',$genreQuery->createNamedParameter($uid)))->andWhere($genreQuery->expr()->eq('id',$genreQuery->createNamedParameter($genreId)));
+            if ($this->db->getDatabaseProvider()!=='sqlite') $genreQuery->forUpdate();
+            $result=$genreQuery->executeQuery();$found=$result->fetch()!==false;$result->closeCursor();
             if (!$found) throw new \InvalidArgumentException('editor_genre');
         }
         foreach ($currentGenres as $genreId) if (!in_array($genreId, $genres, true)) $this->db->executeStatement('UPDATE *PREFIX*library_item_genres SET active=0,assignment_source=? WHERE user_id=? AND item_id=? AND genre_id=?', ['manual', $uid, $itemId, $genreId]);
@@ -676,7 +685,7 @@ final class ItemService {
             $protected = array_values(array_unique([...($protected ?? []), 'language']));
             $sources = $this->decodeJsonMap($row['field_sources'] ?? null);
             $sources['language'] = 'user';
-            $this->db->executeStatement('UPDATE *PREFIX*library_items SET language=?,user_edited=1,protected_fields_json=?,field_sources=?,metadata_source=?,scanner_index_hash=NULL,updated_at=? WHERE user_id=? AND id=?',
+            $this->db->executeStatement('UPDATE *PREFIX*library_items SET language=?,user_edited=TRUE,protected_fields_json=?,field_sources=?,metadata_source=?,scanner_index_hash=NULL,updated_at=? WHERE user_id=? AND id=?',
                 [$codes, json_encode($protected, JSON_THROW_ON_ERROR), json_encode($sources, JSON_THROW_ON_ERROR), 'user', time(), $userId, $itemId]);
             $this->refreshReviewFilterFlags($userId, $itemId);
             $this->db->commit();
@@ -765,6 +774,10 @@ final class ItemService {
     }
 
     public function setStarred(string $userId, int $itemId, bool $starred): bool {
+        $this->db->beginTransaction();
+        try {
+        $this->lockOwnedItem($userId,$itemId);
+        $before=$this->changeHistory ? $this->findItem($userId,$itemId) : null;
         $qb = $this->db->getQueryBuilder();
         $affected = $qb->update('library_items')
             ->set('starred', $qb->createNamedParameter($starred ? 1 : 0))
@@ -773,7 +786,10 @@ final class ItemService {
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
 
+        if ($before) $this->changeHistory?->record($userId,$itemId,'personal',$before,$this->findItem($userId,$itemId));
+        $this->db->commit();
         return $affected > 0;
+        } catch (\Throwable $e) { $this->db->rollBack();throw $e; }
     }
 
     /** A Library-only state. Import updates keep this column unchanged. */
@@ -791,6 +807,7 @@ final class ItemService {
                 ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
                 ->executeStatement();
             $this->duplicateIndex?->changed($userId, $itemId);
+            $this->changeHistory?->record($userId,$itemId,'personal',$item,$this->findItem($userId,$itemId));
             $this->db->commit();
             return $timestamp ?? 0;
         } catch (\OutOfBoundsException) {
@@ -803,7 +820,7 @@ final class ItemService {
     }
 
     /** Save personal state without promoting imported publication metadata to a user edit. */
-    public function setPersonalRating(string $userId, int $itemId, mixed $rating, string $expectedRevision): array {
+    public function setPersonalRating(string $userId, int $itemId, mixed $rating, string $expectedRevision, string $changeKind = 'manual'): array {
         if (preg_match('/^[a-f0-9]{64}$/D', $expectedRevision) !== 1) throw new MetadataConflictException('metadata_revision_required');
         $normalized = $this->normalizePersonalRating($rating);
         $this->db->beginTransaction();
@@ -821,6 +838,7 @@ final class ItemService {
                 ->executeStatement();
             $updated = $this->findItem($userId, $itemId);
             if ($updated === null) throw new \OutOfBoundsException('item_not_found');
+            $this->changeHistory?->record($userId,$itemId,$changeKind,$current,$updated);
             $this->db->commit();
             return ['rating' => $updated['personalRating'], 'metadataRevision' => $updated['metadataRevision']];
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
@@ -828,6 +846,10 @@ final class ItemService {
 
     public function setWorkflowStatus(string $userId, int $itemId, string $workflowStatus): bool {
         $normalized = $this->normalizeWorkflowStatus($workflowStatus);
+        $this->db->beginTransaction();
+        try {
+        $this->lockOwnedItem($userId,$itemId);
+        $before=$this->changeHistory ? $this->findItem($userId,$itemId) : null;
         $qb = $this->db->getQueryBuilder();
         $affected = $qb->update('library_items')
             ->set('workflow_status', $qb->createNamedParameter($normalized))
@@ -837,7 +859,10 @@ final class ItemService {
             ->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
             ->executeStatement();
 
+        if ($before) $this->changeHistory?->record($userId,$itemId,'personal',$before,$this->findItem($userId,$itemId));
+        $this->db->commit();
         return $affected > 0;
+        } catch (\Throwable $e) { $this->db->rollBack();throw $e; }
     }
 
     public function markOpened(string $userId, int $itemId): ?array {
@@ -868,6 +893,15 @@ final class ItemService {
     }
 
     public function resetFieldToScannerCandidate(string $userId, int $itemId, string $field): bool {
+        $this->db->beginTransaction();
+        try {
+            $this->lockOwnedItem($userId,$itemId);$before=$this->findItem($userId,$itemId);
+            $changed=$this->resetFieldToScannerCandidateInternal($userId,$itemId,$field);
+            if ($changed && $before) $this->changeHistory?->record($userId,$itemId,'scanner_accept',$before,$this->findItem($userId,$itemId));
+            $this->db->commit();return $changed;
+        } catch (\Throwable $e) { $this->db->rollBack();throw $e; }
+    }
+    private function resetFieldToScannerCandidateInternal(string $userId, int $itemId, string $field): bool {
         $column = $this->databaseColumnForField($field);
         if ($column === null) {
             return false;
@@ -922,6 +956,15 @@ final class ItemService {
     }
 
     public function resetAllFieldsToScannerCandidates(string $userId, int $itemId): bool {
+        $this->db->beginTransaction();
+        try {
+            $this->lockOwnedItem($userId,$itemId);$before=$this->findItem($userId,$itemId);
+            $changed=$this->resetAllFieldsToScannerCandidatesInternal($userId,$itemId);
+            if ($changed && $before) $this->changeHistory?->record($userId,$itemId,'scanner_accept',$before,$this->findItem($userId,$itemId));
+            $this->db->commit();return $changed;
+        } catch (\Throwable $e) { $this->db->rollBack();throw $e; }
+    }
+    private function resetAllFieldsToScannerCandidatesInternal(string $userId, int $itemId): bool {
         $qb = $this->db->getQueryBuilder();
         $result = $qb->select('field_sources', 'field_values', 'protected_fields_json')
             ->from('library_items')
@@ -1699,6 +1742,29 @@ final class ItemService {
         return $count;
     }
 
+    public function curationItems(string $userId, array $ids): array {
+        if (!$ids) return [];
+        if (count($ids)>50 || array_filter($ids,static fn($id)=>!is_int($id) || $id<1)) throw new \InvalidArgumentException('item_ids');
+        $qb = $this->db->getQueryBuilder();
+        $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.authors_json', 'i.author_sync_status', 'i.series_sync_status', 'i.publication', 'i.series_name', 'i.series_number', 'i.genre', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.subjects_json', 'i.classifications_json', 'i.personal_rating', 'i.cover_override_url', 'i.cover_override_mime_type', 'i.cover_revision', 'f.etag', 'i.starred', 'i.marked_for_deletion_at', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.size', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
+            ->from('library_items', 'i')
+            ->innerJoin('i', 'library_files', 'f', $qb->expr()->andX(
+                $qb->expr()->eq('i.library_file_id', 'f.id'), $qb->expr()->eq('i.user_id', 'f.user_id')
+            ))
+            ->leftJoin('f', 'library_roots', 'r', $qb->expr()->andX(
+                $qb->expr()->eq('f.root_id', 'r.id'), $qb->expr()->eq('f.user_id', 'r.user_id')
+            ))
+            ->where($qb->expr()->eq('i.user_id', $qb->createNamedParameter($userId)))
+            ->andWhere($qb->expr()->in('i.id', $qb->createNamedParameter($ids,IQueryBuilder::PARAM_INT_ARRAY)))
+            ->andWhere($qb->expr()->neq('f.scan_status', $qb->createNamedParameter('sidecar')))
+            ->executeQuery();
+
+        $rows=$result->fetchAll();$result->closeCursor();$identifiers=$this->catalogueIdentifiers($userId,$ids);$items=[];
+        foreach ($rows as $row) { if (!isset($row['path'])) continue; $item=$this->normalizeJoinedItemRow($row,$identifiers[(int)$row['id']] ?? []);$item['fileSize']=isset($row['size']) ? (int)$row['size'] : null;$item['metadataRevision']=$this->metadataRevisionForItem($item);$items[]=$item; }
+        $out=[];foreach($this->decorateSharedMetadata($userId,$items) as $item) $out[$item['id']]=$item;
+        return $out;
+    }
+
     public function findItem(string $userId, int $itemId): ?array {
         $qb = $this->db->getQueryBuilder();
         $result = $qb->select('i.id', 'i.library_file_id', 'i.publication_type', 'i.title', 'i.subtitle', 'i.creators', 'i.authors_json', 'i.author_sync_status', 'i.series_sync_status', 'i.publication', 'i.series_name', 'i.series_number', 'i.genre', 'i.publication_date', 'i.language', 'i.publisher', 'i.description', 'i.subjects_json', 'i.classifications_json', 'i.personal_rating', 'i.cover_override_url', 'i.cover_override_data', 'i.cover_override_mime_type', 'i.cover_revision', 'f.etag', 'i.starred', 'i.marked_for_deletion_at', 'i.workflow_status', 'i.last_opened_at', 'i.metadata_source', 'i.field_sources', 'i.field_values', 'i.user_edited', 'f.file_id', 'f.cached_path', 'f.mime_type', 'f.size', 'f.extension', 'f.scan_status', 'f.scan_error', 'r.label', 'r.path')
@@ -1725,6 +1791,11 @@ final class ItemService {
         $item['fileSize'] = isset($row['size']) && (int)$row['size'] >= 0 ? (int)$row['size'] : null;
         $item['metadataRevision'] = $this->metadataRevisionForItem($item);
         return $this->decorateSharedMetadata($userId, [$item])[0] ?? $item;
+    }
+
+    /** Shared by cached covers and live-source checks on retained Undo receipts. */
+    public static function coverCacheRevisionFor(string $etag, string $coverRevision): string {
+        return hash('sha256', 'thumb-v1|' . $etag . '|' . $coverRevision);
     }
 
     /** The browser's edit snapshot, independent of stars, reading activity and covers. */
@@ -3012,10 +3083,15 @@ final class ItemService {
             if (preg_match('/^[1-9][0-9]{0,8}$/D', $genreId) !== 1) {
                 $qb->andWhere($qb->expr()->eq('i.id', $qb->createNamedParameter(-1)));
             } else {
+                $descendants=$this->db->getQueryBuilder();
+                $descendants->select('descendant_id')->from('library_genre_tree')->where($descendants->expr()->eq('user_id',$qb->createNamedParameter($userId)))->andWhere($descendants->expr()->eq('ancestor_id',$qb->createNamedParameter((int)$genreId)));
                 $links = $this->db->getQueryBuilder();
                 $links->select('genre_link.item_id')->from('library_item_genres', 'genre_link')
                     ->where($links->expr()->eq('genre_link.user_id', $qb->createNamedParameter($userId)))
-                    ->andWhere($links->expr()->eq('genre_link.genre_id', $qb->createNamedParameter((int)$genreId)))
+                    ->andWhere($links->expr()->orX(
+                        $links->expr()->eq('genre_link.genre_id', $qb->createNamedParameter((int)$genreId)),
+                        $links->expr()->in('genre_link.genre_id',$qb->createFunction($descendants->getSQL()))
+                    ))
                     ->andWhere($links->expr()->eq('genre_link.active', $qb->createNamedParameter(1)));
                 $qb->andWhere($qb->expr()->in('i.id', $qb->createFunction($links->getSQL())));
             }
@@ -3371,7 +3447,8 @@ final class ItemService {
             'classifications' => $this->decodeJsonList($row['classifications_json'] ?? null),
             'personalRating' => isset($row['personal_rating']) ? (int)$row['personal_rating'] : null,
             'coverOverrideUrl' => isset($row['cover_override_url']) ? (string)$row['cover_override_url'] : '',
-            'coverCacheRevision' => hash('sha256', 'thumb-v1|' . ($row['etag'] ?? '') . '|' . ($row['cover_revision'] ?? '')),
+            'coverRevision' => (string)($row['cover_revision'] ?? ''),
+            'coverCacheRevision' => self::coverCacheRevisionFor((string)($row['etag'] ?? ''), (string)($row['cover_revision'] ?? '')),
             'coverOverrideData' => isset($row['cover_override_data']) ? (string)$row['cover_override_data'] : '',
             'coverOverrideMimeType' => isset($row['cover_override_mime_type']) ? (string)$row['cover_override_mime_type'] : '',
             'starred' => (bool)$row['starred'],
@@ -3433,6 +3510,14 @@ final class ItemService {
                     : ($existing[$column] ?? null);
             }
         }
+        // Reuse the scanner fingerprint to avoid hydrating a book (including its
+        // cover) twice on an unchanged scan merely for the history journal.
+        $historyInput=$this->scannerDatabaseValues($metadataCandidate);
+        $historyInput['cached_path']=(string)($file['cachedPath'] ?? '');
+        foreach(['field_sources','field_values','metadata_source'] as $key) unset($historyInput[$key]);
+        $historyIdentifiers=IdentifierService::normalizeIdentifierList($metadataCandidate['identifiers'] ?? [],$metadataCandidate['metadataSource'],false);
+        $historyHash=hash('sha256',json_encode([self::SCANNER_INDEX_REVISION,$historyInput,$historyIdentifiers,[$file['fileId']??null,$file['rootId']??null,$file['size']??null,$file['extension']??null]],JSON_THROW_ON_ERROR));
+        $before=$this->changeHistory && $existing['scanner_index_hash']!==$historyHash ? $this->findItem($userId,$itemId) : null;
         $qb = $this->db->getQueryBuilder();
         $qb->update('library_items');
         if (AuthorNames::read($existing['authors_json'], $existing['creators']) !== $metadataCandidate['authors'] || in_array($metadataCandidate['metadataSource'], ['epub-opf', 'opf', 'sidecar-opf'], true)) $qb->set('author_sync_status', $qb->createNamedParameter(AuthorStorageService::PENDING, IQueryBuilder::PARAM_INT));
@@ -3463,6 +3548,7 @@ final class ItemService {
         $row=$this->scannerDatabaseValues($metadataCandidate) + ['user_edited'=>$userEdited ? 1 : 0,'has_cover_override'=>(int)$existing['has_cover_override']];
         if ($userEdited) $row['metadata_source'] = 'user';
         $this->persistScannerIndexes($userId,$itemId,$file,$metadataCandidate,$row,$existing['scanner_index_hash'],true);
+        if ($before) $this->changeHistory?->record($userId,$itemId,'scan',$before,$this->findItem($userId,$itemId));
     }
 
     /** Backfill replaces only creator facets, preserving every other derived index. */
@@ -4091,6 +4177,7 @@ final class ItemService {
         if ($affected > 0) {
             $this->refreshReviewFilterFlags($userId, $itemId);
         }
+        if ($affected>0) $this->changeHistory?->record($userId,$itemId,'cover',$current,$this->findItem($userId,$itemId));
         $this->db->commit();
         return $affected > 0;
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
@@ -4117,6 +4204,7 @@ final class ItemService {
         if ($affected > 0) {
             $this->refreshReviewFilterFlags($userId, $itemId);
         }
+        if ($affected>0) $this->changeHistory?->record($userId,$itemId,'cover',$current,$this->findItem($userId,$itemId));
         $this->db->commit();
         return $affected > 0;
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }

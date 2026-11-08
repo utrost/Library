@@ -29,7 +29,7 @@ final class ScanChangeJournal {
         if ($uid === '' || $directory === '' || $directory[0] !== '/') return;
         // A path too long for the journal safely degrades to the owner's root.
         if (mb_strlen($directory) > 1024) { $directory = '/'; $folder = true; }
-        $r = $this->db->executeQuery('SELECT path FROM *PREFIX*library_roots WHERE user_id = ? AND enabled = 1', [$uid]);
+        $r = $this->db->executeQuery('SELECT path FROM *PREFIX*library_roots WHERE user_id = ? AND enabled = TRUE', [$uid]);
         $relevant = false;
         while ($row = $r->fetch()) {
             $root = rtrim((string)$row['path'], '/') ?: '/';

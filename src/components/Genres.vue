@@ -6,6 +6,17 @@ import { t, n } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import DirectoryBrowser from './DirectoryBrowser.vue'
 import LabelHelp from './LabelHelp.vue'
+import CurationEntityPicker from './CurationEntityPicker.vue'
+import GenreStarters from './GenreStarters.vue'
+const editing = ref(null), editName = ref(''), parent = ref([]), treeRevision = ref(0)
+function editGenre(entry) { editing.value = entry; editName.value = entry.display_name; parent.value = entry.parent_id ? [{ id: Number(entry.parent_id), name: entry.parent_name }] : [] }
+async function saveGenre(remove = false) {
+  if (busy.value || !editing.value) return
+  if (remove && !await confirmAction(t('library', 'Delete this unused genre? Child genres and active assignments must be removed first.'), t('library', 'Delete genre'))) return
+  busy.value = true; error.value = ''
+  try { await request(`/${editing.value.id}/hierarchy`, { action: remove ? 'delete' : 'update', name: editName.value, parentId: parent.value[0]?.id ?? null, revision: treeRevision.value }); editing.value = null; await load() }
+  catch (e) { error.value = e.message } finally { busy.value = false }
+}
 
 const reviewOpen = ref(window.location.hash === '#genre-review')
 const props = defineProps({ requestToken: { type: String, required: true }, catalogueUrl: { type: String, required: true } })
@@ -28,8 +39,18 @@ async function request(path = '', body = null, signal = undefined) {
     headers: { Accept: 'application/json', ...(body === null ? {} : { 'Content-Type': 'application/json', requesttoken: props.requestToken }) },
     ...(body === null ? {} : { body: JSON.stringify(body) }),
   })
-  if (!response.ok) throw new Error(response.status === 422 ? t('library', 'Enter a valid genre name.') : t('library', 'The genre change could not be saved.'))
-  return response.json()
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    const messages = {
+      tree_changed: t('library', 'Genres changed in another session. Reload before editing the hierarchy.'),
+      genre_in_use: t('library', 'This genre has books or subgenres. Move them before deleting it.'),
+      genre_cycle: t('library', 'Choose a parent outside this genre and its subgenres.'),
+      genre_depth: t('library', 'This move would exceed eight genre levels. Choose a higher-level parent.'),
+      duplicate_genre: t('library', 'A genre with this name already exists. Choose a different name.'),
+    }
+    throw new Error(messages[data.error] || (response.status === 422 ? t('library', 'Enter a valid genre name.') : t('library', 'The genre change could not be saved.')))
+  }
+  return data
 }
 async function load() { await Promise.all([directory.value?.reload(), loadReview()]) }
 async function loadReview() {
@@ -101,6 +122,7 @@ async function applyApproved() {
 }
 onMounted(() => { loadReview().catch(cause => { error.value = cause.message }) })
 onBeforeUnmount(() => { cancelled = true })
+function loadedDirectory(data) { genres.value=data.genres;treeRevision.value=data.treeRevision }
 </script>
 
 <template>
@@ -110,7 +132,10 @@ onBeforeUnmount(() => { cancelled = true })
     <section class="library-genres-directory">
       <details class="genre-create"><summary>{{ t('library', 'Create a genre') }}</summary>
       <form @submit.prevent="create"><label>{{ t('library', 'Create a genre') }}<input v-model="name" maxlength="255" autocomplete="off"></label><button type="submit" class="button primary" :disabled="busy || !name.trim()">{{ t('library', 'Create genre') }}</button></form></details>
-      <DirectoryBrowser ref="directory" kind="genre" collection="genres" :request="request" :catalogue-url="catalogueUrl" :search-label="t('library', 'Find a genre')" :search-help="t('library', 'Type at least 3 letters to search genres.')" :empty-label="t('library', 'No matching genres.')" @loaded="genres = $event.genres" />
+      <DirectoryBrowser ref="directory" kind="genre" collection="genres" :request="request" :catalogue-url="catalogueUrl" :search-label="t('library', 'Find a genre')" :search-help="t('library', 'Type at least 3 letters to search genres.')" :empty-label="t('library', 'No matching genres.')" @loaded="loadedDirectory"><template #actions="{ entry }"><small v-if="entry.parent_name">{{ t('library', 'Parent genre') }}: {{ entry.parent_name }}</small><button type="button" :disabled="busy" @click="editGenre(entry)">{{ t('library', 'Edit genre') }}</button></template></DirectoryBrowser>
+      <p>{{ t('library', 'Genre browsing and counts include subgenres. Books are counted once; book chips show only explicit assignments.') }}</p>
+      <form v-if="editing" @submit.prevent="saveGenre()"><label>{{ t('library', 'Genre name') }}<input v-model="editName" maxlength="255" :disabled="busy"></label><div><CurationEntityPicker v-model="parent" kind="genres" single :label="t('library', 'Parent genre')" :disabled="busy" /><small>{{ t('library', 'Choose at most one parent, or leave empty for a top-level genre. Maximum eight levels.') }}</small></div><button type="submit" :disabled="busy || !editName.trim() || parent.length > 1">{{ t('library', 'Save') }}</button><button type="button" :disabled="busy" @click="editing = null">{{ t('library', 'Cancel') }}</button><button type="button" :disabled="busy" @click="saveGenre(true)">{{ t('library', 'Delete genre') }}</button></form>
+      <GenreStarters :request-token="requestToken" :disabled="busy" @created="load" />
     </section>
     <details class="library-genres-card" id="genre-review" :open="reviewOpen"><summary>{{ t('library', 'Suggestions to review') }} · {{ suggestions.length }}</summary>
       <p v-if="remaining">{{ n('library', '%n book still needs genre discovery.', '%n books still need genre discovery.', remaining) }}</p>

@@ -12,7 +12,7 @@ import { detailsUrlWithReturn } from '../details-return.js'
 
 const props = defineProps({ requestToken: { type: String, default: '' }, catalogueUrl: { type: String, required: true }, listsUrl: { type: String, required: true } })
 function detailsLink(url) { return detailsUrlWithReturn(url, props.catalogueUrl, window.location.href) }
-const emit = defineEmits(['changed', 'lookup'])
+const emit = defineEmits(['changed', 'lookup', 'organise'])
 const lookupIds = ref([])
 const lists = ref([])
 const detail = ref(null)
@@ -147,6 +147,7 @@ onMounted(async () => {
       <p v-if="detail.total === 0 && !busy" class="library-lists-empty">{{ t('library', 'This list is empty. Select books in the catalogue and choose Add to list.') }}</p>
       <div v-if="detail.entries.some(entry => entry.book)" class="library-list-actions">
         <label><input type="checkbox" :disabled="!canChange || editing" :checked="lookupIds.length > 0 && lookupIds.length === detail.entries.filter(entry => entry.book).length" @change="lookupIds = $event.target.checked ? detail.entries.filter(entry => entry.book).map(entry => Number(entry.book.id)) : []">{{ t('library', 'Select all') }}</label>
+        <button type="button" :disabled="!canChange || editing || !lookupIds.length" @click="emit('organise', lookupIds)">{{ t('library', 'Organise selected books') }}</button>
         <button type="button" :disabled="!canChange || editing || !lookupIds.length" @click="emit('lookup', lookupIds)">{{ t('library', 'Find book details') }}</button>
       </div>
       <ol class="library-list-entries" :start="(detail.page - 1) * 25 + 1">
@@ -158,7 +159,7 @@ onMounted(async () => {
             <div class="library-list-book">
               <h2 v-if="entry.book"><a :href="detailsLink(entry.book.detailsUrl)" dir="auto">{{ entry.book.title }}</a></h2>
               <p v-if="entry.book?.markedForDeletion" class="library-muted">{{ t('library', 'Marked for deletion in Library; the file remains in Nextcloud Files.') }}</p>
-              <h2 v-if="!entry.book">{{ t('library', 'Unavailable book') }}</h2>
+              <h2 v-if="!entry.book">{{ entry.unavailableTitle || t('library', 'Unavailable book') }}</h2>
               <p v-if="entry.book?.creators" dir="auto">{{ entry.book.creators }}</p>
               <p v-if="!entry.book">{{ t('library', 'The file is missing or access is unavailable. Your note and place in the list are kept.') }}</p>
             </div>

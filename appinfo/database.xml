@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- Schema reference for the 0.4 development branch, through Version000400Date20261106190000.
+<!-- Schema reference for the 0.4 development branch, through Version000400Date20261108100000.
      lib/Migration is authoritative for installation and upgrades; see docs/database-schema.md. -->
 <database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/database.xsd">
@@ -300,7 +300,8 @@
                     <name>file_id</name>
                 </field>
             </index>
-        </declaration>
+                    <index><name>lib_files_incoming</name><field><name>user_id</name></field><field><name>created_at</name></field><field><name>id</name></field></index>
+</declaration>
     </table>
     <table>
         <name>*dbprefix*library_items</name>
@@ -709,7 +710,8 @@
                     <name>library_file_id</name>
                 </field>
             </index>
-        </declaration>
+                    <index><name>lib_item_changes</name><field><name>user_id</name></field><field><name>user_edited</name></field><field><name>updated_at</name></field><field><name>id</name></field></index>
+</declaration>
     </table>
     <table>
         <name>*dbprefix*library_item_search_grams</name>
@@ -1025,13 +1027,13 @@
                 <name>item_id</name>
                 <type>integer</type>
                 <unsigned>true</unsigned>
-                <notnull>true</notnull>
+                <notnull>false</notnull>
             </field>
             <field>
                 <name>file_id</name>
                 <type>bigint</type>
                 <unsigned>true</unsigned>
-                <notnull>true</notnull>
+                <notnull>false</notnull>
             </field>
             <field>
                 <name>position</name>
@@ -1078,7 +1080,8 @@
                     <name>id</name>
                 </field>
             </index>
-        </declaration>
+                    <field><name>unavailable_title</name><type>string</type><length>512</length><notnull>false</notnull></field>
+</declaration>
     </table>
     <table>
         <name>*dbprefix*library_inference_batches</name>
@@ -1435,7 +1438,9 @@
         <index><name>library_genres_pk</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
         <index><name>library_genres_unique</name><unique>true</unique><field><name>user_id</name></field><field><name>comparison_key</name></field></index>
         <index><name>library_genres_sort</name><field><name>user_id</name></field><field><name>display_name</name></field></index>
-    </declaration></table>
+                <field><name>parent_id</name><type>bigint</type><notnull>false</notnull></field>
+            <index><name>lib_genre_parent</name><field><name>user_id</name></field><field><name>parent_id</name></field><field><name>id</name></field></index>
+</declaration></table>
     <table><name>*dbprefix*library_item_genres</name><declaration>
         <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
         <field><name>item_id</name><type>bigint</type><unsigned>true</unsigned><notnull>true</notnull></field>
@@ -1501,4 +1506,147 @@
         <index><name>lib_lookup_work</name><field><name>status</name></field><field><name>wake_at</name></field><field><name>lease_until</name></field></index>
         <index><name>lib_lookup_expiry</name><field><name>expires_at</name></field></index>
     </declaration></table>
+    <table>
+        <name>*dbprefix*library_change_history</name>
+        <declaration>
+            <field><name>id</name><type>bigint</type><notnull>true</notnull><autoincrement>true</autoincrement></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>created_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>item_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>kind</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>payload</name><type>text</type><length>16777215</length><notnull>true</notnull></field>
+            <field><name>undone</name><type>boolean</type><notnull>true</notnull><default>false</default></field>
+            <field><name>expires_at</name><type>bigint</type><notnull>true</notnull></field>
+            <index><name>primary</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+            <index><name>lib_history_item</name><field><name>user_id</name></field><field><name>item_id</name></field><field><name>id</name></field></index>
+            <index><name>lib_history_expire</name><field><name>expires_at</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_book_notes</name>
+        <declaration>
+            <field><name>id</name><type>bigint</type><notnull>true</notnull><autoincrement>true</autoincrement></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>created_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>item_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>file_id</name><type>bigint</type><notnull>true</notnull></field>
+            <index><name>primary</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+            <index><name>lib_note_item_file</name><unique>true</unique><field><name>user_id</name></field><field><name>item_id</name></field><field><name>file_id</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_inbox_state</name>
+        <declaration>
+            <field><name>id</name><type>bigint</type><notnull>true</notnull><autoincrement>true</autoincrement></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>created_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>item_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>revision</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>state</name><type>string</type><length>16</length><notnull>true</notnull></field>
+            <field><name>until_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <index><name>primary</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+            <index><name>lib_inbox_item</name><unique>true</unique><field><name>user_id</name></field><field><name>item_id</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_curation_jobs</name>
+        <declaration>
+            <field><name>id</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>created_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>status</name><type>string</type><length>16</length><notnull>true</notnull></field>
+            <field><name>payload</name><type>text</type><length>16777215</length><notnull>true</notnull></field>
+            <field><name>lease_token</name><type>string</type><length>32</length><notnull>true</notnull><default></default></field>
+            <field><name>lease_until</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>expires_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>work_cursor</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <index><name>primary</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+            <index><name>lib_curate_owner</name><field><name>user_id</name></field><field><name>created_at</name></field></index>
+            <index><name>lib_curate_worker</name><field><name>status</name></field><field><name>lease_until</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_curation_rows</name>
+        <declaration>
+            <field><name>id</name><type>bigint</type><notnull>true</notnull><autoincrement>true</autoincrement></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>created_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>item_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>job_id</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>status</name><type>string</type><length>16</length><notnull>true</notnull></field>
+            <field><name>payload</name><type>text</type><length>16777215</length><notnull>true</notnull></field>
+            <index><name>primary</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+            <index><name>lib_curate_item</name><unique>true</unique><field><name>job_id</name></field><field><name>item_id</name></field></index>
+            <index><name>lib_curate_rows</name><field><name>job_id</name></field><field><name>status</name></field><field><name>id</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_writeback_jobs</name>
+        <declaration>
+            <field><name>id</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>item_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>status</name><type>string</type><length>24</length><notnull>true</notnull></field>
+            <field><name>payload</name><type>text</type><length>16777215</length><notnull>true</notnull></field>
+            <field><name>created_at</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>expires_at</name><type>bigint</type><notnull>true</notnull></field>
+            <index><name>primary</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+            <index><name>lib_writeback_owner</name><field><name>user_id</name></field><field><name>item_id</name></field><field><name>created_at</name></field></index>
+            <index><name>lib_writeback_expire</name><field><name>expires_at</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_portable_jobs</name>
+        <declaration>
+            <field><name>id</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>status</name><type>string</type><length>24</length><notnull>true</notnull></field>
+            <field><name>payload</name><type>text</type><length>16777215</length><notnull>true</notnull></field>
+            <field><name>mode</name><type>string</type><length>16</length><notnull>true</notnull></field>
+            <field><name>created_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>expires_at</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>work_cursor</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>stage</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <field><name>bytes</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <index><name>primary</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+            <index><name>lib_portable_owner</name><field><name>user_id</name></field><field><name>created_at</name></field></index>
+            <index><name>lib_portable_worker</name><field><name>status</name></field><field><name>created_at</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_portable_rows</name>
+        <declaration>
+            <field><name>id</name><type>bigint</type><notnull>true</notnull><autoincrement>true</autoincrement></field>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>status</name><type>string</type><length>24</length><notnull>true</notnull></field>
+            <field><name>payload</name><type>text</type><length>16777215</length><notnull>true</notnull></field>
+            <field><name>job_id</name><type>string</type><length>32</length><notnull>true</notnull></field>
+            <field><name>kind</name><type>string</type><length>24</length><notnull>true</notnull></field>
+            <field><name>source_key</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>target_id</name><type>bigint</type><notnull>false</notnull></field>
+            <field><name>review</name><type>text</type><length>16777215</length><notnull>true</notnull></field>
+            <index><name>primary</name><primary>true</primary><unique>true</unique><field><name>id</name></field></index>
+            <index><name>lib_portable_key</name><unique>true</unique><field><name>job_id</name></field><field><name>kind</name></field><field><name>source_key</name></field></index>
+            <index><name>lib_portable_rows</name><field><name>job_id</name></field><field><name>status</name></field><field><name>id</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_genre_tree</name>
+        <declaration>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>ancestor_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>descendant_id</name><type>bigint</type><notnull>true</notnull></field>
+            <field><name>depth</name><type>smallint</type><notnull>true</notnull></field>
+            <index><name>lib_genre_tree_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field><field><name>ancestor_id</name></field><field><name>descendant_id</name></field></index>
+            <index><name>lib_genre_ancestors</name><field><name>user_id</name></field><field><name>descendant_id</name></field><field><name>ancestor_id</name></field></index>
+        </declaration>
+    </table>
+    <table>
+        <name>*dbprefix*library_genre_tree_state</name>
+        <declaration>
+            <field><name>user_id</name><type>string</type><length>64</length><notnull>true</notnull></field>
+            <field><name>revision</name><type>bigint</type><notnull>true</notnull><default>0</default></field>
+            <index><name>lib_genre_tree_state_pk</name><primary>true</primary><unique>true</unique><field><name>user_id</name></field></index>
+        </declaration>
+    </table>
 </database>

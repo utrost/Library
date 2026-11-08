@@ -38,8 +38,10 @@ async function journey(page, testInfo) {
   const after = (await (await page.request.get(`${base}/sidebar`)).json()).item
   expect(after.publisher).toBe('Cover Press')
   expect(await (await page.request.get(`${base}/cover?refresh=1`)).body()).not.toEqual(beforeImage)
-  const history = page.locator('details').filter({ has: page.locator('summary', { hasText: 'Lookup change history' }) })
-  await history.locator('summary').click()
+  const activity = page.locator('details').filter({ has: page.locator(':scope > summary', { hasText: /^Notes and change history$/ }) })
+  await activity.locator(':scope > summary').click()
+  const history = activity.locator('details').filter({ has: page.locator(':scope > summary', { hasText: /^Lookup change history$/ }) })
+  await history.locator(':scope > summary').click()
   await expect(history.getByText('Cover replaced', { exact: true })).toBeVisible()
   await history.getByRole('button', { name: 'Undo', exact: true }).click()
   await expect(history.getByText('Undone', { exact: true })).toBeVisible()
