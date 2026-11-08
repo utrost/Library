@@ -10,7 +10,7 @@ Current release: [`0.3.0`](https://github.com/utrost/Library/releases/tag/v0.3.0
 
 ## Development status
 
-The public stable release remains **0.3.0**. The **0.4.0-alpha.6 source** adds reviewed curation/restore, bulk organisation, book history, Nextcloud integrations, genre hierarchy, classification controls and explicit EPUB write-back. These changes are not yet deployed or certified. The installed development checkpoint remains alpha.5.
+The public stable release remains **0.3.0**. The **0.4.0-alpha.6 source** adds reviewed curation/restore, bulk organisation, book history, Nextcloud integrations, genre hierarchy, classification controls and explicit EPUB write-back. Alpha.6 is installed on developer NC34 after focused signed-package upgrade and rollback checks. It is a development build, not release certification; see [verification and remaining acceptance](docs/curation-alpha6-verification.md).
 
 See the [implementation and acceptance ledger](docs/0.4-implementation-status.md), [feature limits and recovery contract](docs/curation-alpha6.md), and [human test handbook](docs/human-test-handbook.md). Existing release screenshots describe their tagged package; replacement alpha.6 screenshots must use disposable data after installed acceptance.
 

@@ -172,6 +172,9 @@ for (const suffix of ['', ' @mobile']) test('review, organise, notes and EPUB re
   await expect(writeback.getByRole('button', { name: 'Restore original', exact: true })).toBeVisible()
   await writeback.getByRole('button', { name: 'Restore original', exact: true }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'Restore original', exact: true }).click()
+  // Older retained jobs may already say Original restored. Wait for this operation too.
+  await expect(writeback.getByRole('status').filter({ hasText: 'Preparing or writing the file' })).toHaveCount(0)
+  await expect(writeback.getByRole('button', { name: 'Restore original', exact: true })).toHaveCount(0)
   await expect(writeback.getByText('Original restored', { exact: false }).first()).toBeVisible()
   await noOverflow(page)
   failures.assertNone()

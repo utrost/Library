@@ -1,6 +1,6 @@
 # Decision record: explicit book-details lookup
 
-Status: installed development alpha.5 contract, updated 2026-11-07. Provider policy/attribution/retention acceptance remains open in [#181](https://github.com/utrost/Library/issues/181). Exact-package evidence: [alpha.5 checkpoint](lookup-editor-covers-alpha5.md). This document does not certify a stable 0.4 release.
+Status: installed development alpha.6 contract, updated 2026-11-08. Provider policy/attribution/retention acceptance remains open in [#181](https://github.com/utrost/Library/issues/181). Current delivery evidence: [alpha.6 verification](curation-alpha6-verification.md#signed-package-delivery); the [alpha.5 checkpoint](lookup-editor-covers-alpha5.md) remains historical evidence. This document does not certify a stable 0.4 release.
 
 ## User action and data boundary
 
@@ -28,6 +28,6 @@ Open Library covers require an explicit preview, current/suggested comparison an
 
 Google Books permanent cover saving remains unsupported pending provider-policy review. Source links do not by themselves complete the required policy/branding review.
 
-## Development after alpha.5
+## Alpha.6 alternative editions
 
-[Alternative edition browsing](lookup-edition-browsing.md) adds explicit paged Open Library work-edition choices in one-book and bulk lookup. It is source work, not part of the installed alpha.5 package. Cross-provider ranking and stable release acceptance are not claimed complete. See [remaining work](https://github.com/utrost/Library/issues/220).
+[Alternative edition browsing](lookup-edition-browsing.md) adds explicit paged Open Library work-edition choices in one-book and bulk lookup. It is included in the installed alpha.6 developer package. Cross-provider ranking and stable release acceptance are not claimed complete. See [remaining work](https://github.com/utrost/Library/issues/220).

@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0-alpha.6 — development source, not deployed
+## 0.4.0-alpha.6 — development
 
 - Add durable incoming-book review and reviewed background organisation with per-book conflicts, progress and conditional Undo.
 - Add private change history and versioned curation archives with destination-owned restore matching, bounded background work and resumable uploads.
@@ -21,7 +21,9 @@
 - Preserve archive quota retries, include framing in size budgets, bound review responses and accept empty archives without errors.
 - Refuse incomplete relationship exports and explain indexing-related restore pauses; escape imported titles in generated reading notes.
 - Restore edition-browser keyboard focus and fall back to To-read books when Home's selected list is deleted.
-- Add focused populated-upgrade, cross-database restore, concurrency, source-byte recovery and browser fixtures. Signed-package acceptance remains outstanding; source checks are not release certification.
+- Add focused populated-upgrade, cross-database restore, concurrency, source-byte recovery and browser fixtures. Focused signed-package upgrade and rollback checks pass on NC34/MariaDB; broader release certification remains separate.
+
+- Reuse current catalogue assets on maintenance pages and align the startup watchdog. Package audits reject stale asset references and version markers.
 
 ## 0.4.0-alpha.5 — development
 

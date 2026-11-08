@@ -1,6 +1,6 @@
 # Open Library alternative edition browsing
 
-Source development after installed alpha.5, tracked in [#183](https://github.com/utrost/Library/issues/183) and [#220](https://github.com/utrost/Library/issues/220). Not deployed or release-certified.
+Installed in developer alpha.6, tracked in [#183](https://github.com/utrost/Library/issues/183) and [#220](https://github.com/utrost/Library/issues/220). Broader provider and release acceptance remain open; see [delivery evidence](curation-alpha6-verification.md#signed-package-delivery).
 
 ## Interaction
 
