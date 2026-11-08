@@ -105,6 +105,6 @@ Normalized language suggestions and single-book provenance are implemented in
 alpha.5; broader acceptance remains tracked in #212/#185. Do not represent
 focused local verification as release certification.
 
-## Development after alpha.5
+## Alpha.6 alternative editions
 
-Explicit **Other editions** browsing is described in [the edition contract](lookup-edition-browsing.md). The original matches remain available, while each bounded work-edition page runs through the background queue. Browsing clears that row's prior edition/cover approvals; other books are unchanged. This source change is not installed yet.
+Explicit **Other editions** browsing is described in [the edition contract](lookup-edition-browsing.md). The original matches remain available, while each bounded work-edition page runs through the background queue. Browsing clears that row's prior edition/cover approvals; other books are unchanged. This is installed in developer alpha.6; broader provider acceptance remains open.

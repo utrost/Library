@@ -2,7 +2,7 @@
 
 Date: 2026-11-08. Source version: **0.4.0-alpha.6**. This record covers the local four-hour quality slice and is updated as focused runs complete.
 
-**Deployment boundary:** disposable source installs only. The developer catalogue remains on alpha.5 and the stable Store release remains 0.3.0. No signed alpha.6 archive, full CI, GitHub Actions, production mutation or Store publication is claimed. Fixtures contain generated books and synthetic accounts; raw logs, credentials and screenshots remain outside the repository.
+**Current delivery:** signed alpha.6 is installed on developer NC34; the stable Store release remains 0.3.0. The original source-quality slice below is supplemented by [signed-package delivery](#signed-package-delivery). No full CI, GitHub Actions or Store publication ran. Fixtures contain generated books and synthetic accounts; raw logs, credentials, rollback backups and screenshots remain in private directories excluded from version control.
 
 ## Environments and upgrade evidence
 
@@ -14,7 +14,7 @@ Date: 2026-11-08. Source version: **0.4.0-alpha.6**. This record covers the loca
 | 33.0.9 | MariaDB | Populated source upgrade, schema, curation, native integration and recovery checks |
 | 35.0.0 | SQLite | Populated source upgrade, schema, curation, native integration and recovery checks |
 
-This is a focused environment sample, not every Nextcloud × database combination. The preserved alpha.5 baseline was a source fixture archive, not a recertified release package. No downgrade was attempted. Rollback requires matching database/appdata backups and the prior package; EPUB source writes additionally require original Files bytes.
+This is a focused environment sample, not every Nextcloud × database combination. The preserved alpha.5 baseline was a source fixture archive, not a recertified release package. No downgrade was attempted during that source-quality slice; the later signed-package delivery includes a backup-restoration rehearsal. Rollback requires matching database/appdata backups and the prior package; EPUB source writes additionally require original Files bytes.
 
 ## Functional evidence
 
@@ -94,14 +94,46 @@ A real Nextcloud-to-Nextcloud WebDAV mount is tested writable and read-only. A s
 
 The current frontend build has one runtime module, no dynamic runtime chunks and a 915,329-byte runtime bundle. The complete frontend asset total is **1,196,399 bytes**, below the unchanged 1,320,000-byte budget. Translation checks cover **1,809 keys**, complete English/German, the existing Arabic fallback exception, nine approved identical translations and 92 semantic sentinels. Focused PHP lint covers 63 changed/new PHP files; shell syntax checks cover eight scripts. XML, diff whitespace and changed-file privacy checks also pass. The privacy scan examines 142 text files for personal paths, infrastructure references and credential patterns; it is not a new public-history audit. No full CI or release gate ran.
 
-Remaining work includes exact signed-package acceptance and developer deployment; real-catalogue measurements; a physically maximum-sized 1 GiB archive; broader reader interoperability and any future remote/encrypted write support; the wider companion editor matrix; remaining mutation-source history coverage; manual accessibility; and current provider policy/retention review. Keep the relevant acceptance issues open. Do not infer completed release certification from this record.
+Remaining work includes broader release certification; real-catalogue performance measurements; a physically maximum-sized 1 GiB archive; broader reader interoperability and any future remote/encrypted write support; the wider companion editor matrix; remaining mutation-source history coverage; manual accessibility; and current provider policy/retention review. Keep the relevant acceptance issues open. Do not infer completed release certification from this record.
 
-## Handoff
+## Original source-quality handoff
 
-The bulk-boundary, HTTP-access and reader accounts were removed after their final checks. Thirteen disposable containers from this slice were stopped, with private evidence and volumes retained for investigation. The developer instance was not stopped or changed. Source changes remain uncommitted; no deployment or publication is implied by this handoff.
+The bulk-boundary, HTTP-access and reader accounts were removed after their final checks. Thirteen disposable containers from this slice were stopped, with private evidence and volumes retained for investigation. At that checkpoint the developer instance was unchanged and source changes were uncommitted. The subsequent delivery is recorded below.
 
 ## Development delivery preparation
 
 The development package uses the locally verified alpha.6 source and built assets. The dedicated migration-aware deployment helper accepts only the new alpha.6 migration, preserves existing migration bytes, checks signing identity and package provenance, and captures database, configuration, app and Library appdata rollback copies. Database restoration removes newly introduced tables as well as restoring existing rows. A rollback rehearsal is restricted to labelled disposable instances.
 
-Focused pre-package checks: frontend build, translation inventory, 35 component tests across 10 affected files, 63 PHP syntax checks, standalone EPUB writer checks, shell syntax and changed-file privacy review. These supplement the quality-slice evidence above; they do not constitute full CI or a release gate. Signed-package upgrade and installed deployment results are recorded separately after execution.
+Focused pre-package checks: frontend build, translation inventory, 35 component tests across 10 affected files, 63 PHP syntax checks, standalone EPUB writer checks, shell syntax and changed-file privacy review. These supplement the quality-slice evidence above; they do not constitute full CI or a release gate. Signed-package upgrade and installed deployment results follow below.
+
+## Signed-package delivery
+
+Developer NC34 now runs **0.4.0-alpha.6**, installed from the following final archive. The stable Store release remains **0.3.0**.
+
+| Artifact | Recorded value |
+| --- | --- |
+| Packaged source commit | `df0fffdc006c29a00f1b0764a1f5fe0f965eae58` |
+| Archive | `library-0.4.0-alpha.6.tar.gz` |
+| SHA-256 | `77d5da69f0725fb71c1eae20f8335413530fb7bfb1ad7ecd6e74bf5ff7d49556` |
+| Signature | Signed with the existing app certificate; installed integrity clean |
+| Verification artifacts | Matching SPDX SBOM, build provenance and checksum file retained with the private development package |
+| Environment | Nextcloud 34.0.3 / MariaDB, populated signed alpha.5 upgrade |
+| Frontend assets | 1,196,399 bytes; unchanged 1,320,000-byte budget |
+
+### Exact-package verification
+
+- Preserved existing books, file records, lists, list entries and sharing grants; physical schema and migration rerun checks pass. Curation Apply/Undo, ownership boundaries, archive failure recovery and EPUB write/restore checks pass on the exact package.
+- Rehearsed a forced failure after migration on a disposable instance. Database, app, configuration and Library appdata restoration returned it to alpha.5 with matching catalogue fingerprints. A second upgrade using the same helper succeeded.
+- Thirteen focused Playwright cases pass on the signed disposable installation: eleven curation/native/sharing cases and two editor cases, across desktop Chromium and mobile Chromium. An additional two-case smoke verifies Home, incoming books, notes and exact EPUB byte restoration.
+- The first candidate exposed stale maintenance-page asset names. The replacement shares the current catalogue constants, updates the startup watchdog/version marker and rejects stale PHP asset references during package audit. The rejected candidate was never deployed. Two focused asset-contract checks and the PHP maintenance-loader regression check pass.
+- Retained failed attempts: fixture restarts reassigned its ephemeral port, and restoring the baseline removed its Dashboard reading-status fixture. Correcting the fixture address and reseeding that status resolved those setup failures. The strengthened EPUB browser check waits for the current operation, not an older restored-job label.
+
+### Installed smoke and preservation
+
+The developer deployment captured private database, configuration, application and Library appdata rollback backups before migration. Integrity, physical schema, current assets and installed version pass. Maintenance mode is off and cron is running.
+
+Six desktop/mobile live journeys pass using three generated accounts and three generated books: Save/Discard and stale-edit rejection; selected-book sharing, download ranges, outsider denial and revocation; Home, incoming books, notes, EPUB Apply/Restore and layout checks. Synthetic source hashes match their originals after restoration. All three accounts and their files were removed. Existing catalogue/list/share fingerprints match both immediately after migration and again after smoke cleanup; existing personal books were untouched.
+
+Initial live login encountered the Nextcloud welcome overlay and unrelated Dashboard recommendation-preview errors. Only disposable-account preferences were changed to dismiss the welcome dialog and land in Library. The final Library editor checks pass without weakening their console assertions; no instance-wide welcome or landing-page setting was changed.
+
+The package and changed text passed a private-data/credential pattern review. Logs, raw screenshots, fixture credentials and rollback copies are excluded from public commits. Follow-up documentation and test-only commits do not alter the signed archive or its recorded source commit. No full CI, GitHub Actions, full release gate or App Store publication was run. Broader reader/companion acceptance, manual accessibility, provider-policy review and release certification remain open.

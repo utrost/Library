@@ -1,6 +1,6 @@
 # Curation and Nextcloud integration — alpha.6 source contract
 
-Status: development source, 2026-11-08. This document describes implementation, not an installed or certified package. The installed development checkpoint remains **0.4.0-alpha.5**, and the Store release remains **0.3.0**. See [implementation status](0.4-implementation-status.md) for outstanding acceptance.
+Status: installed development build, 2026-11-08. The installed development checkpoint is **0.4.0-alpha.6**, and the Store release remains **0.3.0**. Focused signed-package checks do not constitute release certification. See [implementation status](0.4-implementation-status.md) for outstanding acceptance.
 
 ## Review and organise
 
@@ -59,7 +59,7 @@ Source-file writes require writable **local filesystem storage**. Nextcloud remo
 
 This approved workflow supersedes the earlier blanket deferral of in-file write-back. Ordinary Save, scanning, provider acceptance and organisation still change Library data only. **Write metadata to file** is a separate explicit preview and confirmation.
 
-The first implementation supports ordinary EPUB 2/3 on writable, seekable Nextcloud storage, up to 128 MiB, 10,000 ZIP entries and 2 MiB package XML. Supported fields: title, ordered authors, publisher, languages, publication date, description, subjects and valid ISBN/ISSN/ASIN/GGKEY identifiers. Existing publication identifiers are preserved; reviewed identifiers are added. Private ratings, reading state, notes, covers, series, genre hierarchy and classifications are not written.
+The first implementation supports ordinary EPUB 2/3 on writable local filesystem storage, up to 128 MiB, 10,000 ZIP entries and 2 MiB package XML. Supported fields: title, ordered authors, publisher, languages, publication date, description, subjects and valid ISBN/ISSN/ASIN/GGKEY identifiers. Existing publication identifiers are preserved; reviewed identifiers are added. Private ratings, reading state, notes, covers, series, genre hierarchy and classifications are not written.
 
 The writer stages an original and candidate, edits only selected OPF metadata and EPUB 3 modification time, and checks the resulting metadata and unchanged ZIP entries. DRM/encryption, signatures, rights files, multiple renditions and unsupported field refinements are rejected. The error identifies the affected field; deselect it to preserve its original metadata. PDF, CBZ and adjacent OPF/JSON write-back are not implemented.
 
@@ -67,7 +67,7 @@ A preview expires after 15 minutes. Apply revalidates source file ID, etag, meta
 
 Up to five original/candidate pairs are retained per account (at most 1.25 GiB). Successful/resolved backups last seven days and can be downloaded or explicitly removed. An unresolved writing/recovery state retains its original; deletion is blocked until resolved. Download the original for manual recovery when the current source cannot safely be identified. Conditional Restore original requires the expected written bytes and never silently replaces a newer file. Library's account-cleanup handler removes its recovery storage and leaves Files contents alone. Nextcloud's account-deletion process controls removal of the account's Files.
 
-Disposable EPUB round-trip, stale/replaced-source, competing-lock and injected receipt-failure recovery checks have passed on local fixture storage; see the [verification record](curation-alpha6-verification.md). Remote/encrypted storage and exact signed-package acceptance remain separate requirements before deployment.
+Disposable EPUB round-trip, stale/replaced-source, competing-lock and injected receipt-failure recovery checks have passed on local fixture storage; see the [verification record](curation-alpha6-verification.md). Focused exact signed-package checks and developer deployment are recorded there. Remote/encrypted source writes remain refused; broader reader and release acceptance are still open.
 
 ## Nextcloud integrations
 

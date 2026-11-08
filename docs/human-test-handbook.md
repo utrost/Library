@@ -1,9 +1,15 @@
 # Library human test handbook
 
+## Current developer checkpoint
+
+**0.4.0-alpha.6** is installed on developer NC34. The exact archive checksum, source commit, upgrade/rollback rehearsal and live desktop/mobile results are recorded in [signed-package delivery](curation-alpha6-verification.md#signed-package-delivery). Use disposable books for source-write and sharing trials. EPUB write-back supports local filesystem storage only; remote/encrypted writes are refused. The stable Store remains 0.3.0.
+
+When repeating browser checks after restarting disposable containers, refresh their assigned port and trusted-domain configuration. Seed at least one **To read** book before asserting a populated native Dashboard. New test accounts may show Nextcloud's welcome dialog; dismiss it for those accounts and use Library as their landing page, leaving instance-wide settings unchanged. For repeated EPUB restores, wait for the active operation to finish and compare original bytes; an older “Original restored” entry is insufficient.
+
 ## Development: selected-book metadata lookup
 
-Alpha.5 is installed on developer NC34. See the
-[focused verification record](lookup-editor-covers-alpha5.md) and the
+Alpha.6 is installed on developer NC34. See the
+[current signed-package verification record](curation-alpha6-verification.md) and the
 [workflow and limitations](bulk-metadata-lookup.md). On a disposable catalogue,
 select two books and open **Find book details**; repeat from a personal list.
 Verify the default is **Fill missing fields**, providers reflect configuration,
@@ -16,9 +22,9 @@ and check the retention explanation. Check 51-book rejection, keyboard focus,
 long descriptions, mobile wrapping, dark mode and RTL. Use synthetic books only.
 
 
-### Alpha.5 lookup refinements
+### Lookup refinements retained in alpha.6
 
-These checks target alpha.5; the stable App Store release remains 0.3.0.
+These checks target the installed alpha.6 build; the stable App Store release remains 0.3.0.
 
 - Refine one row’s title/author/ISBN and switch an enabled provider; check no
   request until Search, old approvals cleared only for that row, and stale-tab
@@ -67,7 +73,7 @@ These checks target alpha.5; the stable App Store release remains 0.3.0.
 
 ### 0.4 provider lookup preview
 
-On an alpha.5 development build, open **Administration settings → Library → Book metadata lookup**. Confirm Open Library needs no key, Google Books shows whether a key is configured without showing it, a blank Save preserves a stored key, and explicit removal disables keyed lookup. Enter a disposable restricted key to try Google Books; never put it in screenshots or notes. Then open a disposable book's **Find book details** section. Select Open Library, search by a valid ISBN, compare an edition and stage one field, then Discard. Repeat with Google Books; check that the query is sent only after Search, the volume link identifies Google Books, and a matching ISBN is shown for an ISBN search. Select the GGKEY separately, Save on a disposable book and confirm it survives reload. Try a wrong ISBN, missing Google key, provider switch during a pending search, sparse results and provider failure; none should change saved book data. Check keyboard, mobile and screen-reader labels. These checks do not certify provider terms, attribution or the full NC33–35 matrix.
+On the alpha.6 development build, open **Administration settings → Library → Book metadata lookup**. Confirm Open Library needs no key, Google Books shows whether a key is configured without showing it, a blank Save preserves a stored key, and explicit removal disables keyed lookup. Enter a disposable restricted key to try Google Books; never put it in screenshots or notes. Then open a disposable book's **Find book details** section. Select Open Library, search by a valid ISBN, compare an edition and stage one field, then Discard. Repeat with Google Books; check that the query is sent only after Search, the volume link identifies Google Books, and a matching ISBN is shown for an ISBN search. Select the GGKEY separately, Save on a disposable book and confirm it survives reload. Try a wrong ISBN, missing Google key, provider switch during a pending search, sparse results and provider failure; none should change saved book data. Check keyboard, mobile and screen-reader labels. These checks do not certify provider terms, attribution or the full NC33–35 matrix.
 
 ### 0.4 read-only sharing preview
 
@@ -540,13 +546,13 @@ Notes/privacy concerns:
 - Book deletion: H03-23 using disposable files only.
 - Shared controls/layout: H03-09 and H03-24–H03-26 in both themes.
 
-## Development after alpha.5: alternative editions (not installed yet)
+## Alpha.6 development: alternative editions
 
 Tracked in [#183](https://github.com/utrost/Library/issues/183). In one-book Find book details and bulk lookup, search Open Library, choose **Other editions**, page forwards/backwards, inspect language/format/ISBN, then compare an edition and explicitly select fields. Original candidates remain available. Confirm changing a bulk edition clears only that row's previous approvals; Save/Discard, Apply and conditional Undo retain their existing behavior. ISBN matches and related-work editions must have distinct explanations. See [bounds and pending acceptance](lookup-edition-browsing.md).
 
 ## Alpha.6 expanded curation — remaining acceptance
 
-The following is the complete acceptance checklist, not a claim that every item has passed. Completed focused runs are recorded separately in [alpha.6 verification](curation-alpha6-verification.md). Stable remains 0.3.0 and the installed development checkpoint remains alpha.5. Read [scope, limits and recovery](curation-alpha6.md) before enabling source-write trials. Do not use personal books for destructive or failure-injection journeys. New Arabic translation/UI work is outside this slice.
+The following is the complete acceptance checklist, not a claim that every item has passed. Completed focused runs are recorded separately in [alpha.6 verification](curation-alpha6-verification.md). Stable remains 0.3.0 and the installed development checkpoint is alpha.6. Read [scope, limits and recovery](curation-alpha6.md) before enabling source-write trials. Do not use personal books for destructive or failure-injection journeys. New Arabic translation/UI work is outside this slice.
 
 ### Upgrade and ownership
 
@@ -587,7 +593,7 @@ The following is the complete acceptance checklist, not a claim that every item 
 - Reject remote/encrypted storage before opening any writable stream, even if its temporary stream is seekable. Verify scanning, reading and Library-only editing still work. Change a supported mount to unsupported/read-only after preview and confirm Apply also refuses it.
 - Reject read-only/nonseekable storage, stale source ID/etag, replaced paths, malformed/oversized ZIP/XML, unsafe names, encrypted/signed/rights-managed books, multiple renditions and complex selected refinements. Other formats and sidecars remain unchanged.
 - Interrupt before first write, during write and after final bytes but before status persistence. Verify retained originals, same-stream rollback, explicit recovery state and no retry overwriting unrelated replacement bytes. Unresolved originals must remain downloadable and protected from deletion/expiry.
-- Restore an unchanged written file; refuse a newer edited version. Delete a resolved backup explicitly. Verify 15-minute preview, seven-day resolved-backup retention, five-job limit, source-write history and partial reconciliation messages. **Do not deploy this workflow before these acceptance checks pass.**
+- Restore an unchanged written file; refuse a newer edited version. Delete a resolved backup explicitly. Verify 15-minute preview, seven-day resolved-backup retention, five-job limit, source-write history and partial reconciliation messages. Repeat these source-write checks with disposable files on each newly supported storage configuration before using it. Remote/encrypted source writes remain unsupported.
 
 ### Nextcloud and Home
 
@@ -601,7 +607,7 @@ The following is the complete acceptance checklist, not a claim that every item 
 
 ### Focused local alpha.6 harnesses
 
-These commands create or require labelled disposable containers. Use a preserved alpha.5 archive and a private evidence directory outside the repository. They do not deploy to the developer catalogue, sign a package or run GitHub Actions.
+These commands create or require labelled disposable containers. Use a preserved alpha.5 archive and a private evidence directory excluded from version control. They do not deploy to the developer catalogue, sign a package or run GitHub Actions.
 
 ```bash
 LIBRARY_UPGRADE_FROM_ARCHIVE=/private/fixtures/library-alpha5.tar.gz \

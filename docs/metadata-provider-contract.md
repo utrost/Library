@@ -1,6 +1,6 @@
 # Metadata provider contract — 0.4 development
 
-Reviewed implementation: 2026-11-08. This is the alpha.6 source contract, not a statement that provider policy or release acceptance has passed. Installed alpha.5 behavior is recorded separately in the [lookup ADR](adr-0.4-metadata-lookup.md).
+Reviewed implementation: 2026-11-08. This is the alpha.6 source contract, not a statement that provider policy or release acceptance has passed. Alpha.6 is installed on developer NC34; the [lookup ADR](adr-0.4-metadata-lookup.md) describes the current development contract.
 
 ## External requests and consent
 
