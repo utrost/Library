@@ -18,5 +18,11 @@ namespace {
             throw new \RuntimeException('Maintenance page requests an absent frontend asset');
         }
     }
+    $template = file_get_contents(__DIR__.'/../../templates/main.php');
+    $version = (string)simplexml_load_file(__DIR__.'/../../appinfo/info.xml')->version;
+    if (!str_contains($template, 'data-library-main-script="'.\OCA\Library\Controller\PageController::VUE_SCRIPT_ASSET.'"')
+        || !str_contains($template, 'data-library-version="'.$version.'"')) {
+        throw new \RuntimeException('Startup watchdog and version marker must match the package');
+    }
     echo "maintenance_assets_match_catalogue=true\n";
 }

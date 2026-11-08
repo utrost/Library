@@ -130,6 +130,9 @@ with tarfile.open(archive, "r:gz") as tar:
     for member in members:
         if member.isfile() and member.name.endswith('.php'):
             source = tar.extractfile(member).read().decode('utf-8')
+            for marker in re.findall(r'data-library-version="([^"]+)"', source):
+                if marker != version:
+                    errors.append(f"stale frontend version marker in {member.name}: {marker}")
             for asset in re.findall(r'library-(?:main|vue)-[0-9][A-Za-z0-9-]+', source):
                 if asset not in {vue_script_asset, vue_style_asset}:
                     errors.append(f"stale frontend asset reference in {member.name}: {asset}")
