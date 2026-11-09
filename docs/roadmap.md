@@ -2,7 +2,7 @@
 
 **Current stable release: 0.3.0.** The accepted RC3 functionality is unchanged. The exact signed package passed NC33–35 certification and is published in the App Store Stable channel; see the [release verification record](release-verification.md).
 
-**Developer instance: signed 0.4.0-alpha.6.** Metadata enrichment, read-only sharing, curation/recovery and the Nextcloud integration first slices are deployed for testing. See the [implementation ledger](0.4-implementation-status.md) and [signed-package delivery](curation-alpha6-verification.md#signed-package-delivery) for actual scope and focused evidence. Stable 0.4 certification and Store publication remain separate; stable Store is still 0.3.0.
+**Developer instance: signed 0.4.0-alpha.7.** Metadata enrichment, read-only sharing, curation/recovery and the Nextcloud integration first slices are deployed for testing. See the [implementation ledger](0.4-implementation-status.md) and [signed-package delivery](intake-alpha7-verification.md#signed-package-delivery) for actual scope and focused evidence. Stable 0.4 certification and Store publication remain separate; stable Store is still 0.3.0.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical; those features are retained in stable 0.3.0.
 
@@ -20,11 +20,11 @@ Pre-release architecture: [review](pre-release-architecture-review.md) and [impl
 
 Status: **0.3.0** is available in the App Store Stable channel. The preserved private **0.2.0-beta.3** package remains an upgrade-test baseline.
 
-Last updated: 2026-11-08
+Last updated: 2026-11-09
 
 ## Current implementation expansion
 
-The user approved the remaining 0.4 work plus classification pickers, optional genre hierarchy/starter vocabulary and explicit in-file metadata write-back. Signed alpha.6 implements these first slices and the Nextcloud integrations and is installed on developer NC34; focused delivery checks pass, with broader functional and release acceptance still open. See the [scope ledger](0.4-implementation-status.md) and [source contract](curation-alpha6.md). New Arabic translation/UI work is excluded.
+The user approved the remaining 0.4 work plus classification pickers, optional genre hierarchy/starter vocabulary and explicit in-file metadata write-back. Signed alpha.7 retains these first slices and the Nextcloud integrations and is installed on developer NC34; focused delivery checks pass, with broader functional and release acceptance still open. See the [scope ledger](0.4-implementation-status.md) and [source contract](curation-alpha6.md). New Arabic translation/UI work is excluded.
 
 The earlier blanket source-write deferral below is historical. The current boundary permits **separately reviewed EPUB 2/3 metadata write-back on writable local filesystem storage**, with retained originals and guarded recovery. Remote/encrypted source writes are refused before opening a writable stream; Library-only editing remains available. Ordinary metadata Save and scans remain Library-only. Adjacent OPF/JSON, PDF and comic-archive write-back remain outside this implementation.
 
@@ -55,7 +55,7 @@ The release themes below guide sequencing. They are not delivery dates or claims
 
 ### Current 0.4 implementation and follow-up tracking
 
-Signed alpha.6 is installed. The [0.4 implementation ledger](0.4-implementation-status.md) is authoritative for the source/delivery distinction and acceptance still open under [#220](https://github.com/utrost/Library/issues/220)–[#231](https://github.com/utrost/Library/issues/231). It covers curation archives, bulk organisation, incoming review, history, Home/health, Notes/Text, Unified Search, Smart Picker, native Dashboard, classification/genre work and guarded local EPUB write-back. Provider policy (#181), edition acceptance (#183), storage/reader variants and broader release acceptance remain explicit. An open acceptance issue does not mean its first implementation is absent.
+Signed alpha.7 is installed, including the resumable incoming-workflow refinements. The [0.4 implementation ledger](0.4-implementation-status.md) is authoritative for the source/delivery distinction and acceptance still open under [#220](https://github.com/utrost/Library/issues/220)–[#231](https://github.com/utrost/Library/issues/231). It covers curation archives, bulk organisation, incoming review, history, Home/health, Notes/Text, Unified Search, Smart Picker, native Dashboard, classification/genre work and guarded local EPUB write-back. Provider policy (#181), edition acceptance (#183), storage/reader variants and broader release acceptance remain explicit. An open acceptance issue does not mean its first implementation is absent.
 
 0.5 integrations are tracked separately in [#235](https://github.com/utrost/Library/issues/235). The new roadmap does not mark 0.4 release gates complete or expand the published 0.3 functionality.
 

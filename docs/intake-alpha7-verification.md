@@ -20,7 +20,25 @@ Date: 2026-11-09. Scope: local development delivery, not full CI, release certif
 
 ## Signed-package delivery
 
-Pending: final merged-source archive, integrity, populated alpha.6 upgrade/rollback, installed-package browser repeat and developer deployment. Record completed outcomes here after execution.
+Merged and deployed on 2026-11-09 through [PR #251](https://github.com/utrost/Library/pull/251). The same signed archive passed the populated disposable NC34.0.4/MariaDB upgrade and was installed on developer NC34.0.3/MariaDB.
+
+| Artifact | Value |
+| --- | --- |
+| Packaged merged commit | `0ed17ade008d1ba74d9941df6d3875d0c39452f5` |
+| Archive | `library-0.4.0-alpha.7.tar.gz` |
+| SHA-256 | `9aae8ef64b009736baafb95a75d07b010c962247fe85235f683fbdcf93750c0e` |
+| Signature | Existing app certificate; installed integrity clean |
+| Artifacts | Matching SPDX SBOM, provenance and checksum retained privately |
+| Packaged frontend | 1,200,619 bytes, within the unchanged 1,320,000-byte limit |
+
+- Forced a failure after upgrading the populated 60-book disposable fixture. Restoring the database, app, configuration and Library appdata returned alpha.6 with matching fingerprints. Repeating the upgrade with the same archive passed.
+- No migration was added or changed. Ten schema/container assertions pass, including rerunning the alpha.6 migration without a schema change.
+- All four desktop/mobile journeys pass again on the signed package. First page-to-ready samples were 728/652 ms; warm medians 488/448 ms. An initial browser invocation used an expired ephemeral Docker port after restart; refreshing the fixture address/trusted domain resolved that harness failure before the successful repeat.
+- 37 organisation assertions and 20 service assertions pass, including Apply/Undo, later-edit conflicts, stale review decisions and cross-owner refusals. The reused service fixture selects a newest visible synthetic book in this 60-book catalogue instead of its original sole-book minimum ID.
+- Developer deployment paused cron, enabled maintenance and drained requests before backups. Books, file records, lists, list entries and sharing fingerprints match before/after installation and again after live-smoke cleanup. Integrity is clean, maintenance is off and cron is running.
+- Live desktop/mobile checks used three temporary accounts and three synthetic books. Home/assets, queue selection/reload, Details/lookup/parser returns and Done persistence passed; no horizontal overflow or browser errors, and zero book-metadata POSTs. Queue readiness was 421/405 ms for that three-book fixture account. All three accounts were removed; source hashes were unchanged.
+- A separate read-only backend probe against the approximately 108k-book working catalogue measured five samples per case. Pending-page median/max: 19.58/135.92 ms before, 8.45/81.24 ms after. Bounded reviewed-book traversal median/max: 47.05/85.74 ms before, 32.04/58.85 ms after. These service measurements exclude network/rendering and are not a browser performance claim or a controlled speedup benchmark.
+- Private rollback backups, browser screenshots/reports and storage notes remain outside Git. No personal incoming files were mapped, moved, extracted or scanned. No GitHub Actions, full CI, full release gate or Store publication ran.
 
 ## Boundaries
 

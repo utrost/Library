@@ -4,7 +4,7 @@
 
 ## Current developer checkpoint
 
-**0.4.0-alpha.6** is installed on developer NC34. The exact archive checksum, source commit, upgrade/rollback rehearsal and live desktop/mobile results are recorded in [signed-package delivery](curation-alpha6-verification.md#signed-package-delivery). Use disposable books for source-write and sharing trials. EPUB write-back supports local filesystem storage only; remote/encrypted writes are refused. The stable Store remains 0.3.0.
+**0.4.0-alpha.7** is installed on developer NC34. The exact archive checksum, source commit, upgrade/rollback rehearsal and live desktop/mobile results are recorded in [signed-package delivery](intake-alpha7-verification.md#signed-package-delivery). Use disposable books for source-write and sharing trials. EPUB write-back supports local filesystem storage only; remote/encrypted writes are refused. The stable Store remains 0.3.0.
 
 When repeating browser checks after restarting disposable containers, refresh their assigned port and trusted-domain configuration. Seed at least one **To read** book before asserting a populated native Dashboard. New test accounts may show Nextcloud's welcome dialog; dismiss it for those accounts and use Library as their landing page, leaving instance-wide settings unchanged. For repeated EPUB restores, wait for the active operation to finish and compare original bytes; an older “Original restored” entry is insufficient.
 
@@ -26,7 +26,7 @@ long descriptions, mobile wrapping, dark mode and RTL. Use synthetic books only.
 
 ### Lookup refinements retained in alpha.6
 
-These checks target the installed alpha.6 build; the stable App Store release remains 0.3.0.
+These checks target the installed alpha.7 build; the stable App Store release remains 0.3.0.
 
 - Refine one row’s title/author/ISBN and switch an enabled provider; check no
   request until Search, old approvals cleared only for that row, and stale-tab
@@ -75,7 +75,7 @@ These checks target the installed alpha.6 build; the stable App Store release re
 
 ### 0.4 provider lookup preview
 
-On the alpha.6 development build, open **Administration settings → Library → Book metadata lookup**. Confirm Open Library needs no key, Google Books shows whether a key is configured without showing it, a blank Save preserves a stored key, and explicit removal disables keyed lookup. Enter a disposable restricted key to try Google Books; never put it in screenshots or notes. Then open a disposable book's **Find book details** section. Select Open Library, search by a valid ISBN, compare an edition and stage one field, then Discard. Repeat with Google Books; check that the query is sent only after Search, the volume link identifies Google Books, and a matching ISBN is shown for an ISBN search. Select the GGKEY separately, Save on a disposable book and confirm it survives reload. Try a wrong ISBN, missing Google key, provider switch during a pending search, sparse results and provider failure; none should change saved book data. Check keyboard, mobile and screen-reader labels. These checks do not certify provider terms, attribution or the full NC33–35 matrix.
+On the alpha.7 development build, open **Administration settings → Library → Book metadata lookup**. Confirm Open Library needs no key, Google Books shows whether a key is configured without showing it, a blank Save preserves a stored key, and explicit removal disables keyed lookup. Enter a disposable restricted key to try Google Books; never put it in screenshots or notes. Then open a disposable book's **Find book details** section. Select Open Library, search by a valid ISBN, compare an edition and stage one field, then Discard. Repeat with Google Books; check that the query is sent only after Search, the volume link identifies Google Books, and a matching ISBN is shown for an ISBN search. Select the GGKEY separately, Save on a disposable book and confirm it survives reload. Try a wrong ISBN, missing Google key, provider switch during a pending search, sparse results and provider failure; none should change saved book data. Check keyboard, mobile and screen-reader labels. These checks do not certify provider terms, attribution or the full NC33–35 matrix.
 
 ### 0.4 read-only sharing preview
 
@@ -554,7 +554,7 @@ Tracked in [#183](https://github.com/utrost/Library/issues/183). In one-book Fin
 
 ## Alpha.6 expanded curation — remaining acceptance
 
-The following is the complete acceptance checklist, not a claim that every item has passed. Completed focused runs are recorded separately in [alpha.6 verification](curation-alpha6-verification.md). Stable remains 0.3.0 and the installed development checkpoint is alpha.6. Read [scope, limits and recovery](curation-alpha6.md) before enabling source-write trials. Do not use personal books for destructive or failure-injection journeys. New Arabic translation/UI work is outside this slice.
+The following is the complete acceptance checklist, not a claim that every item has passed. Completed focused runs are recorded separately in [alpha.6 verification](curation-alpha6-verification.md). Stable remains 0.3.0 and the installed development checkpoint is alpha.7; see [intake delivery](intake-alpha7-verification.md). Read [scope, limits and recovery](curation-alpha6.md) before enabling source-write trials. Do not use personal books for destructive or failure-injection journeys. New Arabic translation/UI work is outside this slice.
 
 ### Upgrade and ownership
 

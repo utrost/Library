@@ -1,6 +1,6 @@
 # Rough roadmap after v0.1
 
-Updated 2026-11-08. Library 0.3.0 is published in the App Store Stable channel. The [official roadmap](roadmap.md#product-direction) owns the release sequence. This companion defines future feature outcomes and acceptance. Signed development alpha.6 is installed; see the [0.4 implementation ledger](0.4-implementation-status.md) for delivered features and outstanding acceptance. Stable 0.4 is not yet certified or released. See the [delivery tracker](https://github.com/utrost/Library/issues/220) for original targets, optional integrations and the scope decision.
+Updated 2026-11-09. Library 0.3.0 is published in the App Store Stable channel. The [official roadmap](roadmap.md#product-direction) owns the release sequence. This companion defines future feature outcomes and acceptance. Signed development alpha.7 is installed; see the [0.4 implementation ledger](0.4-implementation-status.md) for delivered features and outstanding acceptance. Stable 0.4 is not yet certified or released. See the [delivery tracker](https://github.com/utrost/Library/issues/220) for original targets, optional integrations and the scope decision.
 
 ## Current direction — 2026-11-05
 
@@ -422,4 +422,4 @@ Latest author assignment implementation and developer verification: 0.3-alpha.2 
 
 ## Alpha.6 source checkpoint — 2026-11-08
 
-The expanded user-approved 0.4 scope includes the Nextcloud integrations and previously deferred classifications, genre hierarchy/starter vocabulary and reviewed EPUB write-back. Source implementation and remaining acceptance are listed in [0.4 implementation status](0.4-implementation-status.md). This supersedes earlier deferral language for these features only. Installed development is alpha.6; no stable 0.4 publication or functional acceptance is claimed.
+The expanded user-approved 0.4 scope includes the Nextcloud integrations and previously deferred classifications, genre hierarchy/starter vocabulary and reviewed EPUB write-back. Source implementation and remaining acceptance are listed in [0.4 implementation status](0.4-implementation-status.md). This supersedes earlier deferral language for these features only. Installed development is alpha.7; no stable 0.4 publication or functional acceptance is claimed.

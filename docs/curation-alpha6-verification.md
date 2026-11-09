@@ -108,7 +108,7 @@ Focused pre-package checks: frontend build, translation inventory, 35 component 
 
 ## Signed-package delivery
 
-Developer NC34 now runs **0.4.0-alpha.6**, installed from the following final archive. The stable Store release remains **0.3.0**.
+This historical checkpoint installed **0.4.0-alpha.6** from the following archive. It has since been superseded by [alpha.7 intake delivery](intake-alpha7-verification.md). The stable Store release remains **0.3.0**.
 
 | Artifact | Recorded value |
 | --- | --- |
