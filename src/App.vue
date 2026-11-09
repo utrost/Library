@@ -46,6 +46,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } 
 import { n, t as translate, getLanguage, getLocale } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { createCachedTranslator } from './cached-translator.js'
+import { readCurationContext, withoutCuration } from './curation-context.js'
 import { detailsUrlWithReturn } from './details-return.js'
 const t = createCachedTranslator(translate, () => `${getLanguage()}:${getLocale()}`)
 import NcAppContent from '@nextcloud/vue/components/NcAppContent'
@@ -59,11 +60,24 @@ import NcContent from '@nextcloud/vue/components/NcContent'
 import MetadataBatchLookup from './components/MetadataBatchLookup.vue'
 import CurationWorkbench from './components/CurationWorkbench.vue'
 import HomeDashboard from './components/HomeDashboard.vue'
-const curationOpen = ref(new URLSearchParams(window.location.search).get('curation') === '1')
-function closeCuration() { if (new URLSearchParams(window.location.search).get('curation') === '1') window.location.href = catalogueRootUrl.value; else curationOpen.value = false }
+const curationOpen = ref(new URLSearchParams(window.location.search).get('curation') === '1' && new URLSearchParams(window.location.search).get('metadataLookup') !== '1')
+function closeCuration() { if (new URLSearchParams(window.location.search).get('curation') === '1') window.location.href = withoutCuration(window.location.href).href; else curationOpen.value = false }
+function returningToIncoming() { return new URLSearchParams(window.location.search).get('curation') === '1' }
+function openIncomingLookup(ids) {
+  const url = new URL(window.location.href); url.searchParams.set('metadataLookup', '1'); url.searchParams.delete('lookupJob')
+  window.history.replaceState(window.history.state, '', url)
+  selectedItemIds.value = ids; curationOpen.value = false; batchLookupOpen.value = true
+}
 let batchLookupChanged = false
 function closeBatchLookup() {
   batchLookupOpen.value = false
+  if (new URLSearchParams(window.location.search).get('curation') === '1') {
+    selectedItemIds.value = []; curationOpen.value = true
+    if (batchLookupChanged) catalogueTotalCache.clear()
+    batchLookupChanged = false
+    return
+  }
+  if (catalogueState.surface === 'workbench') { window.location.reload(); return }
   if (!batchLookupChanged) return
   batchLookupChanged = false
   catalogueTotalCache.clear()
@@ -2189,7 +2203,7 @@ function handleCatalogueKeyboardShortcuts(event) {
 }
 
 onMounted(() => {
-  if (isAuthors.value || isSeries.value || isGenres.value || isLists.value || isInference.value || isDuplicates.value || isDetails.value) return
+  if (curationOpen.value || batchLookupOpen.value || isAuthors.value || isSeries.value || isGenres.value || isLists.value || isInference.value || isDuplicates.value || isDetails.value) return
   void hydrateLanding()
   window.addEventListener('keydown', handleCatalogueKeyboardShortcuts)
   window.addEventListener('popstate', restoreCatalogueFromHistory)
@@ -2357,8 +2371,8 @@ async function toggleStar(item, event) {
     <NcAppContent>
       <DeletionNotice />
   <div id="library-app" class="library-vue-catalogue library-app" :lang="catalogueState.language || 'en'" :dir="catalogueState.direction || 'ltr'" tabindex="-1">
-  <CurationWorkbench v-if="curationOpen" :request-token="requestToken" :item-ids="selectedItemIds" @close="closeCuration()" @lookup="ids => { selectedItemIds = ids; curationOpen = false; batchLookupOpen = true }" @changed="batchLookupChanged = true" />
-  <MetadataBatchLookup v-else-if="batchLookupOpen" :item-ids="selectedItemIds" :request-token="requestToken" @changed="batchLookupChanged = true" @close="closeBatchLookup" />
+  <CurationWorkbench v-if="curationOpen" :request-token="requestToken" :item-ids="selectedItemIds" @close="closeCuration()" @lookup="openIncomingLookup" @changed="batchLookupChanged = true" />
+  <MetadataBatchLookup v-else-if="batchLookupOpen" :item-ids="selectedItemIds.length ? selectedItemIds : readCurationContext().selected" :return-to-incoming="returningToIncoming()" :request-token="requestToken" @changed="batchLookupChanged = true" @close="closeBatchLookup" />
   <PossibleDuplicates v-else-if="isDuplicates" :request-token="requestToken" :review-url="reviewUrl" />
   <PathInference v-else-if="isInference" :request-token="requestToken" />
   <Authors v-else-if="isAuthors" :request-token="requestToken" :catalogue-url="catalogueRootUrl" />

@@ -30,9 +30,9 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const APP_VERSION = '0.4.0-alpha.6';
-    public const VUE_SCRIPT_ASSET = 'library-main-0-4-0-alpha-6-compact-list-table-cover-96-fit-v9';
-    public const VUE_STYLE_ASSET = 'library-vue-0-4-0-alpha-6-compact-list-table-cover-96-fit-v9';
+    private const APP_VERSION = '0.4.0-alpha.7';
+    public const VUE_SCRIPT_ASSET = 'library-main-0-4-0-alpha-7-compact-list-table-cover-96-fit-v9';
+    public const VUE_STYLE_ASSET = 'library-vue-0-4-0-alpha-7-compact-list-table-cover-96-fit-v9';
     private MonotonicClock $clock;
     /** @var array<string, true> */
     private array $invalidReviewKeys = [];
@@ -90,10 +90,10 @@ class PageController extends Controller {
         $showHome = (string)$this->request->getParam('home', '0') === '1';
         $showShelves = (string)$this->request->getParam('shelves', '0') === '1';
         $detailsId = (string)$this->request->getParam('details', '');
-        if ((string)$this->request->getParam('authors', '0') === '1' || (string)$this->request->getParam('series', '0') === '1' || (string)$this->request->getParam('genres', '0') === '1' || (string)$this->request->getParam('duplicates', '0') === '1' || (string)$this->request->getParam('lists', '0') === '1' || (string)$this->request->getParam('infer', '0') === '1' || $detailsId !== '') {
+        if ((string)$this->request->getParam('authors', '0') === '1' || (string)$this->request->getParam('series', '0') === '1' || (string)$this->request->getParam('genres', '0') === '1' || (string)$this->request->getParam('duplicates', '0') === '1' || (string)$this->request->getParam('lists', '0') === '1' || (string)$this->request->getParam('infer', '0') === '1' || $detailsId !== '' || (string)$this->request->getParam('curation', '0') === '1' || (string)$this->request->getParam('metadataLookup', '0') === '1') {
             $catalogueUrl = $this->urlGenerator->linkToRoute('library.page.index');
             $language = $this->l10nFactory->findLanguage(Application::APP_ID);
-            $surface = 'lists';
+            $surface = ((string)$this->request->getParam('curation', '0') === '1' || (string)$this->request->getParam('metadataLookup', '0') === '1') ? 'workbench' : 'lists';
             if ($detailsId !== '') {
                 $surface = 'details';
             } elseif ((string)$this->request->getParam('authors', '0') === '1') {

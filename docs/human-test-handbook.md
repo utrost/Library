@@ -1,5 +1,7 @@
 # Library human test handbook
 
+**Working through a real incoming collection in 0.4?** Use the [real-life intake and curation handbook](v0.4-field-test-handbook.md): connect the actual folder to your normal account, index it, work through Review and organise, keep useful corrections and check results as you go. The isolated regression and technical acceptance checks remain below.
+
 ## Current developer checkpoint
 
 **0.4.0-alpha.6** is installed on developer NC34. The exact archive checksum, source commit, upgrade/rollback rehearsal and live desktop/mobile results are recorded in [signed-package delivery](curation-alpha6-verification.md#signed-package-delivery). Use disposable books for source-write and sharing trials. EPUB write-back supports local filesystem storage only; remote/encrypted writes are refused. The stable Store remains 0.3.0.
@@ -563,8 +565,8 @@ The following is the complete acceptance checklist, not a claim that every item 
 
 ### Incoming books and organisation
 
-- Import books into two shelves across known indexing dates. Open Incoming books, filter one shelf/day, mark Done, defer a row, reload and return from Details. Confirm batch, filter and cursor remain. A later source or canonical relationship change must reopen review; a no-change rescan must not.
-- Exercise an empty 50-record filtered window with older matching records. Next must remain usable. Open existing metadata/duplicate review controls and return; completed inbox decisions must survive.
+- Import books into two shelves across known indexing dates. Open Incoming books, filter one shelf/day, mark Done, defer a row, reload and return from Details. Confirm shelf, date, filter, cursor history and checked rows remain. Repeat reload while inside provider lookup, return to the queue, and follow the shelf-scoped path-extraction link back. A newly opened default queue link need not restore a previously bookmarked view. A later source or canonical relationship change must reopen review; a no-change rescan must not.
+- Exercise empty 50-record filtered windows with older matching records. Up to four windows are skipped automatically; after 200 examined records, Continue to older books must remain usable. Distinguish that bounded search from reaching the end. Failed Next must retain the prior page and selection. Open existing metadata/duplicate review controls and return; completed inbox decisions must survive.
 - From catalogue, collection and a personal list, select exact IDs and prepare author add/remove/replace, series/part, genre, language and publisher jobs. Check names and before/after values, ordering and empty replacement. Skip/include a row; no writes before approval.
 - Apply with one stale revision and one unavailable source. Other rows may succeed; conflicts must remain visible. Pause/reload/resume, cancel midway and Undo applied rows. A later edit, cover/source change or file replacement must block Undo. Race two workers and review tabs; inspect atomic metadata/index/history outcomes and lease recovery.
 

@@ -3,6 +3,7 @@ import OperationStatus from './OperationStatus.vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
+import { detailsReturnContext } from '../details-return.js'
 import { inferPath } from '../path-inference.js'
 import { inferRule, newRule, pathParts } from '../path-inference-rule.js'
 import InferenceAnalysis from './InferenceAnalysis.vue'
@@ -15,7 +16,10 @@ import LabelHelp from './LabelHelp.vue'
 import InferenceSuggestions from './InferenceSuggestions.vue'
 import InferenceWorklist from './InferenceWorklist.vue'
 defineProps({ requestToken: { type: String, default: '' } })
-const roots = ref([]), rootId = ref(''), folder = ref(''), recursive = ref(true), sort = ref('name'), folders = ref([]), childFolder = ref(''), folderSearch = ref(''), hasMoreFolders = ref(false), folderChoiceError = ref('')
+const routeParams = new URLSearchParams(window.location.search)
+const incomingContext = detailsReturnContext(generateUrl('/apps/library/'), window.location.href)
+const incomingReturn = incomingContext.hasSource && new URL(incomingContext.url, window.location.origin).searchParams.get('curation') === '1' ? incomingContext.url : ''
+const roots = ref([]), rootId = ref(/^[1-9][0-9]{0,14}$/.test(routeParams.get('rootId') || '') ? routeParams.get('rootId') : ''), folder = ref(''), recursive = ref(true), sort = ref('name'), folders = ref([]), childFolder = ref(''), folderSearch = ref(''), hasMoreFolders = ref(false), folderChoiceError = ref('')
 const items = ref([]), page = ref(1), hasNext = ref(false), busy = ref(false), error = ref('')
 const scope = ref(''), example = ref(''), loadedRootId = ref(''), loadedFolder = ref(''), folderRules = ref([])
 const rule = ref(null), editorMode = ref('guided'), ruleGeneration = ref(0)
@@ -104,6 +108,7 @@ onBeforeUnmount(() => { clearTimeout(folderSearchTimer); folderChoiceGeneration+
 
 <template>
   <section class="library-inference" :aria-label="t('library', 'Extract metadata from paths')" :aria-busy="busy ? 'true' : 'false'">
+    <p v-if="incomingReturn"><a :href="incomingReturn">{{ t('library', 'Back to incoming books') }}</a></p>
     <h1><LabelHelp :text="t('library', 'Preview a naming rule, select fields and review before applying. Source files are never changed.')">{{ t('library', 'Extract metadata from paths') }}</LabelHelp></h1>
     <OperationStatus :loading="busy" :error="error" @retry="load" />
     <section class="library-inference-step">

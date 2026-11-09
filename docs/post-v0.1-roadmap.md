@@ -1,6 +1,6 @@
 # Rough roadmap after v0.1
 
-Updated 2026-11-07. Library 0.3.0 is published in the App Store Stable channel. The [official roadmap](roadmap.md#product-direction) owns the release sequence. This companion defines future feature outcomes and acceptance. Development alpha.5 includes one-book/bulk metadata enrichment and named-user read-only sharing. Stable 0.4 is not yet certified or released. See the [delivery tracker](https://github.com/utrost/Library/issues/220) for original targets, optional integrations and the scope decision.
+Updated 2026-11-08. Library 0.3.0 is published in the App Store Stable channel. The [official roadmap](roadmap.md#product-direction) owns the release sequence. This companion defines future feature outcomes and acceptance. Signed development alpha.6 is installed; see the [0.4 implementation ledger](0.4-implementation-status.md) for delivered features and outstanding acceptance. Stable 0.4 is not yet certified or released. See the [delivery tracker](https://github.com/utrost/Library/issues/220) for original targets, optional integrations and the scope decision.
 
 ## Current direction — 2026-11-05
 
@@ -9,7 +9,7 @@ Each release has one major feature family, delivered in small usable slices. Ver
 | Release | Theme | Intended outcome |
 | --- | --- | --- |
 | 0.4 | Enrich and share | Improve messy metadata, introduce named-user read-only library sharing, organise many books efficiently, preserve curation and make Home useful every day. |
-| 0.5 | Read and remember | Resume reliably, keep personal reading activity and annotations, and organise related editions/copies. |
+| 0.5 | Read and remember — integrations and synchronization | Access Library from supported readers, synchronize personal progress, resume reliably in tested combinations and recover reading state. |
 | 0.6 | Explore your knowledge | Find passages, connect notes and ask grounded questions across the accessible collection. |
 
 ### 0.4 — Enrich and share
@@ -85,16 +85,55 @@ Inspect the installed reader's capabilities and prototype a small versioned inte
 
 ### 0.5 — Read and remember
 
-**Target core:** reliable reading progress/resume, reading history, bookmarks/highlights/notes, portable personal activity and reviewed edition grouping. Shared libraries are not a dependency.
+**Direction updated 2026-11-08:** focus 0.5 on integrations and synchronization. The user outcome is **access your library from supported reading apps and bring your reading activity together in Nextcloud**. Exact cross-reader resume is promised only for tested reader/file combinations. Tracking epic: [#235](https://github.com/utrost/Library/issues/235); milestone: **0.5 — Read anywhere, resume reliably**.
 
-- Define a capability contract and adapters for supported readers. Store locations against the specific file/version, including format-specific anchors and enough context to detect invalid positions. [Readium locators](https://readium.org/architecture/models/locators/) are a design reference for progression, bookmarks and annotations; adoption requires actual reader interoperability testing.
-- Define conflict handling for concurrent devices and offline updates, including rereading and intentional backward navigation. A greater percentage is not automatically the newest position. Retain separate state when editions cannot be mapped safely.
-- Export/import Library-owned reading state and annotations; document what remains in an external reader. Surface reader disconnects and failed synchronisation without silently losing state.
-- Add the activity-based dashboard described above. Offline reading, device synchronisation and text-to-speech are optional integrations with separate capability checks.
+**Core:** authenticated OPDS catalogue/acquisition, reader-independent personal state and file identity, connection/device management, Nextcloud EPUB Viewer and KOReader progress bridges, usable Continue reading and portable activity. Start bounded Moon+ Reader and BOOX NeoReader investigations early; their reports determine safe implementation scope. They do not imply that bidirectional or universal resume is already feasible. Keep ordinary Open/Files/Download usable without integrations.
+
+#### Delivery slices and dependencies
+
+| Slice | Outcome and boundary | Tracking |
+| --- | --- | --- |
+| Personal state and identity | User/file/revision-specific positions, native locators, device/source, explicit status, offline reconciliation and recoverable history. Minimal identity work precedes adapters; full work/edition grouping is not required. | [#236](https://github.com/utrost/Library/issues/236) |
+| Reading apps settings | Setup URLs/instructions, validated authentication, scoped credentials where supported, connection checks, capability labels, last sync, Retry and revocation. | [#237](https://github.com/utrost/Library/issues/237) |
+| OPDS | Bounded, authenticated catalogue/search/cover/download access for owned and authorized shared books. Validate actual client/version support; OPDS acquisition does not itself synchronize progress. | [#238](https://github.com/utrost/Library/issues/238) |
+| Nextcloud EPUB Viewer | First complete browser open → read → close → progress → resume journey through a supported, versioned integration boundary. | [#239](https://github.com/utrost/Library/issues/239) |
+| Moon+ Reader | Bounded WebDAV-format and identity investigation, then opt-in read-only progress import if safe. Never modify its sync files until a separately proven write contract exists. | [#240](https://github.com/utrost/Library/issues/240) |
+| KOReader | Compatible personal progress synchronization, native position preservation and explicit document matching. Assess existing maintained companion integrations before duplicating an authority. | [#241](https://github.com/utrost/Library/issues/241) |
+| BOOX NeoReader | Bounded assessment of supported exports/APIs and an optional companion; deliver a reproducible import prototype or a concrete blocker. BOOX-to-BOOX sync is not evidence of cross-reader interoperability. | [#242](https://github.com/utrost/Library/issues/242) |
+| Continue reading | Extend Home, Book details and the native widget with supported Resume, source/time, progress and understandable failure/conflict states. | [#243](https://github.com/utrost/Library/issues/243) |
+| Activity portability | Versioned export/restore, reviewed file matching, bounded retention and user-controlled deletion; exclude credentials and avoid replaying restored positions to devices automatically. | [#244](https://github.com/utrost/Library/issues/244) |
+| Compatibility and acceptance | Versioned reader matrix, physical-device versus simulated evidence, local focused checks, scale timings and setup/troubleshooting handbook. | [#247](https://github.com/utrost/Library/issues/247) |
+
+Design state and authentication first. OPDS can ship usable acquisition while adapters are developed. Begin Moon+/NeoReader feasibility work early with explicit experiment budgets and go/no-go reports. Nextcloud EPUB Viewer is the first browser bridge; Moon+ is import-first, KOReader provides a dedicated sync adapter, and NeoReader implementation depends on evidence. Continue reading and portability consume the common state contract. No reader-specific investigation holds core delivery indefinitely; an unavailable core bridge requires an explicit scope decision.
+
+#### Synchronization contract
+
+- Store exact positions against a specific file/version with a reader-native locator and capability/version context. [Readium locators](https://readium.org/architecture/models/locators/) are a design reference, not evidence that readers share a location format.
+- Treat rename, move, identical copy, source replacement and EPUB metadata write-back separately. Titles/ISBNs cannot prove exact-location compatibility. A protocol document hash is matching evidence, never permission to access a book.
+- Handle duplicate/replayed events, offline updates, concurrent devices, clock skew, intentional backward navigation and rereading. The highest percentage is not automatically the correct current position; retain bounded recoverable prior positions.
+- Keep personal state per user, including recipients of shared books. Revalidate grants and file access on acquisition and sync operations. Owner notes/history never flow into another reader's account; previously downloaded bytes cannot be recalled by revocation.
+- Report catalogue access, downloads, progress import, exact resume and annotations independently. Show last successful synchronization and source/device; distinguish errors from offline/stale data and unsupported functionality.
+- Opening or downloading is not proof of reading, completion or time spent. Exact cross-format or cross-edition resume needs independently verified mapping; otherwise keep separate positions and explain the limitation.
+- Prefer supported APIs and upstream extensions. Authentication must fit actual clients without silently storing the main Nextcloud password in a legacy protocol. Keep credentials and raw private device data out of logs, archives and public evidence.
+
+#### Reader evidence and acceptance
+
+The [Moon+ Reader FAQ](https://www.moondownload.com/faq.html) describes OPDS and WebDAV position synchronization. Library still needs a verified adapter to interpret its private state format. [EPUB Viewer](https://github.com/devnoname120/epubviewer) retains server-side reading positions; integration must validate a stable boundary. [BOOX documentation](https://booxsupport.zendesk.com/hc/en-us/articles/10991555917204-Reading-Data-Syncing) describes synchronization within its ecosystem, not a proven Library API. [KOReader's protocol](https://github.com/koreader/koreader-sync-server) provides a dedicated progress-sync starting point. [OPDS](https://specs.opds.io/opds-1.2) covers discovery/acquisition. Recheck versions and capabilities during implementation.
+
+Acceptance uses synthetic books and disposable accounts with EPUB Viewer, KOReader, Moon+ Reader, NeoReader and another independent OPDS client. Record supported and unavailable capabilities rather than implying uniform support. Verify offline/reconnect, exact supported resume, conflicting positions, changed files, write-back, sharing/revocation, archive recovery, malformed events and per-user isolation. Measure bounded browsing/search against a synthetic 100k-book catalogue, aiming for usable responses under two seconds with immediate feedback and recorded outliers. Keep physical-device/manual accessibility results distinct from automated browser/protocol checks. Work runs locally without depending on GitHub Actions; release certification/publication remains a separate task.
+
+#### Follow-ups after core acceptance
+
+- **Annotations and notes** ([#245](https://github.com/utrost/Library/issues/245)): import supported bookmarks/highlights/notes with attribution and anchors; preview deliberate append to an existing Nextcloud note. Protect concurrent edits and shared destinations. A progress connection does not imply annotation support.
+- **Reading insights** ([#246](https://github.com/utrost/Library/issues/246)): private history, recent actual activity and optional goals/yearly summaries, with honest coverage and retention. Sparse progress events cannot establish precise reading duration.
+
+These follow-ups are linked to the epic but outside its core milestone. Reviewed full work/edition grouping, wishlists/books without files, reading-copy quality checks, text-to-speech and additional series organization remain candidates described below, not 0.5 release requirements. Their minimal identity concepts inform synchronization without requiring a catalogue redesign.
 
 **Reader fork decision:** first inspect capabilities, attempt a narrow upstream extension/API and assess collaboration. A maintained fork is a valid option if the project is abandoned, necessary integration is blocked, or its direction is incompatible. Before choosing it, assign ownership for rendering correctness, accessibility, security updates, browser compatibility, licensing and upstream synchronisation. A fork is not assumed or required by the roadmap.
 
 #### Work, edition, file and personal activity
+
+Later candidate; not a 0.5 core release requirement.
 
 Design these boundaries before cross-format grouping or shared reading state:
 
@@ -109,11 +148,15 @@ This also supports better duplicate review: explain evidence, show identifier/se
 
 #### Wishlist and books without files
 
+Later candidate; not a 0.5 core release requirement.
+
 Once the work/edition model is in place, allow records added by ISBN, title or a supported link without requiring a local publication file. Store Want to read, Borrowed or Looking for a copy status plus a recommendation/research note. Keep possession and reading status distinct. When a matching file arrives, suggest a reviewed link to the existing record rather than silently creating or merging identities. Series views can distinguish owned, read and missing-from-collection entries when series membership is known.
 
 Acceptance checks: records without files remain usable and exportable; file matching handles ambiguous editions explicitly; attaching or removing a file preserves wishlist notes and reading state; bibliographic records never imply that a file is available to open.
 
 #### Reading-copy quality checks
+
+Later candidate; not a 0.5 core release requirement.
 
 Alongside duplicate/edition review, show evidence useful for choosing a preferred reading copy: searchable text versus scanned images, table-of-contents availability, missing fonts or structural problems, language mismatches and suspected incomplete/damaged files. Treat uncertain findings as reviewable observations; file size alone is not a quality ranking. Checks are bounded and cached by file revision, and do not rewrite or delete publications.
 
@@ -121,7 +164,7 @@ Acceptance checks: known-good and damaged fixtures produce explainable findings;
 
 **Additional organisation candidates:** multiple series memberships, ordering for prequels/short stories/omnibus editions/nonnumeric parts, larger series merges and convenient position editing. These can move forward after core acceptance if capacity permits.
 
-Acceptance checks: resume works across supported sessions/devices; stale/offline events do not lose later activity; changed files and unmappable editions give understandable recovery; annotations retain usable anchors; export/restore preserves personal activity; reviewed grouping neither deletes files nor merges unrelated editions automatically.
+Acceptance for these later candidates: reviewed grouping neither deletes files nor merges unrelated editions automatically; annotations retain usable anchors where supported; export/restore preserves personal activity. Core synchronization acceptance is defined above and in #247.
 
 ### 0.6 — Explore your knowledge
 
@@ -150,7 +193,7 @@ Library should participate in the user's Nextcloud workspace. These optional sli
 | 0.4 | Unified Search | Find accessible Library books and canonical authors from Nextcloud's global search, using bounded existing catalogue queries. |
 | 0.4 | Smart Picker and link previews | Insert a book reference into supported Notes, Text, Talk or Collectives surfaces; show a permitted title/cover preview and a link to Library. |
 | 0.4 | Native Nextcloud Dashboard | Offer Up next/recently opened books, then genuine Continue reading when the reader bridge is available. Reuse Library Home data and respect widget resource budgets. |
-| 0.5 | Reader → notes | Send a selected highlight with attribution and a stable passage link to a chosen reading note; associate one note with multiple books when useful. |
+| After 0.5 core (optional) | Reader → notes | Send a selected highlight with attribution and a stable passage link to a chosen reading note; associate one note with multiple books when useful. |
 | 0.6 | Connected knowledge | Retrieve linked notes and passages together; explore references to Collectives research pages while preserving each application's access boundaries. |
 
 **Notes workflow:** Book details → Create reading note / Link existing note → choose destination → edit in Notes or Text → return through the book reference. A note may contain the user's thoughts, quotations and links to several sources. Later, the reader can offer Add highlight to note with a preview. Copying a quotation is a deliberate write to the chosen document, not a side effect of opening a book.
@@ -379,4 +422,4 @@ Latest author assignment implementation and developer verification: 0.3-alpha.2 
 
 ## Alpha.6 source checkpoint — 2026-11-08
 
-The expanded user-approved 0.4 scope includes the Nextcloud integrations and previously deferred classifications, genre hierarchy/starter vocabulary and reviewed EPUB write-back. Source implementation and remaining acceptance are listed in [0.4 implementation status](0.4-implementation-status.md). This supersedes earlier deferral language for these features only. Installed development remains alpha.5; no stable 0.4 publication or functional acceptance is claimed.
+The expanded user-approved 0.4 scope includes the Nextcloud integrations and previously deferred classifications, genre hierarchy/starter vocabulary and reviewed EPUB write-back. Source implementation and remaining acceptance are listed in [0.4 implementation status](0.4-implementation-status.md). This supersedes earlier deferral language for these features only. Installed development is alpha.6; no stable 0.4 publication or functional acceptance is claimed.

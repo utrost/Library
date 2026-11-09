@@ -4,14 +4,16 @@ import { t, n } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { curationRequest } from '../curation-api.js'
 import { confirmAction } from '../confirm-action.js'
+import { readCurationContext, curationContextUrl } from '../curation-context.js'
 import { detailsUrlWithReturn } from '../details-return.js'
 import CurationArchives from './CurationArchives.vue'
 import CurationEntityPicker from './CurationEntityPicker.vue'
 const props = defineProps({ requestToken: String, itemIds: { type: Array, default: () => [] } })
 const emit = defineEmits(['close', 'lookup', 'changed'])
-const initial = new URLSearchParams(window.location.search)
-const day = ref(initial.get('inboxDay') || ''), rootId = ref(Number(initial.get('inboxRoot')) || 0)
-const tab = ref(props.itemIds.length || initial.get('curationTab') === 'jobs' ? 'jobs' : 'inbox'), filter = ref(['pending', 'done', 'deferred', 'all'].includes(initial.get('inboxFilter')) ? initial.get('inboxFilter') : 'pending'), inbox = ref([]), next = ref(null), before = ref(Math.max(0, Number(initial.get('inboxBefore')) || 0)), pages = ref([]), selected = ref([]), jobs = ref([]), job = ref(null), busy = ref(false), error = ref(''), notice = ref('')
+const initial = readCurationContext()
+const day = ref(initial.day), rootId = ref(initial.rootId), roots = ref([])
+const tab = ref(props.itemIds.length && !new URLSearchParams(window.location.search).has('curationTab') ? 'jobs' : initial.tab)
+const filter = ref(initial.filter), inbox = ref([]), next = ref(null), before = ref(initial.before), pages = ref(initial.pages), selected = ref(initial.selected), jobs = ref([]), job = ref(null), busy = ref(false), error = ref(''), notice = ref(''), scanned = ref(0)
 const field = ref('genres'), mode = ref('add'), entities = ref([]), value = ref(''), requestId = ref('')
 const root = generateUrl('/apps/library/')
 const ids = computed(() => props.itemIds.length ? props.itemIds : selected.value)
@@ -21,14 +23,27 @@ const statuses = { preparing: t('library', 'Preparing review'), review: t('libra
 const rowErrors = { series_required: t('library', 'Assign a series before setting its part.'), unavailable_or_invalid: t('library', 'This book is unavailable or cannot accept the proposed change.'), changed_or_unavailable: t('library', 'The book or its file changed after review. Prepare a new review to continue.') }
 let controller, generation = 0, timer
 onBeforeUnmount(() => { generation++; controller?.abort(); clearTimeout(timer) })
-function schedule() { clearTimeout(timer); if (job.value && ['preparing', 'applying', 'undoing'].includes(job.value.status)) timer = setTimeout(() => loadJob(job.value.id, job.value.page), 3000) }
+function schedule() { clearTimeout(timer); if (tab.value === 'jobs' && job.value && ['preparing', 'applying', 'undoing'].includes(job.value.status)) timer = setTimeout(() => loadJob(job.value.id, job.value.page), 3000) }
 async function run(work) {
   if (busy.value) return
   busy.value = true; error.value = ''; const current = ++generation; controller = new AbortController()
   try { await work(controller.signal, current) } catch (e) { if (current === generation && e.name !== 'AbortError') error.value = e.message }
   finally { if (current === generation) { busy.value = false; schedule() } }
 }
-function loadInbox(cursor = 0) { return run(async (signal, token) => { const data = await curationRequest('/inbox', props.requestToken, { before: cursor, filter: filter.value, day: day.value, rootId: rootId.value }, signal); if (token !== generation) return; inbox.value = data.rows; next.value = data.next; before.value = cursor; selected.value = [] }) }
+function loadInbox(cursor = 0, history = pages.value, resetSelection = false) { return run(async (signal, token) => {
+  let data, examined = 0, windowCursor = cursor
+  // Skip empty filtered windows, but cap each interaction at 200 examined records.
+  for (let attempt = 0; attempt < 4; attempt++) {
+    data = await curationRequest('/inbox', props.requestToken, { before: windowCursor, filter: filter.value, day: day.value, rootId: rootId.value }, signal)
+    if (token !== generation) return
+    examined += data.scanned || 0
+    if (data.rows.length || !data.next || data.next === windowCursor) break
+    windowCursor = data.next
+  }
+  inbox.value = data.rows; next.value = data.next; before.value = cursor; pages.value = history; scanned.value = examined
+  if (data.roots) roots.value = data.roots
+  selected.value = resetSelection ? [] : selected.value.filter(id => data.rows.some(row => Number(row.id) === id))
+}) }
 function loadJobs() { return run(async (signal, token) => { const data = await curationRequest('/jobs', props.requestToken, {}, signal); if (token === generation) jobs.value = data.jobs }) }
 function loadJob(id, page = 1) { return run(async (signal, token) => { const data = await curationRequest(`/jobs/${id}`, props.requestToken, { page }, signal); if (token !== generation) return; job.value = data; tab.value = 'jobs' }) }
 function start() { return run(async (signal, token) => {
@@ -42,15 +57,23 @@ async function control(action, itemId = 0) {
   return run(async (signal, token) => { const data = await curationRequest(`/jobs/${job.value.id}/control`, props.requestToken, { action, itemId }, signal); if (token !== generation) return; job.value = data.deleted ? null : data; emit('changed') })
 }
 function decide(row, state) { return run(async (signal, token) => { await curationRequest(`/inbox/${row.id}`, props.requestToken, { revision: row.revision, state }, signal); if (token !== generation) return; notice.value = t('library', 'Review state saved.'); if (filter.value !== 'all' && filter.value !== state) inbox.value = inbox.value.filter(r => r.id !== row.id); else row.state = state; selected.value = selected.value.filter(id => id !== row.id) }) }
-function switchTab(nextTab) { if (busy.value) return; tab.value = nextTab; nextTab === 'inbox' ? loadInbox(before.value) : loadJobs() }
-function resetInbox() { pages.value=[];loadInbox() }
-function nextInbox() { pages.value.push(before.value);loadInbox(next.value) }
+function switchTab(nextTab) { if (busy.value) return; clearTimeout(timer); tab.value = nextTab; if (nextTab === 'inbox') loadInbox(before.value); else { job.value = null; loadJobs() } }
+function resetInbox() { notice.value = ''; loadInbox(0, [], true) }
+function nextInbox() { loadInbox(next.value, [...pages.value, before.value].slice(-100), true) }
+function previousInbox() { loadInbox(pages.value.at(-1), pages.value.slice(0, -1), true) }
 function allJobs() { job.value=null;loadJobs() }
-function bookUrl(id) {
-  const source = new URL(`${root}?curation=1`, window.location.origin)
-  for (const [key, value] of Object.entries({ curationTab: tab.value, inboxDay: day.value, inboxRoot: rootId.value, inboxFilter: filter.value, inboxBefore: before.value, curationJob: job.value?.id || '', curationPage: job.value?.page || 1 })) if (value) source.searchParams.set(key, String(value))
-  return detailsUrlWithReturn(`${root}?details=${id}`, root, source.href)
+function contextUrl() {
+  return curationContextUrl(window.location.href, { tab: tab.value, day: day.value, rootId: rootId.value, filter: filter.value, before: before.value, pages: pages.value, selected: selected.value, job: job.value?.id || '', page: job.value?.page || 1 })
 }
+function persistContext() { window.history.replaceState(window.history.state, '', contextUrl()) }
+function bookUrl(id) { return detailsUrlWithReturn(`${root}?details=${id}`, root, contextUrl().href) }
+function inferenceUrl() {
+  const url = new URL(`${root}?infer=1`, window.location.origin), source = contextUrl()
+  url.searchParams.set('rootId', String(rootId.value)); url.searchParams.set('returnTo', source.pathname + source.search)
+  return url.href
+}
+function lookup() { persistContext(); emit('lookup', [...selected.value]) }
+watch([tab, day, rootId, filter, before, pages, selected, () => job.value?.id, () => job.value?.page], persistContext, { deep: true })
 function batch(row) { day.value = row.batchDay; rootId.value = row.rootId; resetInbox() }
 function clearBatch() { day.value = ''; rootId.value = 0; resetInbox() }
 function comparison(row, after) {
@@ -65,7 +88,7 @@ function comparison(row, after) {
 const entityFieldFor = key => ['authors', 'genres', 'series'].includes(key)
 watch(field, () => { entities.value = []; value.value = ''; mode.value = ['authors', 'genres'].includes(field.value) ? 'add' : 'set'; requestId.value = '' })
 watch([mode, value, entities], () => { requestId.value = '' }, { deep: true })
-onMounted(() => { if (tab.value === 'jobs' && /^[a-f0-9]{32}$/.test(initial.get('curationJob') || '')) loadJob(initial.get('curationJob'), Number(initial.get('curationPage')) || 1); else tab.value === 'inbox' ? loadInbox(before.value) : loadJobs() })
+onMounted(() => { if (tab.value === 'jobs' && initial.job) loadJob(initial.job, initial.page); else tab.value === 'inbox' ? loadInbox(before.value) : loadJobs() })
 </script>
 <template>
   <main class="library-panel curation">
@@ -75,11 +98,12 @@ onMounted(() => { if (tab.value === 'jobs' && /^[a-f0-9]{32}$/.test(initial.get(
     <section v-if="tab === 'inbox'">
       <p>{{ t('library', 'Newest books first. Mark reviewed books Done, or defer them for one day. Changed metadata returns a book to review.') }}</p>
       <label>{{ t('library', 'Show') }}<select :aria-label="t('library', 'Show')" v-model="filter" :disabled="busy" @change="resetInbox"><option value="pending">{{ t('library', 'To review') }}</option><option value="done">{{ t('library', 'Done') }}</option><option value="deferred">{{ t('library', 'Deferred') }}</option><option value="all">{{ t('library', 'All') }}</option></select></label>
-      <label>{{ t('library', 'First indexed on (UTC)') }}<input v-model="day" type="date" :disabled="busy" @change="resetInbox"></label><button v-if="day || rootId" type="button" :disabled="busy" @click="clearBatch">{{ t('library', 'All incoming batches') }}</button><p>{{ t('library', 'A batch groups books by shelf and the day they were first indexed. Rescanning does not change that date.') }}</p>
-      <p v-if="!inbox.length && !busy">{{ t('library', 'No matching books in this window. Continue to older books if available.') }}</p>
+      <label>{{ t('library', 'Shelf') }}<select v-model="rootId" :aria-label="t('library', 'Shelf')" :disabled="busy" @change="resetInbox"><option :value="0">{{ t('library', 'All shelves') }}</option><option v-for="shelf in roots" :key="shelf.id" :value="Number(shelf.id)">{{ shelf.label || shelf.path }}</option></select></label>
+      <label>{{ t('library', 'First indexed on (UTC)') }}<input v-model="day" type="date" :disabled="busy" @change="resetInbox"></label><button v-if="day || rootId" type="button" :disabled="busy" @click="clearBatch">{{ t('library', 'All incoming batches') }}</button><p>{{ t('library', 'A batch groups books by shelf and the day they were first indexed. Rescanning does not change that date.') }}</p><p v-if="rootId"><a :href="inferenceUrl()">{{ t('library', 'Extract metadata from this shelf') }}</a></p>
+      <p v-if="!inbox.length && !busy" role="status">{{ next ? t('library', 'No matches among the {count} books checked. Continue to older books.', { count: scanned }) : t('library', 'No more books match this review filter.') }}</p>
       <article v-for="row in inbox" :key="row.id" class="inbox-row"><label><input v-model="selected" type="checkbox" :value="Number(row.id)" :aria-label="`${t('library', 'Select')}: ${row.title}`" :disabled="busy"></label><a :href="bookUrl(row.id)"><img :src="generateUrl(`/apps/library/items/${row.id}/cover`)" alt="" loading="lazy" @error="$event.target.hidden = true"></a><div><a :href="bookUrl(row.id)">{{ row.title }}</a><p>{{ row.creators }}</p><button type="button" :disabled="busy" @click="batch(row)">{{ row.batchDay }} · {{ row.rootPath }}</button><p v-if="row.missing.length">{{ t('library', 'Missing details') }}: {{ row.missing.map(key => fieldLabels[key] || (key === 'title' ? t('library', 'Title') : t('library', 'Description'))).join(', ') }}</p></div><div class="actions"><button type="button" :disabled="busy" @click="decide(row, 'done')">{{ t('library', 'Done') }}</button><button type="button" :disabled="busy" @click="decide(row, 'deferred')">{{ t('library', 'Defer one day') }}</button><button v-if="row.state !== 'pending'" type="button" :disabled="busy" @click="decide(row, 'pending')">{{ t('library', 'Review again') }}</button></div></article>
-      <nav :aria-label="t('library', 'Pagination')"><button type="button" :disabled="busy || !pages.length" @click="loadInbox(pages.pop())">{{ t('library', 'Previous') }}</button><button type="button" :disabled="busy || !next" @click="nextInbox">{{ t('library', 'Next') }}</button></nav>
-      <div v-if="selected.length"><button type="button" @click="emit('lookup', selected)">{{ t('library', 'Find book details') }}</button><button type="button" @click="switchTab('jobs')">{{ t('library', 'Organise selected books') }}</button></div>
+      <nav :aria-label="t('library', 'Pagination')"><button type="button" :disabled="busy || !pages.length" @click="previousInbox">{{ t('library', 'Previous') }}</button><button type="button" :disabled="busy || !next" @click="nextInbox">{{ !inbox.length && next ? t('library', 'Continue to older books') : t('library', 'Next') }}</button></nav>
+      <div v-if="selected.length"><p role="status">{{ n('library', '%n book selected', '%n books selected', selected.length) }}</p><button type="button" :disabled="busy" @click="lookup">{{ t('library', 'Find book details') }}</button><button type="button" @click="switchTab('jobs')">{{ t('library', 'Organise selected books') }}</button></div>
     </section>
     <section v-else>
       <form v-if="ids.length && !job" @submit.prevent="start">

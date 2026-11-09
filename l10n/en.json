@@ -1689,7 +1689,6 @@
         "Review sections": "Review sections",
         "Notes and change history": "Notes and change history",
         "Indexed files": "Indexed files",
-        "No matching books in this window. Continue to older books if available.": "No matching books in this window. Continue to older books if available.",
         "Unsupported curation archive.": "Unsupported curation archive.",
         "The searched ISBN is not listed for this result. Do not treat it as an exact match.": "The searched ISBN is not listed for this result. Do not treat it as an exact match.",
         "Complete": "Complete",
@@ -1889,7 +1888,12 @@
         "This record exceeds the 128 KiB review limit. Shorten its metadata before importing again; nothing was applied.": "This record exceeds the 128 KiB review limit. Shorten its metadata before importing again; nothing was applied.",
         "This archive exceeds the supported size limit. Retrying will not raise the limit. Use a Files and database backup for the full library.": "This archive exceeds the supported size limit. Retrying will not raise the limit. Use a Files and database backup for the full library.",
         "Author or series indexing is incomplete. Let background indexing finish, resolve any indexing errors, then retry. Completed archive records are retained.": "Author or series indexing is incomplete. Let background indexing finish, resolve any indexing errors, then retry. Completed archive records are retained.",
-        "Source-file write-back currently requires writable local filesystem storage. Remote and encrypted storage remain read-only in this workflow; Library metadata edits still work.": "Source-file write-back currently requires writable local filesystem storage. Remote and encrypted storage remain read-only in this workflow; Library metadata edits still work."
+        "Source-file write-back currently requires writable local filesystem storage. Remote and encrypted storage remain read-only in this workflow; Library metadata edits still work.": "Source-file write-back currently requires writable local filesystem storage. Remote and encrypted storage remain read-only in this workflow; Library metadata edits still work.",
+        "Back to incoming books": "Back to incoming books",
+        "Extract metadata from this shelf": "Extract metadata from this shelf",
+        "No matches among the {count} books checked. Continue to older books.": "No matches among the {count} books checked. Continue to older books.",
+        "No more books match this review filter.": "No more books match this review filter.",
+        "Continue to older books": "Continue to older books"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

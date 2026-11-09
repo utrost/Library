@@ -2,7 +2,7 @@
 
 **Current stable release: 0.3.0.** The accepted RC3 functionality is unchanged. The exact signed package passed NC33–35 certification and is published in the App Store Stable channel; see the [release verification record](release-verification.md).
 
-**Developer instance: signed 0.4.0-alpha.5.** Single-book and bulk metadata lookup, normalized languages, provenance/conditional Undo, explicit Open Library cover comparison and named-user read-only sharing (including selected-book sharing without folder access) are deployed for testing. Google Books cover saving remains unsupported. This is not an App Store release; provider-policy and release acceptance remain open. See the [installed checkpoint](lookup-editor-covers-alpha5.md) and [remaining-work tracker](https://github.com/utrost/Library/issues/220).
+**Developer instance: signed 0.4.0-alpha.6.** Metadata enrichment, read-only sharing, curation/recovery and the Nextcloud integration first slices are deployed for testing. See the [implementation ledger](0.4-implementation-status.md) and [signed-package delivery](curation-alpha6-verification.md#signed-package-delivery) for actual scope and focused evidence. Stable 0.4 certification and Store publication remain separate; stable Store is still 0.3.0.
 
 Previous deployment checkpoint: signed **0.3.0-alpha.36** added the mixed filename/path worklist. Its verification and deployment record remains historical; those features are retained in stable 0.3.0.
 
@@ -24,7 +24,7 @@ Last updated: 2026-11-08
 
 ## Current implementation expansion
 
-The user approved the remaining 0.4 work plus classification pickers, optional genre hierarchy/starter vocabulary and explicit in-file metadata write-back. Alpha.6 source implements these first slices and the Nextcloud integrations; deployment and functional acceptance remain open. See the [scope ledger](0.4-implementation-status.md) and [source contract](curation-alpha6.md). New Arabic translation/UI work is excluded.
+The user approved the remaining 0.4 work plus classification pickers, optional genre hierarchy/starter vocabulary and explicit in-file metadata write-back. Signed alpha.6 implements these first slices and the Nextcloud integrations and is installed on developer NC34; focused delivery checks pass, with broader functional and release acceptance still open. See the [scope ledger](0.4-implementation-status.md) and [source contract](curation-alpha6.md). New Arabic translation/UI work is excluded.
 
 The earlier blanket source-write deferral below is historical. The current boundary permits **separately reviewed EPUB 2/3 metadata write-back on writable local filesystem storage**, with retained originals and guarded recovery. Remote/encrypted source writes are refused before opening a writable stream; Library-only editing remains available. Ordinary metadata Save and scans remain Library-only. Adjacent OPF/JSON, PDF and comic-archive write-back remain outside this implementation.
 
@@ -32,14 +32,16 @@ The earlier blanket source-write deferral below is historical. The current bound
 
 Direction approved for roadmap planning on 2026-10-20: grow Library into a personal reading and knowledge environment that helps people organise what they own, choose what to read, resume reading and recover what they learned. Nextcloud Files remains canonical storage; accepted corrections, provenance and personal activity must remain private and recoverable.
 
-The release themes below guide sequencing. They are not delivery dates or claims that future features exist. **Target scope** is the intended release core; **experimental** work can ship separately or move later without blocking that core. Detailed outcomes and acceptance criteria live in the [post-v0.1 roadmap](post-v0.1-roadmap.md#current-direction--2026-10-20).
+The release themes below guide sequencing. They are not delivery dates or claims that future features exist. **Target scope** is the intended release core; **experimental** work can ship separately or move later without blocking that core. Detailed outcomes and acceptance criteria live in the [post-v0.1 roadmap](post-v0.1-roadmap.md#current-direction--2026-11-05).
 
 | Release | Theme | Target scope | Experimental or optional scope |
 | --- | --- | --- | --- |
 | **0.3** | Reliable personal catalogue | Finish acceptance and release certification for the existing catalogue, editor, author/series/genre organisation, scans, lists and deletion. The reversible **To delete** state for read-only mounts is deployed in alpha.38. | Freeze feature expansion until release gates close. |
 | **0.4** | Enrich and share | **Improve book details** with optional provider adapters and reviewable evidence; a first read-only, named-user shared-library slice; complete Library export/restore; bulk organisation; incoming-books and cleanup inbox with visible change history; useful Home and library-health dashboards. | Citation export after metadata completion is reliable; bounded front-matter/OCR/LLM extraction; a narrow reader progress/resume bridge. |
-| **0.5** | Read and remember | Reliable reader progress/resume, reading history, bookmarks/highlights and portable personal activity; reviewed work/edition/file grouping; wishlists/books without files; reading-copy quality checks; reading dashboards based on actual reader events. | Offline/cross-device integration, text-to-speech and a maintained reader fork if upstream integration proves unsuitable. |
+| **0.5** | Read and remember — integrations and synchronization | Authenticated OPDS; personal reading-state/file identity and recoverable offline conflicts; Reading apps settings; EPUB Viewer and KOReader bridges; Continue reading and portable activity. | Bounded Moon+ WebDAV and NeoReader feasibility work; implementation follows evidence. Annotations/notes and insights follow core acceptance. Full edition grouping, wishlists, copy-quality checks, TTS and a reader fork remain later candidates. |
 | **0.6** | Explore your knowledge | Article/chapter discovery; optional full-text and semantic discovery, questions grounded in cited passages, reading paths and connections between books, highlights and notes. | Broader synthesis and personal recommendations, subject to corpus coverage, retrieval quality, permissions and resource limits. |
+
+**0.5 delivery track (2026-11-08):** [#235](https://github.com/utrost/Library/issues/235) owns the linked integration issues and acceptance order. Start with shared state/authentication and OPDS, develop the EPUB Viewer bridge, investigate Moon+/NeoReader early and add KOReader synchronization. Exact resume is guaranteed only for tested reader/file combinations; shared books retain separate personal activity. See [the detailed 0.5 scope](post-v0.1-roadmap.md#05--read-and-remember). Optional annotation/insight work is outside the core milestone. No implementation or release is implied by this planning update.
 
 **First post-release feature slice:** one-book **Improve book details**. Start with existing metadata and identifiers, consult optional Google Books/Open Library adapters, preview field-level suggestions with evidence, and apply only accepted changes. Follow with bounded batch execution. Provider availability and terms must be checked during implementation; Goodreads and Amazon are optional investigations, not dependencies.
 
@@ -53,21 +55,9 @@ The release themes below guide sequencing. They are not delivery dates or claims
 
 ### Current 0.4 implementation and follow-up tracking
 
-The installed alpha.5 scope is metadata enrichment and the first read-only sharing slice. The wider target scope above remains recorded; moving it to later releases is a recommendation awaiting an explicit scope decision, not an implementation claim.
+Signed alpha.6 is installed. The [0.4 implementation ledger](0.4-implementation-status.md) is authoritative for the source/delivery distinction and acceptance still open under [#220](https://github.com/utrost/Library/issues/220)–[#231](https://github.com/utrost/Library/issues/231). It covers curation archives, bulk organisation, incoming review, history, Home/health, Notes/Text, Unified Search, Smart Picker, native Dashboard, classification/genre work and guarded local EPUB write-back. Provider policy (#181), edition acceptance (#183), storage/reader variants and broader release acceptance remain explicit. An open acceptance issue does not mean its first implementation is absent.
 
-| Work | Current status | Tracking |
-| --- | --- | --- |
-| Provider policy, attribution and retention | Decision and resulting integration work remain; Google cover saving disabled | [#181](https://github.com/utrost/Library/issues/181) |
-| Alternative editions and match explanations | Bounded Open Library edition browsing in development; not installed in alpha.5 | [#183](https://github.com/utrost/Library/issues/183) |
-| Complete curation export/restore | Original 0.4 target; partial metadata export is not complete recovery | [#221](https://github.com/utrost/Library/issues/221) |
-| Broader bulk organisation | Original target; extend existing bulk/entity tools | [#222](https://github.com/utrost/Library/issues/222) |
-| Persistent incoming-books/cleanup inbox | Original target; connect existing review queues | [#223](https://github.com/utrost/Library/issues/223) |
-| Unified change history | Original target; provider receipts already delivered | [#224](https://github.com/utrost/Library/issues/224) |
-| Home and library-health dashboards | Original target; evolve existing surfaces | [#225](https://github.com/utrost/Library/issues/225) |
-| Notes/Text, Unified Search, Smart Picker, native Dashboard | Optional independent integrations | [#226](https://github.com/utrost/Library/issues/226), [#227](https://github.com/utrost/Library/issues/227), [#228](https://github.com/utrost/Library/issues/228), [#229](https://github.com/utrost/Library/issues/229) |
-| Documentation and release preparation | Reconcile delivered behavior; prepare release after explicit approval | [#230](https://github.com/utrost/Library/issues/230), [#231](https://github.com/utrost/Library/issues/231) |
-
-Write-back (#150), classification/genre hierarchy (#146/#148/#149), additional commercial providers (#200/#201), AI extraction and deeper reader integration remain separate candidate/optional tracks. Open historical implementation issues must be read with their delivery checkpoints; an open acceptance checklist does not mean its feature is absent. Acceptance remains tracked in #187, #194 and #211.
+0.5 integrations are tracked separately in [#235](https://github.com/utrost/Library/issues/235). The new roadmap does not mark 0.4 release gates complete or expand the published 0.3 functionality.
 
 ### Historical 0.3 release gates (completed release; retained for context)
 
@@ -136,7 +126,7 @@ Delivery remains incremental as the product ambition grows:
 - Nextcloud Files remains the source of truth.
 - Library starts with catalogue and reader handoff; deeper reading integration follows the 0.4–0.5 capability and maintenance decisions above.
 - Per-user behaviour comes before shared/global library management.
-- External metadata and bounded OCR/LLM extraction enter the 0.4 plan. They remain optional and are not prerequisites for 0.3 or basic catalogue use. OPDS and device sync remain later candidates.
+- External metadata and bounded OCR/LLM extraction enter the 0.4 plan. They remain optional and are not prerequisites for 0.3 or basic catalogue use. OPDS and supported reader/device synchronization now belong to the 0.5 integration track; see #235.
 - Nextcloud system tags are the preferred cross-archive classification layer for interests, projects, collections and statuses.
 
 ## Historical v0.1 baseline

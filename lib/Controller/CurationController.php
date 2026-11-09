@@ -5,10 +5,10 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\{IRequest,IUserSession};
-use OCA\Library\Service\{ItemService,BookAccessService,BookNotesService,ChangeHistoryService,CurationInboxService,HomeDashboardService,CurationJobService};
+use OCA\Library\Service\{ItemService,RootService,BookAccessService,BookNotesService,ChangeHistoryService,CurationInboxService,HomeDashboardService,CurationJobService};
 use OCA\Library\Exception\MetadataConflictException;
 final class CurationController extends Controller {
-    public function __construct(string $appName,IRequest $request,private IUserSession $session,private ItemService $items,private BookAccessService $access,private BookNotesService $notes,private ChangeHistoryService $history,private CurationInboxService $inbox,private HomeDashboardService $home,private CurationJobService $jobs,private \OCP\IDBConnection $db,private \OCP\App\IAppManager $apps) { parent::__construct($appName,$request); }
+    public function __construct(string $appName,IRequest $request,private IUserSession $session,private ItemService $items,private BookAccessService $access,private BookNotesService $notes,private ChangeHistoryService $history,private CurationInboxService $inbox,private HomeDashboardService $home,private CurationJobService $jobs,private \OCP\IDBConnection $db,private \OCP\App\IAppManager $apps,private RootService $roots) { parent::__construct($appName,$request); }
     private function respond(callable $work): JSONResponse {
         $uid=$this->session->getUser()?->getUID();$headers=['Cache-Control'=>'private, no-store'];
         if ($uid===null) return new JSONResponse(['error'=>'not_found'],404,$headers);
@@ -40,7 +40,11 @@ final class CurationController extends Controller {
     #[NoAdminRequired]
     public function noteFiles(): JSONResponse { return $this->respond(fn($uid)=>$this->notes->browse($uid,$this->text('path'))); }
     #[NoAdminRequired]
-    public function inbox(): JSONResponse { return $this->respond(fn($uid)=>$this->inbox->page($uid,(int)$this->request->getParam('before',0),$this->text('filter',16) ?: 'pending',$this->text('day',10),(int)$this->request->getParam('rootId',0))); }
+    public function inbox(): JSONResponse { return $this->respond(function($uid) {
+        $page=$this->inbox->page($uid,(int)$this->request->getParam('before',0),$this->text('filter',16) ?: 'pending',$this->text('day',10),(int)$this->request->getParam('rootId',0));
+        $page['roots']=array_map(static fn(array $root):array=>['id'=>(int)$root['id'],'label'=>$root['label'],'path'=>$root['path']],$this->roots->listRoots($uid));
+        return $page;
+    }); }
     #[NoAdminRequired]
     public function decide(int $itemId): JSONResponse { return $this->respond(function($uid) use($itemId) { $this->inbox->decide($uid,$itemId,$this->text('revision',64),$this->text('state',16));return ['saved'=>true]; }); }
     #[NoAdminRequired]

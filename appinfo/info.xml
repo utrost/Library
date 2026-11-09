@@ -9,7 +9,7 @@
 This development version adds optional book-detail lookup through Open Library and Google Books, reviewed bulk metadata changes, and read-only sharing of shelves or selected books with other Nextcloud users. Curation tools include incoming-book review, change history, portable curation archives, linked Files notes, genre hierarchies and classification controls. Nextcloud Search, Smart Picker and Dashboard integrations keep books accessible from other apps.
 
 Normal metadata editing stays in Library. A separate, explicitly confirmed workflow can write selected fields into supported EPUB 2/3 files on writable local filesystem storage, with retained originals and guarded recovery. Remote and encrypted source storage is not supported by that write-back workflow. Library does not provide a built-in reader; Open uses your installed Nextcloud viewer. This version targets Nextcloud 33–35.]]></description>
-    <version>0.4.0-alpha.6</version>
+    <version>0.4.0-alpha.7</version>
     <licence>AGPL-3.0-or-later</licence>
     <author>Library contributors</author>
     <namespace>Library</namespace>
