@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0-alpha.7 — development
+
+- Preserve incoming shelf, filter, page history and checked books across reload, Details, provider lookup and path extraction.
+- Add an independent shelf selector and a scoped path-extraction shortcut with return navigation.
+- Skip empty filtered windows with a bounded 200-record search and an explicit continuation when older books remain.
+- Keep organisation-job polling on its active tab; retain page and selection after failed navigation requests.
+- Start incoming and provider workbenches without a blocking catalogue query. No database migration.
+- Add focused desktop/mobile intake journeys and a real-life working handbook; document the 0.5 reader-integration roadmap.
+
 ## 0.4.0-alpha.6 — development
 
 - Add durable incoming-book review and reviewed background organisation with per-book conflicts, progress and conditional Undo.

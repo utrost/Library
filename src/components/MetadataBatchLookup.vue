@@ -6,7 +6,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { t, n } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { confirmAction } from '../confirm-action.js'
-const props = defineProps({ itemIds: { type: Array, default: () => [] }, requestToken: { type: String, required: true } })
+const props = defineProps({ returnToIncoming: Boolean, itemIds: { type: Array, default: () => [] }, requestToken: { type: String, required: true } })
 const emit = defineEmits(['close', 'changed'])
 const options = ref({ providers: [], fields: [], limit: 50 })
 const provider = ref('')
@@ -181,7 +181,7 @@ onBeforeUnmount(() => { disposed = true; generation++; clearTimeout(timer) })
 <template>
 <GoogleBooksAttribution v-if="provider === 'googlebooks' || job?.provider === 'googlebooks'" />
   <section class="library-batch-lookup" :aria-busy="busy" :aria-label="t('library', 'Find book details')">
-    <header class="library-batch-toolbar"><h2>{{ t('library', 'Find book details') }}</h2><button type="button" @click="close">{{ t('library', 'Back to browsing') }}</button></header>
+    <header class="library-batch-toolbar"><h2>{{ t('library', 'Find book details') }}</h2><button type="button" @click="close">{{ returnToIncoming ? t('library', 'Back to incoming books') : t('library', 'Back to browsing') }}</button></header>
     <p v-if="busy" role="status">{{ t('library', 'Updating…') }}</p>
     <p v-if="error" role="alert">{{ error }} <button type="button" :disabled="busy" @click="job ? act(poll) : load()">{{ t('library', 'Retry') }}</button></p>
     <p v-if="notice" role="status">{{ notice }}</p>

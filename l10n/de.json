@@ -1689,7 +1689,6 @@
         "Review sections": "Prüfbereiche",
         "Notes and change history": "Notizen und Änderungsverlauf",
         "Indexed files": "Indizierte Dateien",
-        "No matching books in this window. Continue to older books if available.": "Keine passenden Bücher in diesem Ausschnitt. Gehen Sie gegebenenfalls zu älteren Büchern weiter.",
         "Unsupported curation archive.": "Nicht unterstütztes Bearbeitungsarchiv.",
         "The searched ISBN is not listed for this result. Do not treat it as an exact match.": "Die gesuchte ISBN ist für dieses Ergebnis nicht angegeben. Behandeln Sie es nicht als genaue Übereinstimmung.",
         "Complete": "Abgeschlossen",
@@ -1889,7 +1888,12 @@
         "This record exceeds the 128 KiB review limit. Shorten its metadata before importing again; nothing was applied.": "Dieser Datensatz überschreitet das Prüflimit von 128 KiB. Kürzen Sie seine Metadaten vor einem erneuten Import. Es wurde nichts übernommen.",
         "This archive exceeds the supported size limit. Retrying will not raise the limit. Use a Files and database backup for the full library.": "Dieses Archiv überschreitet die unterstützte Größenbegrenzung. Ein erneuter Versuch erhöht das Limit nicht. Verwenden Sie eine Sicherung der Dateien und der Datenbank für die vollständige Bibliothek.",
         "Author or series indexing is incomplete. Let background indexing finish, resolve any indexing errors, then retry. Completed archive records are retained.": "Die Autoren- oder Reihenindizierung ist noch nicht abgeschlossen. Warten Sie auf die Hintergrundindizierung, beheben Sie mögliche Indizierungsfehler und versuchen Sie es dann erneut. Bereits verarbeitete Archivdatensätze bleiben erhalten.",
-        "Source-file write-back currently requires writable local filesystem storage. Remote and encrypted storage remain read-only in this workflow; Library metadata edits still work.": "Das Zurückschreiben in die Quelldatei erfordert derzeit einen beschreibbaren lokalen Dateisystemspeicher. Entfernter und verschlüsselter Speicher bleibt in diesem Ablauf schreibgeschützt; Bibliotheksmetadaten können weiterhin bearbeitet werden."
+        "Source-file write-back currently requires writable local filesystem storage. Remote and encrypted storage remain read-only in this workflow; Library metadata edits still work.": "Das Zurückschreiben in die Quelldatei erfordert derzeit einen beschreibbaren lokalen Dateisystemspeicher. Entfernter und verschlüsselter Speicher bleibt in diesem Ablauf schreibgeschützt; Bibliotheksmetadaten können weiterhin bearbeitet werden.",
+        "Back to incoming books": "Zurück zu eingehenden Büchern",
+        "Extract metadata from this shelf": "Metadaten aus diesem Regal extrahieren",
+        "No matches among the {count} books checked. Continue to older books.": "Keine Treffer unter den {count} geprüften Büchern. Mit älteren Büchern fortfahren.",
+        "No more books match this review filter.": "Keine weiteren Bücher entsprechen diesem Prüffilter.",
+        "Continue to older books": "Mit älteren Büchern fortfahren"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }
