@@ -1,5 +1,7 @@
 # DNB lookup — focused development verification
 
+**Historical source-run record.** Both adapters are now included in the signed alpha.8 development deployment; see [current delivery evidence](providers-alpha8-verification.md). Live LoC acceptance remains open.
+
 Date: 2026-11-12. Scope: unreleased source changes after alpha.7, installed on a disposable Nextcloud 34.0.3 / SQLite instance. This is not a signed-package deployment or full release certification. No existing library books were changed.
 
 ## Results

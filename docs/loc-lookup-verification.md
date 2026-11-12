@@ -1,5 +1,7 @@
 # Library of Congress lookup — focused development verification
 
+**Historical source-run record.** Both adapters are now included in the signed alpha.8 development deployment; see [current delivery evidence](providers-alpha8-verification.md). Live LoC acceptance remains open.
+
 Date: 2026-11-12. Unreleased source addition after alpha.7, verified on a disposable Nextcloud 34.0.3 / SQLite instance. Not deployed to the development library or published. No existing personal books changed.
 
 ## Implemented
