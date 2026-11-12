@@ -1894,7 +1894,13 @@ OC.L10N.register(
         "Extract metadata from this shelf": "Extract metadata from this shelf",
         "No matches among the {count} books checked. Continue to older books.": "No matches among the {count} books checked. Continue to older books.",
         "No more books match this review filter.": "No more books match this review filter.",
-        "Continue to older books": "Continue to older books"
+        "Continue to older books": "Continue to older books",
+        "DNB (German National Library)": "DNB (German National Library)",
+        "Enable DNB lookup": "Enable DNB lookup",
+        "Search the German National Library catalogue by ISBN or title and author. Covers are not included.": "Search the German National Library catalogue by ISBN or title and author. Covers are not included.",
+        "Library of Congress": "Library of Congress",
+        "Enable Library of Congress lookup": "Enable Library of Congress lookup",
+        "Search the Library of Congress catalogue by ISBN or title and author. Covers are not included.": "Search the Library of Congress catalogue by ISBN or title and author. Covers are not included."
     },
     "nplurals=2; plural=(n != 1);"
 );

@@ -39,7 +39,7 @@ const labels = { title: t('library', 'Title'), subtitle: t('library', 'Subtitle'
     <p v-if="disabled">{{ t('library', 'Save or discard your edits before Undo.') }}</p>
     <p v-if="!busy && !receipts.length">{{ t('library', 'No retained lookup changes for this book.') }}</p>
     <article v-for="row in receipts" :key="row.jobId"><GoogleBooksAttribution v-if="row.receipt.provider === 'googlebooks'" />
-      <p><a :href="row.receipt.url" target="_blank" rel="noopener noreferrer">{{ row.receipt.provider === 'googlebooks' ? 'Google Books' : 'Open Library' }}</a> · {{ new Date(row.receipt.appliedAt * 1000).toLocaleString() }}</p>
+      <p><a :href="row.receipt.url" target="_blank" rel="noopener noreferrer">{{ row.receipt.provider === 'loc' ? t('library', 'Library of Congress') : row.receipt.provider === 'dnb' ? 'DNB' : row.receipt.provider === 'googlebooks' ? 'Google Books' : 'Open Library' }}</a> · {{ new Date(row.receipt.appliedAt * 1000).toLocaleString() }}</p>
       <dl><template v-for="(value, field) in row.receipt.after" :key="field"><dt>{{ labels[field] || field }}</dt><dd>{{ display(row.receipt.before[field]) }} → {{ display(value) }}</dd></template></dl>
       <p v-if="row.receipt.cover">{{ t('library', 'Cover replaced') }}</p>
       <button v-if="row.status === 'applied'" type="button" :disabled="busy || disabled" @click="undo(row)">{{ t('library', 'Undo') }}</button><span v-else>{{ t('library', 'Undone') }}</span>

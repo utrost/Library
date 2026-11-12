@@ -66,9 +66,12 @@ function resetAssignments() { rule.value = newRule(example.value); ruleGeneratio
 function useRule(value) { rule.value = value; ruleGeneration.value++; editorMode.value = 'guided' }
 function useSuggestedRule(value) { useRule(value); editorOpen.value = false }
 function usePattern(value, underscores = false) { pattern.value = value; replaceUnderscores.value = underscores; editorMode.value = 'pattern' }
-async function load(nextPage = 1) {
+async function load(nextPage = 1, preserveRows = false) {
   const current = ++generation
-  busy.value = true; error.value = ''; items.value = []
+  busy.value = true; error.value = ''
+  // Keep the worklist mounted after Apply/Undo so its row feedback and other
+  // pending selections survive. Navigation still starts with a fresh worklist.
+  if (!preserveRows) items.value = []
   try {
     const params = new URLSearchParams()
     if (rootId.value) { params.set('rootId', rootId.value); params.set('folder', folder.value); params.set('folderSearch', folderSearch.value); params.set('recursive', recursive.value ? '1' : '0'); params.set('sort', sort.value); params.set('page', String(nextPage)) }
@@ -84,7 +87,7 @@ async function load(nextPage = 1) {
     loadedFolder.value = data.scope.slice(rootPath.length).replace(/^\//, '')
     folders.value = data.folders || []; hasMoreFolders.value = Boolean(data.hasMoreFolders); items.value = data.items || []; page.value = data.page || 1; hasNext.value = Boolean(data.hasNext); scope.value = data.scope || ''
     example.value = items.value[0]?.path || ''; selectExample()
-  } catch (e) { if (current === generation) error.value = e.message } finally { if (current === generation) busy.value = false }
+  } catch (e) { if (current === generation) { error.value = e.message; items.value = [] } } finally { if (current === generation) busy.value = false }
 }
 function rulesLoaded(value) { if (value.rootId === loadedRootId.value) folderRules.value = value.assignments }
 function rootChanged() { folder.value = ''; folderSearch.value = ''; load() }
@@ -192,7 +195,7 @@ onBeforeUnmount(() => { clearTimeout(folderSearchTimer); folderChoiceGeneration+
     </section>
     <section v-if="items.length" class="library-inference-step">
       <h2>{{ t('library', '3. Assign patterns and review files') }}</h2>
-      <InferenceWorklist :items="items" :labels="labels" :statuses="statusLabels" :root-id="loadedRootId" :folder="loadedFolder" :current="editorMode === 'guided' ? {mode:'guided',rule} : editorMode === 'pattern' ? {mode:'pattern',pattern,replaceUnderscores} : null" :request-token="requestToken" :disabled="busy || scopePending" :patterns-version="patternsVersion" @changed="load(page)" />
+      <InferenceWorklist :items="items" :labels="labels" :statuses="statusLabels" :root-id="loadedRootId" :folder="loadedFolder" :current="editorMode === 'guided' ? {mode:'guided',rule} : editorMode === 'pattern' ? {mode:'pattern',pattern,replaceUnderscores} : null" :request-token="requestToken" :disabled="busy || scopePending" :patterns-version="patternsVersion" @changed="load(page, true)" />
       <nav class="library-inference-presets" :aria-label="t('library', 'Sample pages')"><button class="button secondary" :disabled="busy || page === 1" @click="load(page - 1)">{{ t('library', 'Previous page') }}</button><span>{{ page }}</span><button class="button secondary" :disabled="busy || !hasNext" @click="load(page + 1)">{{ t('library', 'Next page') }}</button></nav>
     </section>
     <InferenceAnalysis v-if="items.length" :definition="{ mode:editorMode, pattern, replaceUnderscores, rule, rootId:loadedRootId, folder:loadedFolder, recursive }" :labels="labels" :statuses="statusLabels" :request-token="requestToken" :disabled="busy || scopePending || !loadedRootId" />

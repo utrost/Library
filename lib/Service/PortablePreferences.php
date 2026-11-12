@@ -21,7 +21,7 @@ final class PortablePreferences {
     public function restore(string $uid,array $data,string $namespace,callable $listTarget): void {
         $key=$data['key'] ?? null;$raw=$data['value'] ?? null;
         if (!is_string($key) || !$this->supported($key) || !is_string($raw) || strlen($raw)>32768) throw new \InvalidArgumentException('preference');
-        if ($key==='metadata_lookup_provider') { if (!in_array($raw,['openlibrary','googlebooks'],true)) throw new \InvalidArgumentException('provider'); }
+        if ($key==='metadata_lookup_provider') { if (!in_array($raw,['openlibrary','googlebooks','dnb','loc'],true)) throw new \InvalidArgumentException('provider'); }
         elseif ($key==='dashboard_preferences') {
             $v=json_decode($raw,true,16,JSON_THROW_ON_ERROR);if (!is_array($v) || !is_array($v['widgets'] ?? null) || array_diff($v['widgets'],['recent','upNext','changed','finished','rediscover','health'])) throw new \InvalidArgumentException('dashboard');
             $v['listId']=empty($v['listId']) ? 0 : $listTarget($v['listId']);$raw=json_encode($v,JSON_THROW_ON_ERROR);

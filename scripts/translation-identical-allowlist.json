@@ -7,5 +7,6 @@
   "Open Library": "Provider brand name remains literal across locales.",
   "Genre": "Genre is the standard German bibliographic term; Arabic remains translated.",
   "Genres": "Genres is the standard plural term in German bibliography; Arabic is translated.",
-  "en; de": "Language-code examples must stay literal in every locale."
+  "en; de": "Language-code examples must stay literal in every locale.",
+  "Library of Congress": "Official name of the United States national library, retained as provider attribution."
 }
