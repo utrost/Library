@@ -77,6 +77,18 @@ These checks target the installed alpha.7 build; the stable App Store release re
 
 On the alpha.7 development build, open **Administration settings → Library → Book metadata lookup**. Confirm Open Library needs no key, Google Books shows whether a key is configured without showing it, a blank Save preserves a stored key, and explicit removal disables keyed lookup. Enter a disposable restricted key to try Google Books; never put it in screenshots or notes. Then open a disposable book's **Find book details** section. Select Open Library, search by a valid ISBN, compare an edition and stage one field, then Discard. Repeat with Google Books; check that the query is sent only after Search, the volume link identifies Google Books, and a matching ISBN is shown for an ISBN search. Select the GGKEY separately, Save on a disposable book and confirm it survives reload. Try a wrong ISBN, missing Google key, provider switch during a pending search, sparse results and provider failure; none should change saved book data. Check keyboard, mobile and screen-reader labels. These checks do not certify provider terms, attribution or the full NC33–35 matrix.
 
+#### DNB lookup — alpha.8 addition
+
+In Administration settings → Library, confirm DNB is available without a key and can be disabled. In a disposable book, explicitly choose **DNB (German National Library)**, search first by ISBN and then by title/author. Compare the source record at `d-nb.info`; inspect title, subtitle, publisher, publication year, languages and available subjects/description. Missing fields must not be invented. Covers and Open Library’s edition paging should not be offered.
+
+Stage a field, Discard, then stage and Save. Reload to confirm the value and DNB source evidence; Undo should restore the previous value. Repeat through a small bulk run: search, choose, select, Apply, Undo. Check stale book/review protection, empty results, a disabled provider, unavailable service, and preserved DNB preference. Inspect desktop/mobile wrapping and keyboard labels. No lookup should happen merely by opening the editor or changing the provider.
+
+#### Library of Congress lookup — alpha.8 addition
+
+Repeat the DNB review workflow with **Library of Congress**, individually and in a small bulk run. In administrator settings, check the independent enable/disable control and no-key explanation. Verify ISBN search and title/author search; try both given-name-first and surname-first author input. Compare publication details and language before approving. Source links must open the matching LCCN page, and saved evidence must identify Library of Congress. Covers and Open Library’s edition browsing are not available here.
+
+If the catalogue is unreachable, expect a Library of Congress unavailable message with existing book details unchanged. Explicitly retry or choose another provider. The source implementation has fixture coverage; live LoC lookup is not yet verified because its HTTPS endpoint timed out during development.
+
 ### 0.4 read-only sharing preview
 
 Alpha.3 introduced selected-book sharing, retained in alpha.4. Create a personal list of 1–100 books from one shelf, then choose **Shared libraries → Selected books only — no Files share**. See the [focused upgrade and performance record](sharing-alpha3-verification.md) for measured coverage and remaining release acceptance.

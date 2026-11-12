@@ -19,9 +19,11 @@ final class ProviderSettingsController extends Controller {
     public function save(): RedirectResponse {
         $openLibrary = $this->request->getParam('openLibraryEnabled');
         $googleBooks = $this->request->getParam('googleBooksEnabled');
+        $loc = $this->request->getParam('locEnabled');
+        $dnb = $this->request->getParam('dnbEnabled');
         $removeKey = $this->request->getParam('removeGoogleBooksKey');
         $submittedKey = $this->request->getParam('googleBooksApiKey', '');
-        foreach ([$openLibrary, $googleBooks, $removeKey] as $checkbox) {
+        foreach ([$openLibrary, $googleBooks, $dnb, $loc, $removeKey] as $checkbox) {
             if ($checkbox !== null && $checkbox !== '1') {
                 return $this->redirectWithResult('invalid-request');
             }
@@ -39,6 +41,8 @@ final class ProviderSettingsController extends Controller {
 
         $this->config->setAppValue('library', 'openlibrary_lookup_enabled', $openLibrary === '1' ? 'yes' : 'no');
         $this->config->setAppValue('library', 'google_books_lookup_enabled', $googleBooks === '1' ? 'yes' : 'no');
+        $this->config->setAppValue('library', 'dnb_lookup_enabled', $dnb === '1' ? 'yes' : 'no');
+        $this->config->setAppValue('library', 'loc_lookup_enabled', $loc === '1' ? 'yes' : 'no');
         if ($removeKey === '1') {
             $this->config->deleteAppValue('library', 'google_books_api_key');
         } elseif ($key !== '') {

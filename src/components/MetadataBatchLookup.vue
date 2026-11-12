@@ -37,7 +37,7 @@ const states = {
   applied: t('library', 'Applied'), skipped: t('library', 'Skipped'), cancelled: t('library', 'Cancelled'), undone: t('library', 'Undone'),
   archived: t('library', 'Change receipts'), running: t('library', 'Finding matches'), paused: t('library', 'Paused'), review: t('library', 'Ready for review'),
 }
-const providerName = id => id === 'googlebooks' ? t('library', 'Google Books') : t('library', 'Open Library')
+const providerName = id => id === 'loc' ? t('library', 'Library of Congress') : id === 'dnb' ? t('library', 'DNB (German National Library)') : id === 'googlebooks' ? t('library', 'Google Books') : t('library', 'Open Library')
 const display = value => Array.isArray(value) ? value.map(entry => entry && typeof entry === 'object' ? `${entry.scheme}: ${entry.displayValue}` : entry).join('; ') : String(value ?? '')
 const reviewed = computed(() => job.value?.rows.filter(row => !['queued', 'working'].includes(row.status)).length || 0)
 const selectedCount = computed(() => job.value?.rows.filter(row => row.status === 'ready' && row.selected.length).length || 0)

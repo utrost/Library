@@ -15,7 +15,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['stage'])
 const provider = ref('openlibrary')
-const providerName = computed(() => provider.value === 'googlebooks' ? t('library', 'Google Books') : t('library', 'Open Library'))
+const providerName = computed(() => provider.value === 'loc' ? t('library', 'Library of Congress') : provider.value === 'dnb' ? t('library', 'DNB (German National Library)') : provider.value === 'googlebooks' ? t('library', 'Google Books') : t('library', 'Open Library'))
 const mode = ref('title')
 const isbn = ref('')
 const title = ref('')
@@ -179,9 +179,9 @@ function stage() {
     <div class="library-metadata-lookup-content">
       <p>{{ t('library', 'Choose a provider, then search explicitly. Your ISBN or title and author are sent only to the selected provider when you choose Search. Suggestions change nothing until you review and save.') }}</p>
       <p v-if="staged">{{ t('library', 'Save or discard staged suggestions before choosing another edition.') }}</p>
-      <p>{{ t('library', 'Other editions requests a page from Open Library only when selected. Check edition details before accepting any changes.') }}</p>
+      <p v-if="provider === 'openlibrary'">{{ t('library', 'Other editions requests a page from Open Library only when selected. Check edition details before accepting any changes.') }}</p>
       <form class="library-metadata-lookup-form" @submit.prevent="search">
-        <GoogleBooksAttribution v-if="provider === 'googlebooks'" /><label>{{ t('library', 'Provider') }} <select v-model="provider" :disabled="disabled || staged"><option value="openlibrary">{{ t('library', 'Open Library') }}</option><option value="googlebooks">{{ t('library', 'Google Books') }}</option></select></label>
+        <GoogleBooksAttribution v-if="provider === 'googlebooks'" /><label>{{ t('library', 'Provider') }} <select v-model="provider" :disabled="disabled || staged"><option value="openlibrary">{{ t('library', 'Open Library') }}</option><option value="googlebooks">{{ t('library', 'Google Books') }}</option><option value="dnb">{{ t('library', 'DNB (German National Library)') }}</option><option value="loc">{{ t('library', 'Library of Congress') }}</option></select></label>
         <label>{{ t('library', 'Search by') }} <select v-model="mode" :disabled="busy || disabled || staged"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="title">{{ t('library', 'Title and author') }}</option></select></label>
         <label v-if="mode === 'isbn'">{{ t('library', 'ISBN') }} <input v-model="isbn" inputmode="text" maxlength="50" :disabled="busy || disabled || staged"></label>
         <template v-else><label>{{ t('library', 'Title') }} <input v-model="title" maxlength="200" :disabled="busy || disabled || staged"></label><label>{{ t('library', 'Author') }} <input v-model="author" maxlength="200" :disabled="busy || disabled || staged"></label></template>

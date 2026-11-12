@@ -30,7 +30,7 @@ use OCA\Library\Http\ReviewQueryPolicy;
 use Throwable;
 
 class PageController extends Controller {
-    private const APP_VERSION = '0.4.0-alpha.7';
+    private const APP_VERSION = '0.4.0-alpha.8';
     public const VUE_SCRIPT_ASSET = 'library-main-0-4-0-alpha-7-compact-list-table-cover-96-fit-v9';
     public const VUE_STYLE_ASSET = 'library-vue-0-4-0-alpha-7-compact-list-table-cover-96-fit-v9';
     private MonotonicClock $clock;

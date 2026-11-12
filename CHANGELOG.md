@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0-alpha.8 — development
+
+- Add Library of Congress as a fourth metadata provider with reviewed individual/bulk lookup, administrator controls and source-labelled receipts. Share bounded SRU/MARC parsing with DNB while retaining separate identities, caches and pacing. Live LoC verification remains pending endpoint availability.
+
+- Add DNB (German National Library) ISBN/title-author lookup without an API key, including administrator controls, batch lookup, source-labelled receipts and the existing reviewed Save/Apply/Undo workflow.
+- Parse bounded MARC21 XML with safe CQL literals and shared request pacing; keep covers and linked external descriptions outside this adapter.
+
+- Preserve the path-extraction worklist while refreshed proposals load after applying changes.
+
 ## 0.4.0-alpha.7 — development
 
 - Preserve incoming shelf, filter, page history and checked books across reload, Details, provider lookup and path extraction.

@@ -1894,7 +1894,13 @@ OC.L10N.register(
         "Extract metadata from this shelf": "Metadaten aus diesem Regal extrahieren",
         "No matches among the {count} books checked. Continue to older books.": "Keine Treffer unter den {count} geprüften Büchern. Mit älteren Büchern fortfahren.",
         "No more books match this review filter.": "Keine weiteren Bücher entsprechen diesem Prüffilter.",
-        "Continue to older books": "Mit älteren Büchern fortfahren"
+        "Continue to older books": "Mit älteren Büchern fortfahren",
+        "DNB (German National Library)": "DNB (Deutsche Nationalbibliothek)",
+        "Enable DNB lookup": "DNB-Suche aktivieren",
+        "Search the German National Library catalogue by ISBN or title and author. Covers are not included.": "Den Katalog der Deutschen Nationalbibliothek nach ISBN oder Titel und Autor durchsuchen. Cover sind nicht enthalten.",
+        "Library of Congress": "Library of Congress",
+        "Enable Library of Congress lookup": "Suche bei der Library of Congress aktivieren",
+        "Search the Library of Congress catalogue by ISBN or title and author. Covers are not included.": "Den Katalog der Library of Congress nach ISBN oder Titel und Autor durchsuchen. Cover sind nicht enthalten."
     },
     "nplurals=2; plural=(n != 1);"
 );

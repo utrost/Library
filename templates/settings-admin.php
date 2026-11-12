@@ -57,6 +57,22 @@ $settings = $_['thumbnailSettings'];
                 <p class="library-provider-note"><?php p($l->t('Keep the key out of screenshots, support requests and source control. Lookup runs on the server; the key is not sent to the browser.')); ?></p>
             </div>
         </fieldset>
+        <fieldset class="library-provider-fieldset">
+            <legend><?php p($l->t('DNB (German National Library)')); ?></legend>
+            <label class="library-provider-checkbox" for="library-dnb-enabled">
+                <input id="library-dnb-enabled" type="checkbox" name="dnbEnabled" value="1" <?php if ($_['dnbEnabled']): ?>checked<?php endif; ?>>
+                <?php p($l->t('Enable DNB lookup')); ?>
+            </label>
+            <p class="library-provider-note"><?php p($l->t('No API key is needed.')); ?> <?php p($l->t('Search the German National Library catalogue by ISBN or title and author. Covers are not included.')); ?></p>
+        </fieldset>
+        <fieldset class="library-provider-fieldset">
+            <legend><?php p($l->t('Library of Congress')); ?></legend>
+            <label class="library-provider-checkbox" for="library-loc-enabled">
+                <input id="library-loc-enabled" type="checkbox" name="locEnabled" value="1" <?php if ($_['locEnabled']): ?>checked<?php endif; ?>>
+                <?php p($l->t('Enable Library of Congress lookup')); ?>
+            </label>
+            <p class="library-provider-note"><?php p($l->t('No API key is needed.')); ?> <?php p($l->t('Search the Library of Congress catalogue by ISBN or title and author. Covers are not included.')); ?></p>
+        </fieldset>
         <button type="submit" class="primary"><?php p($l->t('Save provider settings')); ?></button>
     </form>
 </div>

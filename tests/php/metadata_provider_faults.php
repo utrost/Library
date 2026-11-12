@@ -5,7 +5,7 @@ define('OC_CONSOLE',true);
 require '/var/www/html/lib/base.php';
 if (getenv('LIBRARY_DISPOSABLE_FIXTURE')!=='1') throw new RuntimeException('disposable opt-in required');
 set_exception_handler(static function(Throwable $e): void { fwrite(STDERR,get_class($e).': '.$e->getMessage().' line '.$e->getLine()."\n"); exit(1); });
-use OCA\Library\Service\{GoogleBooksLookupService,OpenLibraryLookupService};
+use OCA\Library\Service\{GoogleBooksLookupService,OpenLibraryLookupService,DnbLookupService,LocLookupService};
 use OCA\Library\Exception\MetadataProviderRetryException;
 use OCP\Http\Client\{IClient,IClientService,IResponse};
 use OCP\{ICache,ICacheFactory,IMemcache,IDBConnection,IConfig};
@@ -15,7 +15,7 @@ $client=new class extends \OC\Http\Client\Client {
     public function __construct() {}
     public function get(string $uri,array $options=[]): IResponse {
         $this->calls++;$this->urls[]=$uri;
-        check(str_starts_with($uri,'https://www.googleapis.com/books/v1/volumes') || str_starts_with($uri,'https://openlibrary.org/'),'fixed provider URL');
+        check(str_starts_with($uri,'https://www.googleapis.com/books/v1/volumes') || str_starts_with($uri,'https://openlibrary.org/') || str_starts_with($uri,'https://services.dnb.de/sru/dnb?') || str_starts_with($uri,'https://lx2.loc.gov/sru/lcdb?'),'fixed provider URL');
         check(($options['allow_redirects'] ?? true)===false && ($options['stream'] ?? false),'redirects disabled and streamed');
         check(!str_contains($uri,'DisposableProviderKey'),'API key absent from URL');
         if(!$this->responses) throw new RuntimeException('unexpected HTTP request');
@@ -46,10 +46,14 @@ $db=\OC::$server->get(IDBConnection::class); $config=\OC::$server->get(IConfig::
 $config->setAppValue('library','google_books_api_key','DisposableProviderKey');
 $config->setAppValue('library','google_books_lookup_enabled','yes');
 $config->setAppValue('library','openlibrary_lookup_enabled','yes');
+$config->setAppValue('library','dnb_lookup_enabled','yes');
+$config->setAppValue('library','loc_lookup_enabled','yes');
+$loc=new LocLookupService($clients,$caches,$db,$config);
+$dnb=new DnbLookupService($clients,$caches,$db,$config);
 $google=new GoogleBooksLookupService($clients,$caches,$db,$config);
 $open=new OpenLibraryLookupService($clients,$caches,$db,$config);
 $reset=static function(string $provider) use($db): void { $db->executeStatement('DELETE FROM *PREFIX*library_lookup_quota WHERE provider=?',[$provider]); };
-foreach (['googlebooks'=>$google,'openlibrary'=>$open] as $name=>$provider) {
+foreach (['googlebooks'=>$google,'openlibrary'=>$open,'dnb'=>$dnb,'loc'=>$loc] as $name=>$provider) {
     foreach ([429,503] as $status) {
         $reset($name); $client->responses=[[$status,'{}',['retry-after'=>'120']]];
         try { $provider->search('provider-fixture','','Retry '.$status,''); throw new LogicException('expected cooldown'); }
@@ -103,4 +107,76 @@ $last=$open->editions('provider-fixture','OL1W',192);check($last['limited'] && $
 $reset('openlibrary');$client->responses=[[200,json_encode(['entries'=>[['key'=>'/books/OL12M','title'=>'Unknown work']]],JSON_THROW_ON_ERROR),[]]];
 $empty=$open->editions('provider-fixture','OL1W',8);check($empty['results']===[] && $empty['nextOffset']===null,'missing work evidence cannot become a candidate');
 $reset('googlebooks'); $reset('openlibrary');
+// DNB uses MARC21 XML, not arbitrary linked resources or HTML pages.
+$body=file_get_contents(__DIR__.'/fixtures/dnb-record.xml');
+$reset('dnb'); $client->responses=[[200,$body,[]]];
+$matches=$dnb->search('dnb-fixture','ISBN: 978-0-306-40615-7','','');
+check(count($matches)===1 && $matches[0]['match']==='isbn','DNB exact ISBN evidence');
+check($matches[0]['authors']===['Example, Writer'],'DNB excludes translators from author evidence');
+$calls=$client->calls; $edition=$dnb->edition('dnb-fixture','123456789X');
+check($client->calls===$calls,'DNB comparison reuses cached record');
+check($edition['fields']===['title'=>'The synthetic book','subtitle'=>'A fixture subtitle','publisher'=>'Fixture Verlag','publicationDate'=>'2025','description'=>'A synthetic description.','subjects'=>['Metadata'],'language'=>'de; en'],'DNB field mapping and non-sorting markers');
+check($edition['isbn']===['9780306406157'] && !isset($edition['coverId']),'cancelled ISBNs and arbitrary linked resources ignored');
+$reset('dnb');$client->responses=[[200,$body,[]]];
+check($dnb->search('dnb-fixture','9780140328721','','')[0]['match']==='isbn_mismatch','DNB mismatched ISBN remains a warning');
+$reset('dnb');$client->responses=[[200,$body,[]]];
+$dnb->search('dnb-other','9780306406157','','');check($client->calls===$calls+2,'DNB cache isolated by account');
+$reset('dnb');$client->responses=[[200,$body,[]]];
+$dnb->search('dnb-fixture','','Book" or idn=*','Example?');parse_str(parse_url(end($client->urls),PHP_URL_QUERY),$params);
+check($params['query']==='tit="Book\\" or idn=\\*" and per="Example\\?"','CQL syntax and wildcard characters escaped');
+$reset('dnb');$client->responses=[[200,$body,[]]];
+check($dnb->edition('uncached-fixture','123456789X')['editionId']==='123456789X','exact IDN fetch');
+parse_str(parse_url(end($client->urls),PHP_URL_QUERY),$params);check($params['query']==='idn="123456789X"' && $params['maximumRecords']==='1','fixed bounded edition query');
+$reset('dnb');$client->responses=[[200,$body,[]]];
+try{$dnb->edition('uncached-fixture','987654321X');throw new LogicException('wrong ID accepted');}catch(RuntimeException $e){check($e->getMessage()==='provider_unavailable','wrong record ID rejected');}
+$calls=$client->calls;
+foreach (['https://d-nb.info/123456789X','123" or idn=*','../123456789X'] as $id) {
+    try{$dnb->edition('dnb-fixture',$id);throw new LogicException('unsafe ID accepted');}catch(InvalidArgumentException){}
+}
+foreach ([['invalid','',''],['','ab',''],['',"bad\nquery",'']] as $query) {
+    try{$dnb->search('dnb-fixture',...$query);throw new LogicException('unsafe query accepted');}catch(InvalidArgumentException){}
+}
+check($client->calls===$calls,'invalid DNB input never causes HTTP');
+$empty='<searchRetrieveResponse xmlns="http://www.loc.gov/zing/srw/"><numberOfRecords>0</numberOfRecords><records/></searchRetrieveResponse>';
+$reset('dnb');$client->responses=[[200,$empty,[]]];
+check($dnb->search('dnb-fixture','','No matches','')===[],'DNB genuine empty result');
+$calls=$client->calls;$dnb->search('dnb-fixture','','No matches','');check($client->calls===$calls,'DNB caches empty results');
+$badBodies=[
+    '<!DOCTYPE foo [<!ENTITY secret SYSTEM "file:///etc/passwd">]>'.$empty,
+    str_replace('<numberOfRecords>0','<diagnostics><diagnostic/></diagnostics><numberOfRecords>0',$empty),
+    str_replace('http://www.loc.gov/zing/srw/','https://example.invalid',$empty),
+    str_replace('<numberOfRecords>0','<numberOfRecords>1',$empty),
+    str_replace('<numberOfRecords>0','<numberOfRecords>unknown',$empty),
+    str_replace('</records>',str_repeat(substr($body,strpos($body,'<records>')+9,strpos($body,'</records>')-strpos($body,'<records>')-9),8).'</records>',$body),
+];
+foreach($badBodies as $n=>$invalid){$reset('dnb');$client->responses=[[200,$invalid,[]]];try{$dnb->search('dnb-fixture','','Bad XML '.$n,'');throw new LogicException('unsafe XML accepted');}catch(RuntimeException $e){check($e->getMessage()==='provider_unavailable','DNB XML fails closed');}}
+$config->setAppValue('library','dnb_lookup_enabled','no');$calls=$client->calls;
+try{$dnb->search('dnb-fixture','9780306406157','','');throw new LogicException('disabled DNB served cache');}catch(RuntimeException $e){check($e->getMessage()==='provider_disabled','DNB disable applies before cache');}
+check($client->calls===$calls,'disabled DNB makes no HTTP');
+$config->setAppValue('library','dnb_lookup_enabled','yes');$reset('dnb');
+// LoC retains its own LCCN identity, HTTPS endpoint, schema, query syntax and caches.
+$body=file_get_contents(__DIR__.'/fixtures/loc-record.xml');
+$reset('loc');$client->responses=[[200,$body,[]]];
+$matches=$loc->search('loc-fixture','9780306406157','','');
+check($matches[0]['provider']==='Library of Congress' && $matches[0]['editionId']==='2025000001' && $matches[0]['match']==='isbn','LoC uses 010$a LCCN, not 001 or cancelled 010$z');
+check($matches[0]['url']==='https://lccn.loc.gov/2025000001' && $matches[0]['authors']===['Example, Writer'],'LoC source and textual author roles');
+parse_str(parse_url(end($client->urls),PHP_URL_QUERY),$params);
+check($params['query']==='bath.isbn="9780306406157"' && $params['recordSchema']==='marcxml' && $params['maximumRecords']==='8','LoC documented ISBN search');
+$calls=$client->calls;$edition=$loc->edition('loc-fixture','2025000001');check($client->calls===$calls && $edition['fields']['publisher']==='Fixture Press' && $edition['fields']['language']==='de; en','LoC cached MARC normalization');
+$reset('loc');$client->responses=[[200,$body,[]]];$loc->search('loc-other','9780306406157','','');check($client->calls===$calls+1,'LoC account cache isolation');
+$reset('loc');$client->responses=[[200,$body,[]]];$loc->search('loc-fixture','','Book" or bath.lccn=*','Jane Example');
+parse_str(parse_url(end($client->urls),PHP_URL_QUERY),$params);check($params['query']==='dc.title="Book\\" or bath.lccn=\\*" and dc.creator="Jane" and dc.creator="Example"','LoC escaped query and order-independent author words');
+$reset('loc');$client->responses=[[200,$body,[]]];check($loc->search('loc-fixture','9780140328721','','')[0]['match']==='isbn_mismatch','LoC ISBN mismatch is explicit');
+$reset('loc');$client->responses=[[200,$body,[]]];$loc->edition('loc-uncached','2025000001');parse_str(parse_url(end($client->urls),PHP_URL_QUERY),$params);check($params['query']==='bath.lccn="2025000001"' && $params['maximumRecords']==='1','LoC exact LCCN retrieval');
+$reset('loc');$client->responses=[[200,$body,[]]];try{$loc->edition('loc-uncached','2025000002');throw new LogicException('wrong LoC record accepted');}catch(RuntimeException $e){check($e->getMessage()==='provider_unavailable','LoC wrong identity rejected');}
+$calls=$client->calls;
+foreach(['https://lccn.loc.gov/2025000001','2025-1','../2025000001','2025000001" or bath.lccn=*'] as $id){try{$loc->edition('loc-fixture',$id);throw new LogicException('unsafe LCCN accepted');}catch(InvalidArgumentException){}}
+check($client->calls===$calls,'unsafe LoC IDs never reach network');
+$reset('loc');$client->responses=[[200,str_replace('  2025000001 ',' sn 99000001 ',$body),[]]];
+check($loc->edition('loc-fixture','sn99000001')['editionId']==='sn99000001','LoC prefix and old two-digit year normalized');
+$reset('loc');$client->responses=[[200,$empty,[]]];check($loc->search('loc-fixture','','No matches','')===[],'LoC empty result');
+$calls=$client->calls;$loc->search('loc-fixture','','No matches','');check($client->calls===$calls,'LoC empty result cached');
+foreach($badBodies as $n=>$invalid){$reset('loc');$client->responses=[[200,$invalid,[]]];try{$loc->search('loc-fixture','','Bad XML '.$n,'');throw new LogicException('unsafe LoC XML accepted');}catch(RuntimeException $e){check($e->getMessage()==='provider_unavailable','LoC XML fails closed');}}
+$config->setAppValue('library','loc_lookup_enabled','no');$calls=$client->calls;try{$loc->search('loc-fixture','9780306406157','','');throw new LogicException('disabled LoC served cache');}catch(RuntimeException $e){check($e->getMessage()==='provider_disabled','LoC disable before cache');}check($calls===$client->calls,'disabled LoC makes no request');
+$config->setAppValue('library','loc_lookup_enabled','yes');$reset('loc');
 echo "provider_fault_fixtures=passed public_network_requests=0\n";

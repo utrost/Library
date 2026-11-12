@@ -2,7 +2,7 @@
 /** @var array $_ */
 ?>
 <div id="library-vue-root"
-     data-library-version="0.4.0-alpha.7"
+     data-library-version="0.4.0-alpha.8"
      lang="<?php p($_['language']); ?>"
      dir="<?php p($_['direction']); ?>"
      data-request-token="<?php p($_['requesttoken'] ?? ''); ?>"></div>

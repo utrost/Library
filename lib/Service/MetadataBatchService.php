@@ -13,7 +13,7 @@ final class MetadataBatchService {
     public function __construct(
         private IDBConnection $db, private ItemService $items, private InferenceBatchService $snapshots,
         private OpenLibraryLookupService $openLibrary, private GoogleBooksLookupService $googleBooks,
-        private IConfig $config, private ILockingProvider $locks, private ?LookupCoverService $coverStore=null,
+        private IConfig $config, private ILockingProvider $locks, private ?LookupCoverService $coverStore=null, private ?DnbLookupService $dnb=null, private ?LocLookupService $loc=null,
     ) {}
 
     public function options(string $uid): array {
@@ -21,6 +21,8 @@ final class MetadataBatchService {
         if ($this->config->getAppValue('library','openlibrary_lookup_enabled','yes') === 'yes') $providers[] = 'openlibrary';
         if ($this->config->getAppValue('library','google_books_lookup_enabled','yes') === 'yes'
             && $this->config->getAppValue('library','google_books_api_key','') !== '') $providers[] = 'googlebooks';
+        if ($this->config->getAppValue('library','dnb_lookup_enabled','yes') === 'yes') $providers[] = 'dnb';
+        if ($this->config->getAppValue('library','loc_lookup_enabled','yes') === 'yes') $providers[] = 'loc';
         $preferred = $this->config->getUserValue($uid,'library','metadata_lookup_provider','');
         return ['providers'=>$providers, 'defaultProvider'=>in_array($preferred,$providers,true) ? $preferred : '', 'fields'=>self::FIELDS, 'limit'=>50];
     }
@@ -112,7 +114,7 @@ final class MetadataBatchService {
         $result=null; $error=null; $retryAfter=0;
         try {
             $this->assertCurrent($job['user_id'],$row);
-            $provider=($row['provider'] ?? $job['payload']['provider'])==='googlebooks' ? $this->googleBooks : $this->openLibrary;
+            $provider=$this->adapter($row['provider'] ?? $job['payload']['provider']);
             $result=match ($row['phase']) {
                 'search' => $provider->search($job['user_id'],$row['query']['isbn'],$row['query']['title'],$row['query']['author']),
                 'editions' => $this->openLibrary->editions($job['user_id'],$row['editionWorkId'],$row['editionOffset']),
@@ -297,13 +299,23 @@ final class MetadataBatchService {
         return ['job'=>$this->get($uid,$id),'outcomes'=>$outcomes];
     }
 
+    private function adapter(string $provider): OpenLibraryLookupService|GoogleBooksLookupService|DnbLookupService|LocLookupService {
+        return match ($provider) {
+            'openlibrary' => $this->openLibrary,
+            'googlebooks' => $this->googleBooks,
+            'loc' => $this->loc ??= \OC::$server->get(LocLookupService::class),
+            'dnb' => $this->dnb ??= \OC::$server->get(DnbLookupService::class),
+            default => throw new \InvalidArgumentException('invalid_provider'),
+        };
+    }
+
     private function covers(): LookupCoverService { return $this->coverStore ??= \OC::$server->get(LookupCoverService::class); }
 
     /** Snapshot before remote I/O; stored evidence, never client-supplied provider values. */
     public function prepareEditor(string $uid,int $itemId,string $provider,string $editionId): array {
         $job=$this->create($uid,[$itemId],$provider,self::FIELDS,'review',null,'editor');
         try {
-            $adapter=$provider==='googlebooks' ? $this->googleBooks : $this->openLibrary;
+            $adapter=$this->adapter($provider);
             $edition=$adapter->edition($uid,$editionId);
             return $this->transaction(function() use($uid,$job,$edition,$editionId) {
                 $stored=$this->read($uid,$job['id'],true); $row=&$stored['payload']['rows'][0];

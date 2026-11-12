@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace OCA\Library\Controller;
 
 use OCA\Library\Service\ItemService;
+use OCA\Library\Service\DnbLookupService;
+use OCA\Library\Service\LocLookupService;
 use OCA\Library\Service\GoogleBooksLookupService;
 use OCA\Library\Service\OpenLibraryLookupService;
 use OCA\Library\Service\SecurityAuditLogger;
@@ -24,6 +26,8 @@ final class MetadataLookupController extends Controller {
         private GoogleBooksLookupService $googleBooks,
         private SecurityAuditLogger $audit,
         private \OCA\Library\Service\MetadataBatchService $batches,
+        private DnbLookupService $dnb,
+        private LocLookupService $loc,
     ) {
         parent::__construct($appName, $request);
     }
@@ -44,7 +48,7 @@ final class MetadataLookupController extends Controller {
                 $this->text('author'),
             );
             $this->audit->info('library.metadata_lookup.search', $userId, 'search', 'item', 'success', ['target_id' => $itemId, 'target_count' => count($results)]);
-            return $this->response(['provider' => $provider === $this->googleBooks ? 'Google Books' : 'Open Library', 'results' => $results]);
+            return $this->response(['provider' => match ($provider) { $this->loc => 'Library of Congress', $this->dnb => 'DNB', $this->googleBooks => 'Google Books', default => 'Open Library' }, 'results' => $results]);
         } catch (\InvalidArgumentException) {
             $this->audit->warning('library.metadata_lookup.search', $userId, 'search', 'item', 'rejected', ['target_id' => $itemId, 'reason' => 'invalid_query']);
             return $this->response(['error' => 'invalid_query'], 400);
@@ -86,7 +90,7 @@ final class MetadataLookupController extends Controller {
         }
         try {
             $adapter=$this->provider();
-            $edition = $this->batches->prepareEditor($userId,$itemId,$adapter===$this->googleBooks ? 'googlebooks' : 'openlibrary',$this->text('editionId'));
+            $edition = $this->batches->prepareEditor($userId,$itemId,match ($adapter) { $this->loc => 'loc', $this->dnb => 'dnb', $this->googleBooks => 'googlebooks', default => 'openlibrary' },$this->text('editionId'));
             $this->audit->info('library.metadata_lookup.edition', $userId, 'view', 'item', 'success', ['target_id' => $itemId]);
             return $this->response($edition);
         } catch (\InvalidArgumentException) {
@@ -127,10 +131,12 @@ final class MetadataLookupController extends Controller {
         return $value;
     }
 
-    private function provider(): OpenLibraryLookupService|GoogleBooksLookupService {
+    private function provider(): OpenLibraryLookupService|GoogleBooksLookupService|DnbLookupService|LocLookupService {
         return match ($this->text('provider')) {
             '', 'openlibrary' => $this->lookup,
             'googlebooks' => $this->googleBooks,
+            'loc' => $this->loc,
+            'dnb' => $this->dnb,
             default => throw new \InvalidArgumentException('invalid_provider'),
         };
     }

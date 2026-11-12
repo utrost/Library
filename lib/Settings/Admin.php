@@ -22,6 +22,8 @@ final class Admin implements ISettings {
             'providerResult' => in_array($result, ['saved', 'invalid-key', 'invalid-request'], true) ? $result : '',
             'openLibraryEnabled' => $this->config->getAppValue('library', 'openlibrary_lookup_enabled', 'yes') === 'yes',
             'googleBooksEnabled' => $this->config->getAppValue('library', 'google_books_lookup_enabled', 'yes') === 'yes',
+            'locEnabled' => $this->config->getAppValue('library', 'loc_lookup_enabled', 'yes') === 'yes',
+            'dnbEnabled' => $this->config->getAppValue('library', 'dnb_lookup_enabled', 'yes') === 'yes',
             'googleBooksKeyConfigured' => $googleBooksKey !== '' && strlen($googleBooksKey) <= 256 && preg_match('/\A[A-Za-z0-9_-]+\z/', $googleBooksKey) === 1,
         ]);
     }
