@@ -1899,7 +1899,9 @@
         "Search the German National Library catalogue by ISBN or title and author. Covers are not included.": "Search the German National Library catalogue by ISBN or title and author. Covers are not included.",
         "Library of Congress": "Library of Congress",
         "Enable Library of Congress lookup": "Enable Library of Congress lookup",
-        "Search the Library of Congress catalogue by ISBN or title and author. Covers are not included.": "Search the Library of Congress catalogue by ISBN or title and author. Covers are not included."
+        "Search the Library of Congress catalogue by ISBN or title and author. Covers are not included.": "Search the Library of Congress catalogue by ISBN or title and author. Covers are not included.",
+        "The suggested language differs from this book. Check that the selected edition is the same language before approving a replacement.": "The suggested language differs from this book. Check that the selected edition is the same language before approving a replacement.",
+        "The match and selected edition report different languages. Review the edition before applying language.": "The match and selected edition report different languages. Review the edition before applying language."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

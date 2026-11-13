@@ -350,12 +350,24 @@ if ($mode==='native') {
  $urls=\OC::$server->get(\OCP\IURLGenerator::class);$reference=\OC::$server->get(\OCA\Library\Reference\BookReferenceProvider::class);$url=$urls->linkToRouteAbsolute('library.page.index').'?details='.$id;
  check($reference->resolveReference($url)!==null,'owned book reference resolves');$key=$reference->getCacheKey($url);
  \OC::$server->get(\OCP\IUserSession::class)->setUser(\OC::$server->get(\OCP\IUserManager::class)->get('library-outsider'));
+ $outsider=\OC::$server->get(\OCP\IUserManager::class)->get('library-outsider');
+ $query=new \OC\Search\SearchQuery(new \OC\Search\FilterCollection(term: new \OC\Search\Filter\StringFilter('Lookup fixture')),limit:5);
+ check(\OC::$server->get(\OCA\Library\Search\BookProvider::class)->search($outsider,$query)->jsonSerialize()['entries']===[],'Unified Search isolates book results by owner');
+ check(\OC::$server->get(\OCA\Library\Search\AuthorProvider::class)->search($outsider,$query)->jsonSerialize()['entries']===[],'Unified Search isolates author results by owner');
  check($reference->resolveReference($url)===null,'outsider book reference is denied');check($reference->getCacheKey($url)!==$key,'reference cache is owner scoped');
  check(!$reference->matchReference('https://example.invalid/apps/library/?details='.$id),'external reference rejected');
  \OC::$server->get(\OCP\IUserSession::class)->setUser(\OC::$server->get(\OCP\IUserManager::class)->get($uid));
  $items->setWorkflowStatus($uid,$id,'to-read');$widget=\OC::$server->get(\OCA\Library\Dashboard\LibraryWidget::class);
  check(count($widget->getItems($uid))>0,'native dashboard returns owned books');check($widget->getItems('library-outsider')===[],'native dashboard isolates owners');
- service('HomeHealthSnapshot')->read($uid);service('HomeHealthSnapshot')->refreshOne();check(service('HomeHealthSnapshot')->read($uid)['at']>0,'queued health refresh runs');exit;
+ $summary=service('HomeHealthSnapshot');$summary->read($uid);$summary->refreshOne();$state=$summary->read($uid);
+ check($state['at']>0 && !$state['pending'],'queued health refresh runs and clears pending state');
+ check(array_key_exists('duplicates',$state['counts']) && array_key_exists('stalled',$state['counts']),'health snapshot includes duplicate and stalled-job counts');
+ $before=$items->findItem($uid,$id);
+ $items->updateItem($uid,$id,['title'=>$before['title'].' reviewed'],$before['metadataRevision']);
+ check($summary->read($uid)['pending'],'approved book edit queues a fresh health snapshot');
+ $summary->refreshOne();check(!$summary->read($uid)['pending'],'background refresh clears edit invalidation');
+ $edited=$items->findItem($uid,$id);$items->updateItem($uid,$id,['title'=>$before['title']],$edited['metadataRevision']);
+ $summary->refreshOne();exit;
 }
 if ($mode==='genres') {
  $genres=service('GenreService');$nodes=[];$prefix='Hierarchy fixture '.bin2hex(random_bytes(3));

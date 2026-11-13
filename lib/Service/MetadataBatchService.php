@@ -10,6 +10,12 @@ use OCA\Library\Exception\MetadataConflictException;
 /** Provider I/O happens outside transactions. Every review/apply transition locks its run. */
 final class MetadataBatchService {
     public const FIELDS = ['title','subtitle','publisher','publicationDate','description','subjects','language','isbn','ggkey','cover'];
+    private const PROVIDER_FIELDS = [
+        'openlibrary' => ['title','subtitle','publisher','publicationDate','description','subjects','language','isbn','cover'],
+        'googlebooks' => ['title','subtitle','publisher','publicationDate','description','subjects','language','isbn','ggkey'],
+        'dnb' => ['title','subtitle','publisher','publicationDate','description','subjects','language','isbn'],
+        'loc' => ['title','subtitle','publisher','publicationDate','description','subjects','language','isbn'],
+    ];
     public function __construct(
         private IDBConnection $db, private ItemService $items, private InferenceBatchService $snapshots,
         private OpenLibraryLookupService $openLibrary, private GoogleBooksLookupService $googleBooks,
@@ -18,18 +24,23 @@ final class MetadataBatchService {
 
     public function options(string $uid): array {
         $providers = [];
+        $unavailable = [];
         if ($this->config->getAppValue('library','openlibrary_lookup_enabled','yes') === 'yes') $providers[] = 'openlibrary';
+        else $unavailable['openlibrary'] = 'disabled';
         if ($this->config->getAppValue('library','google_books_lookup_enabled','yes') === 'yes'
             && $this->config->getAppValue('library','google_books_api_key','') !== '') $providers[] = 'googlebooks';
+        else $unavailable['googlebooks'] = $this->config->getAppValue('library','google_books_lookup_enabled','yes') === 'yes' ? 'key_missing' : 'disabled';
         if ($this->config->getAppValue('library','dnb_lookup_enabled','yes') === 'yes') $providers[] = 'dnb';
+        else $unavailable['dnb'] = 'disabled';
         if ($this->config->getAppValue('library','loc_lookup_enabled','yes') === 'yes') $providers[] = 'loc';
+        else $unavailable['loc'] = 'disabled';
         $preferred = $this->config->getUserValue($uid,'library','metadata_lookup_provider','');
-        return ['providers'=>$providers, 'defaultProvider'=>in_array($preferred,$providers,true) ? $preferred : '', 'fields'=>self::FIELDS, 'limit'=>50];
+        return ['providers'=>$providers, 'unavailable'=>$unavailable, 'defaultProvider'=>in_array($preferred,$providers,true) ? $preferred : '', 'fields'=>self::FIELDS, 'fieldsByProvider'=>self::PROVIDER_FIELDS, 'limit'=>50];
     }
 
     public function create(string $uid, array $ids, string $provider, array $fields, string $policy, ?string $requestId=null,string $mode='batch'): array {
-        if (!array_is_list($ids) || !$ids || count($ids)>50 || array_filter($ids, static fn($id)=>!is_int($id) || $id<1)
-            || !array_is_list($fields) || !$fields || array_diff($fields,self::FIELDS)
+        if (!array_is_list($ids) || !$ids || count($ids)>50 || count(array_unique($ids))!==count($ids) || array_filter($ids, static fn($id)=>!is_int($id) || $id<1)
+            || !array_is_list($fields) || !$fields || count(array_unique($fields))!==count($fields) || array_diff($fields,self::PROVIDER_FIELDS[$provider] ?? [])
             || !in_array($provider,$this->options($uid)['providers'],true) || !in_array($policy,['missing','review'],true)) throw new \InvalidArgumentException('invalid_setup');
         if ($requestId!==null && preg_match('/^[a-f0-9]{32}$/D',$requestId)!==1) throw new \InvalidArgumentException('invalid_request');
         $ids=array_values(array_unique($ids)); $fields=array_values(array_unique($fields));
@@ -313,7 +324,7 @@ final class MetadataBatchService {
 
     /** Snapshot before remote I/O; stored evidence, never client-supplied provider values. */
     public function prepareEditor(string $uid,int $itemId,string $provider,string $editionId): array {
-        $job=$this->create($uid,[$itemId],$provider,self::FIELDS,'review',null,'editor');
+        $job=$this->create($uid,[$itemId],$provider,self::PROVIDER_FIELDS[$provider] ?? [],'review',null,'editor');
         try {
             $adapter=$this->adapter($provider);
             $edition=$adapter->edition($uid,$editionId);
@@ -474,6 +485,26 @@ final class MetadataBatchService {
         }));
     }
     private function emptyValue(mixed $value): bool { return $value===null || $value===[] || (is_string($value) && trim($value)===''); }
+    private function languageCodes(mixed $value): array {
+        $raw=is_array($value) ? implode('; ',array_filter($value,'is_string')) : (is_string($value) ? $value : '');
+        $normalized=LanguageNormalizer::normalize($raw);
+        if ($normalized===null) return [];
+        $codes=explode('; ',$normalized);
+        sort($codes,SORT_STRING);
+        return $codes;
+    }
+    private function languageReview(array $row): array {
+        $current=(string)($row['before']['language'] ?? '');
+        $proposed=(string)($row['edition']['fields']['language'] ?? '');
+        $candidate=[];
+        foreach ($row['results'] ?? [] as $result) if (($result['editionId'] ?? null)===($row['editionId'] ?? null)) { $candidate=$result['languages'] ?? []; break; }
+        $beforeCodes=$this->languageCodes($current);
+        $afterCodes=$this->languageCodes($proposed);
+        $candidateCodes=$this->languageCodes($candidate);
+        return ['current'=>$current,'proposed'=>$proposed,'source'=>$row['edition']['languages'] ?? [],
+            'candidate'=>$candidate,'conflict'=>$beforeCodes!==[] && $afterCodes!==[] && $beforeCodes!==$afterCodes,
+            'candidateConflict'=>$candidate!==[] && $afterCodes!==[] && ($candidateCodes===[] || $candidateCodes!==$afterCodes)];
+    }
     private function schedule(array &$job): void {
         $pending=array_filter($job['payload']['rows'],static fn($row)=>in_array($row['status'],['queued','working'],true));
         $job['wake_at']=$pending ? max(time(),min(array_column($pending,'retryAt'))) : time();
@@ -485,6 +516,7 @@ final class MetadataBatchService {
             $row['provider']=$row['provider'] ?? $job['payload']['provider'];
             $row['reviewVersion']=(int)($row['reviewVersion'] ?? 0);
             $row['proposals']=$this->proposals($job,$row);
+            $row['languageReview']=$this->languageReview($row);
             $row['strongMissingFields']=$this->strongMissingFields($job,$row);
             if (isset($row['cover'])) $row['cover']=['expiresAt'=>$row['cover']['expiresAt']];
             if (isset($row['receipt']['cover'])) $row['receipt']['cover']=['changed'=>true];
@@ -550,7 +582,8 @@ final class MetadataBatchService {
         if ($year!=='' && ($year!==substr($match['year'] ?? '',0,4) || $year!==substr($row['edition']['fields']['publicationDate'] ?? '',0,4))) return [];
         // A saved language needs explicit edition review; no guessing between translations.
         if (!$this->emptyValue($row['before']['language'] ?? '')) return [];
-        return array_column(array_filter($this->proposals($job,$row),fn($proposal)=>$proposal['key']!=='cover' && $this->emptyValue($proposal['before'])),'key');
+        $languageConflict=$this->languageReview($row)['candidateConflict'];
+        return array_column(array_filter($this->proposals($job,$row),fn($proposal)=>$proposal['key']!=='cover' && !($proposal['key']==='language' && $languageConflict) && $this->emptyValue($proposal['before'])),'key');
     }
 
     /** Keep only applied-change evidence and source identity needed for conditional Undo. */

@@ -20,6 +20,7 @@ it('shows raw language evidence and normalized comparison, staging only after ap
   expect(wrapper.text()).toContain('ger, eng')
   expect(wrapper.get('.library-metadata-lookup-field').text()).toContain('fr; en')
   expect(wrapper.get('.library-metadata-lookup-field').text()).toContain('de; en')
+  expect(wrapper.text()).toContain('The suggested language differs from this book')
   expect(staged).not.toHaveBeenCalled()
   await wrapper.get('input[type=checkbox]').setValue(true)
   await wrapper.findAll('button').find(button => button.text() === 'Stage selected details').trigger('click')
@@ -32,6 +33,10 @@ it('retains unsupported language evidence without offering an editable field', a
   expect(wrapper.text()).toContain('Unrecognized language evidence')
   expect(wrapper.find('input[type=checkbox]').exists()).toBe(false)
   expect(staged).not.toHaveBeenCalled()
+})
+it('does not warn about a different language when only the order changes', async () => {
+  const wrapper = await compare({ editionId: 'OL1M', fields: { language: 'de; en' }, languages: ['ger', 'eng'] }, 'en; de')
+  expect(wrapper.text()).not.toContain('The suggested language differs from this book')
 })
 it('searches DNB only on request and stages DNB proposals with their approval', async () => {
   const staged = vi.fn()
