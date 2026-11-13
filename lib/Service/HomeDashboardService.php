@@ -29,13 +29,14 @@ final class HomeDashboardService {
             if ($key==='health') continue;
             if ($key==='recent') { $r=$this->db->executeQuery('SELECT id FROM *PREFIX*library_items WHERE user_id=? AND marked_for_deletion_at IS NULL ORDER BY library_file_id DESC,id DESC LIMIT 8',[$uid]);$ids=array_column($r->fetchAll(),'id');$r->closeCursor();
             } elseif ($key==='upNext' && $prefs['listId']>0) {
-                $r=$this->db->executeQuery('SELECT e.item_id FROM *PREFIX*library_list_entries e INNER JOIN *PREFIX*library_lists l ON l.id=e.list_id INNER JOIN *PREFIX*library_items i ON i.id=e.item_id AND i.user_id=l.user_id INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id AND f.file_id=e.file_id WHERE l.user_id=? AND l.id=? ORDER BY e.position,e.id LIMIT 8',[$uid,$prefs['listId']]);$ids=array_column($r->fetchAll(),'item_id');$r->closeCursor();
+                $r=$this->db->executeQuery('SELECT e.item_id FROM *PREFIX*library_list_entries e INNER JOIN *PREFIX*library_lists l ON l.id=e.list_id INNER JOIN *PREFIX*library_items i ON i.id=e.item_id AND i.user_id=l.user_id INNER JOIN *PREFIX*library_files f ON f.id=i.library_file_id AND f.user_id=i.user_id AND f.file_id=e.file_id WHERE l.user_id=? AND l.id=? AND i.marked_for_deletion_at IS NULL ORDER BY e.position,e.id LIMIT 8',[$uid,$prefs['listId']]);$ids=array_column($r->fetchAll(),'item_id');$r->closeCursor();
             } elseif ($key==='changed') {
                 $r=$this->db->executeQuery('SELECT id AS item_id FROM *PREFIX*library_items WHERE user_id=? AND user_edited=TRUE AND marked_for_deletion_at IS NULL ORDER BY updated_at DESC,id DESC LIMIT 8',[$uid]);$ids=array_column($r->fetchAll(),'item_id');$r->closeCursor();
             } elseif ($key==='rediscover') {
                 // Stable daily keyset pivot, no ORDER BY RANDOM or whole-catalogue offset.
                 $r=$this->db->executeQuery('SELECT MIN(id) AS lo,MAX(id) AS hi FROM *PREFIX*library_items WHERE user_id=?',[$uid]);$bounds=$r->fetch();$r->closeCursor();$lo=(int)$bounds['lo'];$hi=(int)$bounds['hi'];$pivot=$lo+hexdec(substr(hash('sha256',$uid.gmdate('Y-m-d')),0,7))%max(1,$hi-$lo+1);
                 $r=$this->db->executeQuery('SELECT id AS item_id FROM *PREFIX*library_items WHERE user_id=? AND id>=? AND marked_for_deletion_at IS NULL ORDER BY id LIMIT 8',[$uid,$pivot]);$ids=array_column($r->fetchAll(),'item_id');$r->closeCursor();
+                if (count($ids)<8) { $r=$this->db->executeQuery('SELECT id AS item_id FROM *PREFIX*library_items WHERE user_id=? AND id<? AND marked_for_deletion_at IS NULL ORDER BY id LIMIT '.(8-count($ids)),[$uid,$pivot]);$ids=array_merge($ids,array_column($r->fetchAll(),'item_id'));$r->closeCursor(); }
             } else {
                 $page=$this->items->queryCatalogue($uid,['workflowStatus'=>$key==='finished' ? 'finished' : 'to-read','sort'=>'title'],['page'=>1,'limit'=>8,'deferTotal'=>true],false);$ids=array_column($page['items'],'id');
             }

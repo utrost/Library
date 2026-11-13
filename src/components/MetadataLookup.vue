@@ -25,6 +25,11 @@ const error = ref('')
 const results = ref([])
 const searched = ref(false)
 const edition = ref(null)
+const languageDiffers = computed(() => {
+  const codes = value => String(value || '').split(';').map(code => code.trim()).filter(Boolean).sort().join(';')
+  const current = codes(props.draft.language), suggested = codes(edition.value?.fields?.language)
+  return Boolean(current && suggested && current !== suggested)
+})
 const editionPage = ref(null)
 const activity = ref('search')
 const selectedFields = ref([])
@@ -197,6 +202,7 @@ function stage() {
         <h3>{{ t('library', 'Selected edition') }} · {{ edition.editionId }}</h3>
         <p>{{ t('library', 'Compare this edition with your current book details. Select only fields you want to stage.') }} <a :href="edition.url" target="_blank" rel="noopener noreferrer">{{ t('library', 'View source at {provider}', { provider: providerName }) }}</a></p>
         <p v-if="edition.languages?.length && !edition.fields.language">{{ t('library', 'Unrecognized language evidence. Review it manually; no language change is offered.') }}</p>
+        <p v-if="languageDiffers" role="status">{{ t('library', 'The suggested language differs from this book. Check that the selected edition is the same language before approving a replacement.') }}</p>
         <p class="library-muted">{{ [edition.isbn?.length ? `ISBN ${edition.isbn.join(', ')}` : '', edition.languages?.length ? `${t('library', 'Language')}: ${edition.languages.join(', ')}` : ''].filter(Boolean).join(' · ') }}</p>
         <p v-if="!fields.length" role="status">{{ t('library', 'This edition has no different supported details to suggest.') }}</p>
         <div v-for="row in fields" :key="row.key" class="library-metadata-lookup-field"><label><input v-model="selectedFields" type="checkbox" :value="row.key" :disabled="disabled"><strong>{{ row.label }}<template v-if="row.key.startsWith('isbn:') || row.key.startsWith('ggkey:')"> {{ row.suggested }}</template></strong></label><div><small>{{ t('library', 'Current draft') }}</small><p>{{ row.current || '—' }}</p></div><div><small>{{ t('library', 'Suggested') }}</small><p>{{ row.suggested }}</p></div></div>

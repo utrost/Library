@@ -1900,7 +1900,9 @@ OC.L10N.register(
         "Search the German National Library catalogue by ISBN or title and author. Covers are not included.": "Den Katalog der Deutschen Nationalbibliothek nach ISBN oder Titel und Autor durchsuchen. Cover sind nicht enthalten.",
         "Library of Congress": "Library of Congress",
         "Enable Library of Congress lookup": "Suche bei der Library of Congress aktivieren",
-        "Search the Library of Congress catalogue by ISBN or title and author. Covers are not included.": "Den Katalog der Library of Congress nach ISBN oder Titel und Autor durchsuchen. Cover sind nicht enthalten."
+        "Search the Library of Congress catalogue by ISBN or title and author. Covers are not included.": "Den Katalog der Library of Congress nach ISBN oder Titel und Autor durchsuchen. Cover sind nicht enthalten.",
+        "The suggested language differs from this book. Check that the selected edition is the same language before approving a replacement.": "Die vorgeschlagene Sprache unterscheidet sich von der dieses Buchs. Prüfen Sie vor dem Ersetzen, ob die gewählte Ausgabe dieselbe Sprache hat.",
+        "The match and selected edition report different languages. Review the edition before applying language.": "Treffer und gewählte Ausgabe nennen unterschiedliche Sprachen. Prüfen Sie die Ausgabe, bevor Sie die Sprache übernehmen."
     },
     "nplurals=2; plural=(n != 1);"
 );

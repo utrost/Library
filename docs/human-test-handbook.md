@@ -10,8 +10,8 @@ When repeating browser checks after restarting disposable containers, refresh th
 
 ## Development: selected-book metadata lookup
 
-Alpha.6 is installed on developer NC34. See the
-[current signed-package verification record](curation-alpha6-verification.md) and the
+Alpha.8 is installed on developer NC34. See the
+[current signed-package verification record](providers-alpha8-verification.md) and the
 [workflow and limitations](bulk-metadata-lookup.md). On a disposable catalogue,
 select two books and open **Find book details**; repeat from a personal list.
 Verify the default is **Fill missing fields**, providers reflect configuration,
@@ -22,6 +22,21 @@ with one book edited elsewhere: the stale row must fail while other rows succeed
 Confirm Undo refuses to overwrite a later manual edit. Cancel a run, delete it,
 and check the retention explanation. Check 51-book rejection, keyboard focus,
 long descriptions, mobile wrapping, dark mode and RTL. Use synthetic books only.
+
+For the next source package, check the provider setup with no preferred provider:
+no provider is selected until you choose one. Switching providers changes the
+available field checkboxes; Cover appears only where supported and starts clear.
+When Google Books has no server key, its unavailable message should explain why.
+Select 50 books across catalogue pages, then try an empty, duplicate or forged
+selection through the API fixture. None may create a job or send provider data.
+Review a candidate whose language differs from the selected edition: the strong
+match shortcut must leave Language clear. An explicit language choice remains
+reviewable with the saved value and original evidence visible. In Home, check
+duplicate and stalled-job counts after the background snapshot completes; each
+link should lead to its matching review view. In Nextcloud Unified Search, check
+owned-book and author results, pagination and account isolation with Text both
+enabled and disabled. These source-package checks do not change the installed
+alpha.8 checkpoint or complete 0.4 release certification.
 
 
 ### Lookup refinements retained in alpha.6

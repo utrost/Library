@@ -43,6 +43,27 @@ if (!$home->nodeExists('LookupFixtures')) {
 }
 $r=$db->executeQuery('SELECT id FROM *PREFIX*library_items WHERE user_id=? ORDER BY id',[$uid]); $ids=array_map('intval',$r->fetchAll(\PDO::FETCH_COLUMN)); $r->closeCursor();
 check(count($ids)===50,'50 fixture books');
+\OC::$server->get(\OCA\Library\Service\AuthorStorageService::class)->advance($uid,100,30);
+for($index=1;$index<=12;$index++) \OC::$server->get(\OCA\Library\Service\AuthorDirectoryService::class)->create($uid,sprintf('Example Search Author %02d',$index));
+$owner=\OC::$server->get(IUserManager::class)->get($uid);
+$searchQuery=static fn(string $term,mixed $cursor=null)=>new \OC\Search\SearchQuery(new \OC\Search\FilterCollection(term: new \OC\Search\Filter\StringFilter($term)),limit:5,cursor:$cursor);
+$bookSearch=\OC::$server->get(\OCA\Library\Search\BookProvider::class);
+$firstSearch=$bookSearch->search($owner,$searchQuery('Lookup fixture'))->jsonSerialize();
+check(count($firstSearch['entries'])===5 && isset($firstSearch['cursor']),'Unified Search returns a bounded first page');
+$secondSearch=$bookSearch->search($owner,$searchQuery('Lookup fixture',$firstSearch['cursor']))->jsonSerialize();
+check(count($secondSearch['entries'])===5,'Unified Search returns a second page');
+$firstUrls=array_map(static fn($entry)=>$entry->jsonSerialize()['resourceUrl'],$firstSearch['entries']);
+$secondUrls=array_map(static fn($entry)=>$entry->jsonSerialize()['resourceUrl'],$secondSearch['entries']);
+check(!array_intersect($firstUrls,$secondUrls),'search pages do not repeat books');
+// The CLI URL generator uses "/" until an HTTP request loads app routes;
+// the OCS browser journey checks the concrete /apps/library path.
+check(count(array_filter([...$firstUrls,...$secondUrls],static fn($url)=>str_contains($url,'details=') && !str_contains($url,'/files/')))===10,'search links use the editor detail query without source paths');
+check($bookSearch->search($owner,$searchQuery('Lo'))->jsonSerialize()['entries']===[],'short global search is bounded');
+$authorSearch=\OC::$server->get(\OCA\Library\Search\AuthorProvider::class)->search($owner,$searchQuery('Example'))->jsonSerialize();
+check(count($authorSearch['entries'])===5 && isset($authorSearch['cursor']),'canonical author search has bounded first page');
+$authorSecond=\OC::$server->get(\OCA\Library\Search\AuthorProvider::class)->search($owner,$searchQuery('Example',$authorSearch['cursor']))->jsonSerialize();
+check(count($authorSecond['entries'])===5 && isset($authorSecond['cursor']),'canonical author search pages by stable cursor');
+check(!array_intersect(array_map(static fn($entry)=>$entry->jsonSerialize()['resourceUrl'],$authorSearch['entries']),array_map(static fn($entry)=>$entry->jsonSerialize()['resourceUrl'],$authorSecond['entries'])),'author search pages have no repeats');
 $db->executeStatement('DELETE FROM *PREFIX*library_lookup_jobs WHERE user_id=?',[$uid]);
 foreach ($ids as $i=>$id) $items->updateItem($uid,$id,['title'=>sprintf('Lookup fixture %02d',$i+1),'publisher'=>'','description'=>'','language'=>'','identifiers'=>[]]);
 
@@ -70,6 +91,13 @@ foreach ($ids as $id) {
 }
 $cache->set(hash('sha256',$uid."\0edition\0OL1M"),['editionId'=>'OL1M','fields'=>['publisher'=>'Example Press','description'=>'Synthetic description'],'isbn'=>['9780306406157'],'url'=>'https://openlibrary.org/books/OL1M']);
 rejects(InvalidArgumentException::class,fn()=>$service->create($uid,array_fill(0,51,$ids[0]),'openlibrary',['publisher'],'missing'));
+rejects(InvalidArgumentException::class,fn()=>$service->create($uid,[$ids[0],$ids[0]],'openlibrary',['publisher'],'missing'));
+rejects(InvalidArgumentException::class,fn()=>$service->create($uid,[],'openlibrary',['publisher'],'missing'));
+rejects(InvalidArgumentException::class,fn()=>$service->create($uid,[$ids[0]],'openlibrary',['ggkey'],'missing'));
+rejects(InvalidArgumentException::class,fn()=>$service->create($uid,[$ids[0]],'dnb',['cover'],'missing'));
+check(!in_array('cover',$service->options($uid)['fieldsByProvider']['dnb'],true),'provider capabilities exclude unavailable covers');
+check(($service->options($uid)['unavailable']['googlebooks'] ?? '')==='key_missing','missing Google key has an explicit setup state');
+rejects(OutOfBoundsException::class,fn()=>$service->create($uid,[2147483647],'openlibrary',['publisher'],'missing'));
 rejects(OutOfBoundsException::class,fn()=>$service->create('library-outsider',[$ids[0]],'openlibrary',['publisher'],'missing'));
 $requestId=bin2hex(random_bytes(16));
 $start=microtime(true); $job=$service->create($uid,$ids,'openlibrary',['publisher','description','isbn'],'missing',$requestId);
@@ -248,6 +276,18 @@ check(!isset($unknown['fields']['language']) && $unknown['languages']===['3ng'],
 $openNormalize=new ReflectionMethod($provider,'editionResult');
 $languageEdition=$openNormalize->invoke($provider,['title'=>'Language example','languages'=>[['key'=>'/languages/ger'],['key'=>'/languages/deu'],['key'=>'/languages/eng']]],'OL3M');
 check($languageEdition['fields']['language']==='de; en','Open Library aliases deduplicate with multiple languages');
+$languageFixture=['status'=>'ready','provider'=>'openlibrary','editionId'=>'OL4M',
+    'before'=>['title'=>'Lookup fixture 22','language'=>''],
+    'query'=>['isbn'=>'9780306406157','author'=>'Example Writer'],
+    'results'=>[['editionId'=>'OL4M','title'=>'Lookup fixture 22','authors'=>['Example Writer'],'isbn'=>['9780306406157'],'languages'=>['eng'],'match'=>'isbn']],
+    'edition'=>['fields'=>['title'=>'Lookup fixture 22','language'=>'de'],'isbn'=>['9780306406157'],'languages'=>['ger']]];
+$languageJobFixture=['payload'=>['provider'=>'openlibrary','fields'=>['language'],'policy'=>'missing']];
+$reviewMethod=new ReflectionMethod(MetadataBatchService::class,'languageReview');
+check($reviewMethod->invoke($service,$languageFixture)['candidateConflict'],'candidate and chosen edition language disagreement is reviewable');
+$strongMethod=new ReflectionMethod(MetadataBatchService::class,'strongMissingFields');
+check($strongMethod->invoke($service,$languageJobFixture,$languageFixture)===[],'conflicting edition language is not included in bulk missing-field selection');
+$languageFixture['results'][0]['languages']=['ger'];
+check($strongMethod->invoke($service,$languageJobFixture,$languageFixture)===['language'],'matching edition language remains eligible for explicit missing-field selection');
 $cache->set(hash('sha256',$uid."\0edition\0OL1M"),['editionId'=>'OL1M','fields'=>['language'=>'de; en'],'isbn'=>[],'languages'=>['ger','eng'],'url'=>'https://openlibrary.org/books/OL1M']);
 $items->updateItem($uid,$ids[19],['language'=>'']);
 $languageJob=$service->create($uid,[$ids[19]],'openlibrary',['language'],'missing'); $service->advance();
@@ -255,8 +295,18 @@ review($service,$uid,$languageJob['id'],$ids[19],'choose',['editionId'=>'OL1M'])
 review($service,$uid,$languageJob['id'],$ids[19],'select',['fields'=>['language']]);
 review($service,$uid,$languageJob['id'],$ids[19],'apply',[]);
 check($items->findItem($uid,$ids[19])['language']==='de; en','explicit multiple-language application');
+foreach (['de','en'] as $code) check(in_array($ids[19],array_map('intval',array_column($items->queryCatalogue($uid,['language'=>$code],['page'=>1,'limit'=>50,'deferTotal'=>true],false)['items'],'id')),true),'approved language is found by its code filter');
 review($service,$uid,$languageJob['id'],$ids[19],'undo',[]);
 check($items->findItem($uid,$ids[19])['language']==='','language Undo restores prior value');
+$service->control($uid,$languageJob['id'],'delete');
+$languageJob=$service->create($uid,[$ids[21]],'openlibrary',['language'],'missing'); $service->advance();
+review($service,$uid,$languageJob['id'],$ids[21],'choose',['editionId'=>'OL1M']); $service->advance();
+review($service,$uid,$languageJob['id'],$ids[21],'select',['fields'=>['language']]);
+review($service,$uid,$languageJob['id'],$ids[21],'apply',[]);
+$editedLanguage=$items->findItem($uid,$ids[21]);
+$items->updateItem($uid,$ids[21],['language'=>'fr'],$editedLanguage['metadataRevision']);
+rejects(MetadataConflictException::class,fn()=>review($service,$uid,$languageJob['id'],$ids[21],'undo',[]));
+check($items->findItem($uid,$ids[21])['language']==='fr','later manual language survives conditional Undo');
 $service->control($uid,$languageJob['id'],'delete');
 $items->updateItem($uid,$ids[20],['language'=>'fr; en']);
 $languageJob=$service->create($uid,[$ids[20]],'openlibrary',['language'],'missing'); $service->advance();

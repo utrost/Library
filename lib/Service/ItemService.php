@@ -10,6 +10,7 @@ use OCA\Library\Presentation\PublicationDate;
 use OCA\Library\Metadata\ScannerMetadataFields;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
+use OCP\IConfig;
 
 final class ItemService {
     private const PUBLICATION_FACET_LIMIT = 100;
@@ -136,6 +137,7 @@ final class ItemService {
         private ?LanguageReviewService $languageReviewService = null,
         private ?MetadataValueMappingService $valueMappings = null,
         private ?ChangeHistoryService $changeHistory = null,
+        private ?IConfig $config = null,
     ) {
     }
 
@@ -588,6 +590,14 @@ final class ItemService {
             $saved = $this->findItem($userId, $itemId);
             if ($saved !== null) $this->changeHistory?->record($userId, $itemId, $acceptedSources !== null && $changeKind === 'manual' ? 'provider' : $changeKind, $existing, $saved, $acceptedSources ?? []);
             $this->db->commit();
+            // Queue exact Home counts after an approved edit; scans use the
+            // normal snapshot TTL instead of writing a preference per file.
+            if ($expectedRevision !== null && $changedFields !== [] && $this->config !== null) {
+                try {
+                    if ($this->config->getUserValue($userId,'library','home_health_requested','')==='')
+                        $this->config->setUserValue($userId,'library','home_health_requested',(string)time());
+                } catch (\Throwable) { /* A dashboard failure cannot undo a committed book edit. */ }
+            }
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
     }
 

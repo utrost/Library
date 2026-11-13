@@ -2,13 +2,13 @@
 import GoogleBooksAttribution from './GoogleBooksAttribution.vue'
 import LookupCover from './LookupCover.vue'
 import LookupCandidates from './LookupCandidates.vue'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { t, n } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { confirmAction } from '../confirm-action.js'
 const props = defineProps({ returnToIncoming: Boolean, itemIds: { type: Array, default: () => [] }, requestToken: { type: String, required: true } })
 const emit = defineEmits(['close', 'changed'])
-const options = ref({ providers: [], fields: [], limit: 50 })
+const options = ref({ providers: [], unavailable: {}, fields: [], fieldsByProvider: {}, limit: 50 })
 const provider = ref('')
 const policy = ref('missing')
 const fields = ref([])
@@ -38,6 +38,9 @@ const states = {
   archived: t('library', 'Change receipts'), running: t('library', 'Finding matches'), paused: t('library', 'Paused'), review: t('library', 'Ready for review'),
 }
 const providerName = id => id === 'loc' ? t('library', 'Library of Congress') : id === 'dnb' ? t('library', 'DNB (German National Library)') : id === 'googlebooks' ? t('library', 'Google Books') : t('library', 'Open Library')
+const availableFields = computed(() => options.value.fieldsByProvider?.[provider.value] || [])
+const selectedValidFields = computed(() => fields.value.filter(field => availableFields.value.includes(field)))
+watch(provider, id => { fields.value = (options.value.fieldsByProvider?.[id] || []).filter(field => field !== 'cover') })
 const display = value => Array.isArray(value) ? value.map(entry => entry && typeof entry === 'object' ? `${entry.scheme}: ${entry.displayValue}` : entry).join('; ') : String(value ?? '')
 const reviewed = computed(() => job.value?.rows.filter(row => !['queued', 'working'].includes(row.status)).length || 0)
 const selectedCount = computed(() => job.value?.rows.filter(row => row.status === 'ready' && row.selected.length).length || 0)
@@ -120,13 +123,12 @@ async function load() {
   await act(async () => {
     const data = await request()
     options.value = data.options; history.value = data.jobs
-    provider.value = data.options.defaultProvider || (data.options.providers.length === 1 ? data.options.providers[0] : '')
-    fields.value = data.options.fields.filter(field => field !== 'cover')
+    provider.value = data.options.defaultProvider || ''
     const id = new URLSearchParams(window.location.search).get('lookupJob')
     if (id) setJob(await request(`/${id}`))
   })
 }
-function create() { act(async () => { setJob(await request('/create', { requestId: createKey, ids: selectedIds, provider: provider.value, policy: policy.value, fields: fields.value.filter(field => (field !== 'ggkey' || provider.value === 'googlebooks') && (field !== 'cover' || provider.value === 'openlibrary')) })); notice.value = t('library', 'Lookup queued. Background processing depends on your server’s cron schedule. You can leave and return here.'); }) }
+function create() { act(async () => { setJob(await request('/create', { requestId: createKey, ids: selectedIds, provider: provider.value, policy: policy.value, fields: selectedValidFields.value })); notice.value = t('library', 'Lookup queued. Background processing depends on your server’s cron schedule. You can leave and return here.'); }) }
 function open(id) { act(async () => { outcomes.value = []; setJob(await request(`/${id}`)) }) }
 function control(action) { act(async () => { job.value = await request(`/${job.value.id}/control`, { action }) }) }
 function rowAction(row, action, extra = {}) {
@@ -193,10 +195,11 @@ onBeforeUnmount(() => { disposed = true; generation++; clearTimeout(timer) })
           <label>{{ t('library', 'Provider') }}<select v-model="provider" :disabled="busy"><option value="">{{ t('library', 'Choose a provider') }}</option><option v-for="id in options.providers" :key="id" :value="id">{{ providerName(id) }}</option></select></label>
           <label>{{ t('library', 'Update policy') }}<select v-model="policy" :disabled="busy"><option value="missing">{{ t('library', 'Fill missing fields') }}</option><option value="review">{{ t('library', 'Review replacements too') }}</option></select></label>
         </div>
-        <fieldset :disabled="busy"><legend>{{ t('library', 'Fields to look up') }}</legend><label v-for="field in options.fields.filter(field => (field !== 'ggkey' || provider === 'googlebooks') && (field !== 'cover' || provider === 'openlibrary'))" :key="field" class="library-batch-check"><input v-model="fields" type="checkbox" :value="field">{{ labels[field] }}</label></fieldset>
+        <fieldset v-if="provider" :disabled="busy"><legend>{{ t('library', 'Fields to look up') }}</legend><label v-for="field in availableFields" :key="field" class="library-batch-check"><input v-model="fields" type="checkbox" :value="field">{{ labels[field] }}</label></fieldset>
         <p v-if="selectedIds.length > options.limit" role="alert">{{ t('library', 'Select at most 50 books for one lookup.') }}</p>
         <p v-if="!options.providers.length">{{ t('library', 'No metadata provider is available. Check Library settings.') }}</p>
-        <button type="submit" class="button primary" :disabled="busy || !provider || !fields.length || selectedIds.length > options.limit">{{ t('library', 'Find matches') }}</button>
+        <p v-for="(reason, id) in options.unavailable" :key="id" class="library-muted">{{ providerName(id) }}: {{ reason === 'key_missing' ? t('library', 'Google Books needs a server API key.') : t('library', 'The provider is disabled. Ask your administrator or try later.') }}</p>
+        <button type="submit" class="button primary" :disabled="busy || !provider || !selectedValidFields.length || selectedIds.length > options.limit">{{ t('library', 'Find matches') }}</button>
       </form>
       <p v-else>{{ t('library', 'Select up to 50 books in your catalogue or a list, then choose Find book details.') }}</p>
       <h3>{{ t('library', 'Recent lookups') }}</h3>
@@ -266,6 +269,8 @@ onBeforeUnmount(() => { disposed = true; generation++; clearTimeout(timer) })
           <LookupCover v-if="row.edition.coverId && job.fields.includes('cover')" :job-id="job.id" :item-id="row.id" :review-version="row.reviewVersion" :request-token="requestToken" :disabled="busy" :selected="row.selected.includes('cover')" @version="coverVersion" @select="toggle(row, 'cover', $event)" />
           <p v-if="row.provider === 'googlebooks' && job.fields.includes('cover')">{{ t('library', 'Saving covers from Google Books is not supported.') }}</p>
           <p v-if="row.edition.languages?.length">{{ t('library', 'Language') }}: {{ display(row.edition.languages) }}<span v-if="!row.edition.fields.language"> · {{ t('library', 'Unrecognized language evidence. Review it manually; no language change is offered.') }}</span></p>
+          <p v-if="row.languageReview?.conflict" role="status">{{ t('library', 'The suggested language differs from this book. Check that the selected edition is the same language before approving a replacement.') }}</p>
+          <p v-if="row.languageReview?.candidateConflict" role="status">{{ t('library', 'The match and selected edition report different languages. Review the edition before applying language.') }}</p>
           <p><a :href="row.edition.url" target="_blank" rel="noopener noreferrer">{{ t('library', 'Provider source') }} · {{ row.edition.fields.title || row.editionId }}</a></p>
           <p v-if="!row.proposals.length">{{ t('library', 'No changes for the selected fields and update policy.') }}</p>
           <label v-for="proposal in row.proposals.filter(proposal => proposal.key !== 'cover')" :key="proposal.key" class="library-batch-proposal">
