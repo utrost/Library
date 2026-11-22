@@ -210,7 +210,7 @@ foreach ($roots as $root) {
                 <p data-library-scan-state-message aria-live="polite"><?php p($scanStateMessage); ?></p>
                 <section class="library-scan-completion-summary <?php if (in_array($scanStatus, ['completed', 'failed'], true)) p('library-scan-completion-summary--' . $scanStatus); ?>" data-library-scan-completion-summary aria-live="polite" <?php if (!in_array($scanStatus, ['completed', 'failed'], true)) print_unescaped('hidden'); ?>>
                         <h4 data-library-scan-completion-title><?php p(($latestScanJob['status'] ?? '') === 'failed' ? $l->t('Scan failed') : $l->t('Scan completed')); ?></h4>
-                        <p data-library-help class="library-muted"><?php p($l->t('This post-scan completion summary survives page reloads and links each counter to the safest next review view.')); ?></p>
+                        <?php $scanResult = $latestScanJob; include __DIR__ . '/scan-result.php'; ?>
                         <p class="library-muted"><?php p($l->t('Finished at')); ?> <time data-library-scan-finished-at <?php if (($latestScanJob['finishedAt'] ?? null) !== null): ?>datetime="<?php p(date('c', (int)$latestScanJob['finishedAt'])); ?>"<?php endif; ?>><?php p($formatScanTimestamp($latestScanJob['finishedAt'] ?? null)); ?></time></p>
                 </section>
                 <span data-library-field="scanJobStatus" data-library-scan-status hidden><?php p((string)$latestScanJob['status']); ?></span>
@@ -247,26 +247,26 @@ foreach ($roots as $root) {
                             <span class="library-settings-count-badge"><?php p($l->t('safe review')); ?></span>
                         </div>
                         <dl class="library-scan-change-grid">
-                            <a class="library-scan-change-card library-scan-change-card-link library-scan-change-card--attention" href="<?php p($_['scanAddedFilesUrl']); ?>">
+                            <div class="library-scan-change-card library-scan-change-card--attention">
                                 <dt><?php p($l->t('Added')); ?></dt>
                                 <dd data-library-scan-files-added><?php p((string)($latestScanJob['filesAdded'] ?? 0)); ?></dd>
-                            </a>
-                            <a class="library-scan-change-card library-scan-change-card-link library-scan-change-card--attention" href="<?php p($_['scanMovedFilesUrl']); ?>">
+                            </div>
+                            <div class="library-scan-change-card library-scan-change-card--attention">
                                 <dt><?php p($l->t('Moved, renamed or reconnected')); ?></dt>
                                 <dd data-library-scan-paths-updated><?php p((string)($latestScanJob['pathsUpdated'] ?? 0)); ?></dd>
-                            </a>
+                            </div>
                             <div class="library-scan-change-card library-scan-change-card--calm">
                                 <dt><?php p($l->t('Unchanged')); ?></dt>
                                 <dd data-library-scan-files-unchanged><?php p((string)($latestScanJob['filesUnchanged'] ?? 0)); ?></dd>
                             </div>
-                            <a class="library-scan-change-card library-scan-change-card-link library-scan-change-card--attention" href="<?php p($_['scanMissingFilesUrl']); ?>">
+                            <div class="library-scan-change-card library-scan-change-card--attention">
                                 <dt><?php p($l->t('Missing')); ?></dt>
                                 <dd data-library-scan-files-missing><?php p((string)($latestScanJob['filesMissing'] ?? 0)); ?></dd>
-                            </a>
-                            <a class="library-scan-change-card library-scan-change-card-link library-scan-change-card--attention" href="<?php p($_['scanMetadataErrorsUrl']); ?>">
+                            </div>
+                            <div class="library-scan-change-card library-scan-change-card--attention">
                                 <dt><?php p($l->t('Metadata errors')); ?></dt>
                                 <dd data-library-scan-metadata-errors><?php p((string)($latestScanJob['metadataErrors'] ?? 0)); ?></dd>
-                            </a>
+                            </div>
                         </dl>
                         <p class="library-detail-actions library-scan-change-actions">
                             <a href="<?php p($_['scanChangedFilesUrl']); ?>" class="button secondary"><?php p($l->t('Review recently changed files')); ?></a>
@@ -305,6 +305,7 @@ foreach ($roots as $root) {
                                 <dt data-library-field="historyDurationSeconds"><?php p($l->t('Duration in seconds')); ?></dt>
                                 <dd><?php p((string)$historyJob['durationSeconds']); ?></dd>
                             </dl>
+                            <?php $scanResult = $historyJob; include __DIR__ . '/scan-result.php'; ?>
                             <?php if (($historyJob['summary'] ?? '') !== ''): ?>
                                 <p class="library-muted"><?php p((string)$historyJob['summary']); ?></p>
                             <?php endif; ?>

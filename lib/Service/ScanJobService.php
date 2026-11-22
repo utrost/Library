@@ -305,6 +305,8 @@ final class ScanJobService {
             ->set('files_indexed', $qb->createNamedParameter($filesIndexed))
             ->set('error_count', $qb->createNamedParameter($errorCount))
             ->set('summary', $qb->createNamedParameter(mb_substr($summary, 0, 4000)))
+            ->set('error_samples', $qb->createNamedParameter(json_encode($changeSummary['errorSamples'] ?? [], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE)))
+            ->set('unsupported_archives', $qb->createNamedParameter($changeSummary['unsupportedArchives'] ?? null))
             ->set('files_added', $qb->createNamedParameter((int)($changeSummary['filesAdded'] ?? 0)))
             ->set('paths_updated', $qb->createNamedParameter((int)($changeSummary['pathsUpdated'] ?? 0)))
             ->set('files_unchanged', $qb->createNamedParameter((int)($changeSummary['filesUnchanged'] ?? 0)))
@@ -362,6 +364,8 @@ final class ScanJobService {
             'rootsTotal' => (int)$row['roots_total'],
             'filesIndexed' => (int)$row['files_indexed'],
             'errorCount' => (int)$row['error_count'],
+            'errorSamples' => json_decode($row['error_samples'] ?? '[]', true) ?: [],
+            'unsupportedArchives' => isset($row['unsupported_archives']) ? (int)$row['unsupported_archives'] : null,
             'filesAdded' => (int)($row['files_added'] ?? 0),
             'pathsUpdated' => (int)($row['paths_updated'] ?? 0),
             'filesUnchanged' => (int)($row['files_unchanged'] ?? 0),

@@ -258,7 +258,7 @@ onBeforeUnmount(() => { disposed = true; generation++; clearTimeout(timer) })
         <p v-if="row.error">{{ failure(row.error) }}</p>
         <details v-if="row.results.length && ['matches', 'ready'].includes(row.status)" :open="row.status === 'matches'">
           <summary>{{ t('library', 'Edition matches') }}</summary>
-          <LookupCandidates :results="row.results" :edition-page="row.editionPage || null" :disabled="busy || ['paused', 'cancelled'].includes(job.status)" @choose="rowAction(row, 'choose', { editionId: $event.editionId })" @editions="rowAction(row, 'editions', $event)" />
+          <LookupCandidates :results="row.results" :book-languages="row.languageReview?.current" :book-isbns="row.bookIsbns" :edition-page="row.editionPage || null" :disabled="busy || ['paused', 'cancelled'].includes(job.status)" @choose="rowAction(row, 'choose', { editionId: $event.editionId })" @editions="rowAction(row, 'editions', $event)" />
         </details>
         <details v-if="row.receipt">
           <summary>{{ t('library', 'Change receipt') }}</summary>

@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, ref, useId, watch } from 'vue'
+import { languageAliases, normalizeLanguageCode, validLanguageCode } from '../language-code.js'
 import { pickerIndex } from '../picker-keyboard.js'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
@@ -30,11 +31,6 @@ const commonLanguageCodes = [
   'en', 'es', 'fr', 'de', 'pt', 'zh', 'hi', 'ar', 'ru', 'ja',
   'ko', 'it', 'nl', 'pl', 'tr', 'uk', 'sv', 'da', 'fi', 'no',
 ]
-const languageAliases = {
-  ara: 'ar', chi: 'zh', zho: 'zh', dut: 'nl', nld: 'nl', eng: 'en',
-  fre: 'fr', fra: 'fr', ger: 'de', deu: 'de', ita: 'it', jpn: 'ja', spa: 'es',
-  por: 'pt', rus: 'ru',
-}
 const languageNames = typeof Intl.DisplayNames === 'function'
   ? new Intl.DisplayNames([document.documentElement.lang || 'en'], { type: 'language' })
   : null
@@ -47,18 +43,7 @@ function display(value) {
 function normalizedInput(value) {
   const trimmed = value.trim()
   if (!isLanguage.value) return trimmed
-  const match = /^([a-z]{2,3})(?:-([a-z]{2}))?$/i.exec(trimmed)
-  return match ? (languageAliases[match[1].toLowerCase()] || match[1].toLowerCase()) + (match[2] ? `-${match[2].toUpperCase()}` : '') : trimmed
-}
-function validLanguageCode(value) {
-  const match = /^([a-z]{2,3})(?:-([A-Z]{2}))?$/.exec(value)
-  if (!match) return false
-  if (typeof Intl.DisplayNames !== 'function') return true
-  const languageName = new Intl.DisplayNames(['en'], { type: 'language' }).of(match[1])
-  if (!languageName || languageName.toLowerCase() === match[1] || languageName === 'Unknown language') return false
-  if (!match[2]) return true
-  const name = new Intl.DisplayNames(['en'], { type: 'region' }).of(match[2])
-  return Boolean(name && name !== match[2] && name !== 'Unknown Region')
+  return normalizeLanguageCode(trimmed)
 }
 const candidate = computed(() => normalizedInput(search.value))
 const canAdd = computed(() => candidate.value.length > 0 && candidate.value.length <= 255

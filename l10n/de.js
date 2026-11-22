@@ -1103,7 +1103,6 @@ OC.L10N.register(
         "This list changed in another tab. Reload the list before trying again. Your unsaved text is still here.": "Diese Liste wurde in einer anderen Registerkarte geändert. Lade sie vor einem erneuten Versuch neu. Deine ungespeicherte Eingabe bleibt erhalten.",
         "This list is empty. Select books in the catalogue and choose Add to list.": "Diese Liste ist leer. Wähle Bücher im Katalog und dann Zur Liste hinzufügen.",
         "This list or entry is no longer available.": "Diese Liste oder dieser Eintrag ist nicht mehr verfügbar.",
-        "This post-scan completion summary survives page reloads and links each counter to the safest next review view.": "Diese Abschlussübersicht bleibt nach dem Neuladen erhalten und verknüpft jeden Zähler mit der sichersten nächsten Prüfungsansicht.",
         "This publication is unavailable or you do not have access.": "Diese Veröffentlichung ist nicht verfügbar oder Sie haben keinen Zugriff.",
         "This removes this Library catalogue entry for a missing file. It does not delete source files from Nextcloud Files.": "Dies entfernt den Bibliotheks-Katalogeintrag einer fehlenden Datei. Quelldateien in Nextcloud Files werden nicht gelöscht.",
         "This review is stale or expired. Reload the sample and review again. Undo cannot overwrite later metadata changes.": "Diese Prüfung ist veraltet oder abgelaufen. Laden Sie die Stichprobe neu und prüfen Sie erneut. Spätere Metadatenänderungen werden beim Rückgängigmachen nicht überschrieben.",
@@ -1902,7 +1901,22 @@ OC.L10N.register(
         "Enable Library of Congress lookup": "Suche bei der Library of Congress aktivieren",
         "Search the Library of Congress catalogue by ISBN or title and author. Covers are not included.": "Den Katalog der Library of Congress nach ISBN oder Titel und Autor durchsuchen. Cover sind nicht enthalten.",
         "The suggested language differs from this book. Check that the selected edition is the same language before approving a replacement.": "Die vorgeschlagene Sprache unterscheidet sich von der dieses Buchs. Prüfen Sie vor dem Ersetzen, ob die gewählte Ausgabe dieselbe Sprache hat.",
-        "The match and selected edition report different languages. Review the edition before applying language.": "Treffer und gewählte Ausgabe nennen unterschiedliche Sprachen. Prüfen Sie die Ausgabe, bevor Sie die Sprache übernehmen."
+        "The match and selected edition report different languages. Review the edition before applying language.": "Treffer und gewählte Ausgabe nennen unterschiedliche Sprachen. Prüfen Sie die Ausgabe, bevor Sie die Sprache übernehmen.",
+        "The book changed. Review its current details before continuing.": "Das Buch wurde geändert. Prüfen Sie die aktuellen Angaben, bevor Sie fortfahren.",
+        "Save, mark reviewed and next": "Speichern, als geprüft markieren und weiter",
+        "Mark reviewed and next": "Als geprüft markieren und weiter",
+        "Book reviewed. You reached the end of this queue.": "Buch geprüft. Sie haben das Ende dieser Warteschlange erreicht.",
+        "Not recorded": "Nicht erfasst",
+        "New books": "Neue Bücher",
+        "Previously indexed books": "Bereits erfasste Bücher",
+        "Books with metadata errors": "Bücher mit Metadatenfehlern",
+        "Unsupported archives": "Nicht unterstützte Archive",
+        "ISBN matches": "ISBN stimmt überein",
+        "ISBN differs": "ISBN weicht ab",
+        "Language matches": "Sprache stimmt überein",
+        "Language differs ({current} → {proposed})": "Sprache weicht ab ({current} → {proposed})",
+        "Edition evidence": "Angaben zur Ausgabe",
+        "Example files with metadata errors": "Beispieldateien mit Metadatenfehlern"
     },
     "nplurals=2; plural=(n != 1);"
 );

@@ -52,6 +52,7 @@ class Personal implements ISettings {
             'totalPublications' => array_sum($publicationCountsByRoot),
             'fileStatusCounts' => $this->fileIndexService->fileStatusCounts($this->userId),
             'latestScanJob' => $this->prepareJob($this->scanJobService->latestJob($this->userId), $roots),
+            'scanFileBaseUrl' => $this->urlGenerator->getAbsoluteURL('/f/'),
             'scanJobHistory' => array_map(fn (array $job): array => $this->prepareJob($job, $roots) ?? $job, $this->scanJobService->recentJobs($this->userId, 5)),
             'rootSaveUrl' => $this->urlGenerator->linkToRoute('library.root.save'),
             'scanRunUrl' => $this->urlGenerator->linkToRoute('library.scan.run'),

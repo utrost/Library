@@ -5,7 +5,7 @@ use OCP\IDBConnection;
 use OCA\Library\Exception\MetadataConflictException;
 final class CurationInboxService {
     public function __construct(private IDBConnection $db,private ItemService $items) {}
-    private function revision(array $item): string { return hash('sha256',json_encode([$item['metadataRevision'],$item['coverCacheRevision'] ?? '',array_column($item['canonicalAuthors'] ?? [],'id'),$item['canonicalSeries'] ?? [],array_column($item['canonicalGenres'] ?? [],'id')],JSON_THROW_ON_ERROR)); }
+    public static function revision(array $item): string { return hash('sha256',json_encode([$item['metadataRevision'],$item['coverCacheRevision'] ?? '',array_column($item['canonicalAuthors'] ?? [],'id'),$item['canonicalSeries'] ?? [],array_column($item['canonicalGenres'] ?? [],'id')],JSON_THROW_ON_ERROR)); }
     public function page(string $uid,int $before=0,string $filter='pending',string $day='',int $rootId=0): array {
         if (!in_array($filter,['pending','done','deferred','all'],true)) throw new \InvalidArgumentException('invalid_filter');
         if ($day!=='' && (!preg_match('/^\d{4}-\d{2}-\d{2}$/D',$day) || gmdate('Y-m-d',strtotime($day.' UTC'))!==$day)) throw new \InvalidArgumentException('invalid_day');
@@ -24,7 +24,7 @@ final class CurationInboxService {
         foreach (array_slice($scan,0,50) as $entry) {
             if (!isset($entry['path'])) continue;
             $item=$books[(int)$entry['id']] ?? null;if (!$item) continue;
-            $revision=$this->revision($item);$state=($entry['revision'] ?? '')===$revision ? ($entry['state'] ?? 'pending') : 'pending';
+            $revision=self::revision($item);$state=($entry['revision'] ?? '')===$revision ? ($entry['state'] ?? 'pending') : 'pending';
             if ($state==='deferred' && (int)$entry['until_at']<=time()) $state='pending';
             if ($filter!=='all' && $state!==$filter) continue;
             $rows[]=['id'=>$item['id'],'title'=>$item['title'],'creators'=>$item['creators'],'revision'=>$revision,'state'=>$state,'until'=>(int)($entry['until_at'] ?? 0),
@@ -40,7 +40,7 @@ final class CurationInboxService {
             $this->db->executeStatement('UPDATE *PREFIX*library_items SET id=id WHERE user_id=? AND id=?',[$uid,$id]);
             $item=$this->items->findItem($uid,$id);
             if (!$item) throw new \OutOfBoundsException('not_found');
-            if (!hash_equals($this->revision($item),$revision)) throw new MetadataConflictException('metadata_changed');
+            if (!hash_equals(self::revision($item),$revision)) throw new MetadataConflictException('metadata_changed');
             $this->db->executeStatement('DELETE FROM *PREFIX*library_inbox_state WHERE user_id=? AND item_id=?',[$uid,$id]);
             $this->db->insertIfNotExist('*PREFIX*library_inbox_state',['user_id'=>$uid,'item_id'=>$id,'revision'=>$revision,'state'=>$state,'until_at'=>$state==='deferred' ? time()+86400 : 0,'created_at'=>time()],['user_id','item_id']);
             $this->db->commit();

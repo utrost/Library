@@ -106,6 +106,28 @@ document.addEventListener('DOMContentLoaded', () => {
         setText('[data-library-scan-files-unchanged]', job.filesUnchanged);
         setText('[data-library-scan-files-missing]', job.filesMissing);
         setText('[data-library-scan-metadata-errors]', job.metadataErrors);
+        for (const scope of [panel, historyJob]) {
+            const result = scope?.querySelector('[data-library-scan-result]');
+            if (!result) continue;
+            result.hidden = job.status !== 'completed';
+            const examples = result.nextElementSibling;
+            if (examples?.matches('[data-library-scan-error-files]')) {
+                const files = job.errorSamples || [];
+                examples.hidden = job.status !== 'completed' || files.length === 0;
+                examples.querySelector('ul').replaceChildren(...files.map(file => {
+                    const item = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = examples.dataset.fileBase + Number(file.fileId);
+                    link.textContent = file.name;
+                    item.append(link);
+                    return item;
+                }));
+            }
+            const counts = [job.filesAdded, Number(job.pathsUpdated || 0) + Number(job.filesUnchanged || 0), job.metadataErrors, job.unsupportedArchives];
+            result.querySelectorAll('dd').forEach((cell, index) => {
+                cell.textContent = counts[index] ?? result.dataset.unknown;
+            });
+        }
         renderCompletionSummary(job);
 
         return ['completed', 'failed'].includes(job.status);

@@ -1102,7 +1102,6 @@
         "This list changed in another tab. Reload the list before trying again. Your unsaved text is still here.": "This list changed in another tab. Reload the list before trying again. Your unsaved text is still here.",
         "This list is empty. Select books in the catalogue and choose Add to list.": "This list is empty. Select books in the catalogue and choose Add to list.",
         "This list or entry is no longer available.": "This list or entry is no longer available.",
-        "This post-scan completion summary survives page reloads and links each counter to the safest next review view.": "This post-scan completion summary survives page reloads and links each counter to the safest next review view.",
         "This publication is unavailable or you do not have access.": "This publication is unavailable or you do not have access.",
         "This removes this Library catalogue entry for a missing file. It does not delete source files from Nextcloud Files.": "This removes this Library catalogue entry for a missing file. It does not delete source files from Nextcloud Files.",
         "This review is stale or expired. Reload the sample and review again. Undo cannot overwrite later metadata changes.": "This review is stale or expired. Reload the sample and review again. Undo cannot overwrite later metadata changes.",
@@ -1901,7 +1900,22 @@
         "Enable Library of Congress lookup": "Enable Library of Congress lookup",
         "Search the Library of Congress catalogue by ISBN or title and author. Covers are not included.": "Search the Library of Congress catalogue by ISBN or title and author. Covers are not included.",
         "The suggested language differs from this book. Check that the selected edition is the same language before approving a replacement.": "The suggested language differs from this book. Check that the selected edition is the same language before approving a replacement.",
-        "The match and selected edition report different languages. Review the edition before applying language.": "The match and selected edition report different languages. Review the edition before applying language."
+        "The match and selected edition report different languages. Review the edition before applying language.": "The match and selected edition report different languages. Review the edition before applying language.",
+        "The book changed. Review its current details before continuing.": "The book changed. Review its current details before continuing.",
+        "Save, mark reviewed and next": "Save, mark reviewed and next",
+        "Mark reviewed and next": "Mark reviewed and next",
+        "Book reviewed. You reached the end of this queue.": "Book reviewed. You reached the end of this queue.",
+        "Not recorded": "Not recorded",
+        "New books": "New books",
+        "Previously indexed books": "Previously indexed books",
+        "Books with metadata errors": "Books with metadata errors",
+        "Unsupported archives": "Unsupported archives",
+        "ISBN matches": "ISBN matches",
+        "ISBN differs": "ISBN differs",
+        "Language matches": "Language matches",
+        "Language differs ({current} → {proposed})": "Language differs ({current} → {proposed})",
+        "Edition evidence": "Edition evidence",
+        "Example files with metadata errors": "Example files with metadata errors"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

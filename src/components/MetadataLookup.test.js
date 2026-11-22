@@ -82,3 +82,21 @@ it('searches LoC only on request and stages LoC proposals with their approval', 
   await wrapper.findAll('button').find(button => button.text() === 'Stage selected details').trigger('click')
   expect(staged).toHaveBeenCalledExactlyOnceWith({ publisher: 'Fixture Press' }, { jobId: 'd'.repeat(32), reviewVersion: 1, fields: ['publisher'] })
 })
+
+it('compares the current draft with a candidate before any edition request', async () => {
+  const fetch = vi.fn().mockResolvedValue(response({ results: [
+    { editionId: 'OL1M', title: 'Fixture', languages: ['ger'], isbn: ['9780140328721'] },
+    { editionId: 'OL2M', title: 'Unknown evidence', languages: ['3ng'], isbn: [] },
+  ] }))
+  vi.stubGlobal('fetch', fetch)
+  const wrapper = mount(MetadataLookup, { props: { item: { title: 'Fixture' },
+    draft: { language: 'EN', identifiers: [{ scheme: 'isbn', displayValue: '0-14-032872-6' }] }, baseUrl: '/library', requestToken: 'fixture' } })
+  await wrapper.get('form').trigger('submit')
+  await flushPromises()
+  const rows = wrapper.findAll('.library-metadata-lookup-results li')
+  expect(rows[0].text()).toContain('ISBN matches')
+  expect(rows[0].text()).toContain('Language differs')
+  expect(rows[0].get('details').element.open).toBe(false)
+  expect(rows[1].text()).not.toMatch(/ISBN matches|ISBN differs|Language differs|Language matches/)
+  expect(fetch).toHaveBeenCalledTimes(1)
+})

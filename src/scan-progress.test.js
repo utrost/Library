@@ -23,6 +23,7 @@ describe('Settings scan progress', () => {
         <section data-library-scan-completion-summary>
           <h4 data-library-scan-completion-title></h4>
           <time data-library-scan-finished-at></time>
+          <dl data-library-scan-result data-unknown="Not recorded"><dd></dd><dd></dd><dd></dd><dd></dd></dl>
         </section>
       </section>`
     const response = (job) => ({ ok: true, json: async () => ({ job, totalPublications: null }) })
@@ -33,7 +34,7 @@ describe('Settings scan progress', () => {
         runStartedAt: 1_700_000_000, lastProgressAt: 1_700_000_005,
         currentPath: '/Library/current-book.epub',
       }))
-      .mockResolvedValueOnce(response({ status: 'completed', finishedAt: 1_700_000_010 }))
+      .mockResolvedValueOnce(response({ status: 'completed', finishedAt: 1_700_000_010, filesAdded: 1, pathsUpdated: 1, filesUnchanged: 2, metadataErrors: 1, unsupportedArchives: null }))
     vi.stubGlobal('fetch', fetch)
 
     window.eval(scanProgressSource)
@@ -56,5 +57,6 @@ describe('Settings scan progress', () => {
 
     expect(document.querySelector('[data-library-scan-completion-title]').textContent)
       .toBe('Scan abgeschlossen')
+    expect([...document.querySelectorAll('dd')].map(cell => cell.textContent)).toEqual(['1', '3', '1', 'Not recorded'])
   })
 })

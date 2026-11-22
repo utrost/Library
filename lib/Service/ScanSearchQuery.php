@@ -7,6 +7,8 @@ use OCP\Files\Search\ISearchOrder;
 use OCP\Files\FileInfo;
 /** Public Files search interfaces; compatible with NC33 and the NC34 select-fields addition. */
 final class ScanSearchQuery implements ISearchQuery {
+    public const ARCHIVE_EXTENSIONS = ['rar', 'zip', '7z', 'cbr', 'cb7', 'tar', 'gz', 'bz2', 'xz', 'tgz'];
+
     public function __construct(private int $offset, private int $limit = 200) {}
     private function comparison(string $field, string|array $value, string $type): ISearchComparison {
         return new class($field,$value,$type) implements ISearchComparison {
@@ -23,7 +25,7 @@ final class ScanSearchQuery implements ISearchQuery {
     }
     public function getSearchOperation() {
         $arguments = [$this->comparison('mimetype', ['application/pdf','application/epub+zip','application/comicbook+zip','application/x-cbz','application/oebps-package+xml'], ISearchComparison::COMPARE_IN)];
-        foreach (['pdf','epub','cbz','opf'] as $extension) $arguments[]=$this->comparison('name','%.' . $extension,ISearchComparison::COMPARE_LIKE);
+        foreach (['pdf','epub','cbz','opf', ...self::ARCHIVE_EXTENSIONS] as $extension) $arguments[]=$this->comparison('name','%.' . $extension,ISearchComparison::COMPARE_LIKE);
         return new class($arguments) implements \OCP\Files\Search\ISearchBinaryOperator {
             private array $hints=[];
             public function __construct(private array $arguments) {}

@@ -483,7 +483,7 @@ final class ItemService {
         if ($before && $item) $this->changeHistory?->record($userId,$itemId,'path',$before,$item);
     }
 
-    public function updateItem(string $userId, int $itemId, array $metadata, ?string $expectedRevision = null, ?array $editorLinks = null, ?array $acceptedSources = null, string $changeKind = 'manual'): void {
+    public function updateItem(string $userId, int $itemId, array $metadata, ?string $expectedRevision = null, ?array $editorLinks = null, ?array $acceptedSources = null, string $changeKind = 'manual', ?string $reviewRevision = null): ?array {
         $explicitAuthors = array_key_exists('authors', $metadata);
         $metadata = $this->validateEditableMetadata($metadata);
         $hasIdentifierUpdate = array_key_exists('identifiers', $metadata);
@@ -493,6 +493,9 @@ final class ItemService {
             $this->lockOwnedItem($userId, $itemId);
             $existing = $this->findItem($userId, $itemId);
             if ($existing === null) throw new \OutOfBoundsException('item_not_found');
+            if ($reviewRevision !== null && !hash_equals(CurationInboxService::revision($existing), $reviewRevision)) {
+                throw new MetadataConflictException('metadata_changed');
+            }
             if ($expectedRevision !== null && !hash_equals($existing['metadataRevision'], $expectedRevision)) {
                 throw new MetadataConflictException('metadata_changed');
             }
@@ -598,6 +601,7 @@ final class ItemService {
                         $this->config->setUserValue($userId,'library','home_health_requested',(string)time());
                 } catch (\Throwable) { /* A dashboard failure cannot undo a committed book edit. */ }
             }
+            return $saved;
         } catch (\Throwable $error) { $this->db->rollBack(); throw $error; }
     }
 

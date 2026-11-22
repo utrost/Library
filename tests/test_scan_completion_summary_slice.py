@@ -35,7 +35,7 @@ def test_settings_scan_summary_survives_reload_with_completion_or_failure_notice
     assert "settings_has_scan_completion_summary" in smoke
 
 
-def test_scan_summary_counter_cards_link_to_smart_views_and_metadata_error_export():
+def test_historical_counts_are_separate_from_current_catalogue_actions():
     template = read("templates/settings-personal.php")
     personal = read("lib/Settings/Personal.php")
 
@@ -46,7 +46,9 @@ def test_scan_summary_counter_cards_link_to_smart_views_and_metadata_error_expor
     assert "scanMetadataErrorsExportUrl" in personal
     assert "'needsMetadata' => '1'" in personal
     assert "'status' => 'metadata_error'" in personal
-    assert "library-scan-change-card-link" in template
+    assert "library-scan-change-card-link" not in template
+    assert "scan-result.php" in template
+    assert "Not recorded" in read("templates/scan-result.php")
     assert "data-library-scan-metadata-errors" in template
     assert "latestScanJob['metadataErrors']" in template
     assert "Export metadata-error TSV" in template

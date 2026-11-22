@@ -21,6 +21,12 @@ const entityField = computed(() => ['authors', 'series', 'genres'].includes(fiel
 const fieldLabels = { authors: t('library', 'Authors'), genres: t('library', 'Genres'), series: t('library', 'Series'), part: t('library', 'Part in series'), language: t('library', 'Language'), publisher: t('library', 'Publisher') }
 const statuses = { preparing: t('library', 'Preparing review'), review: t('library', 'Ready for review'), applying: t('library', 'Applying…'), complete: t('library', 'Complete'), paused: t('library', 'Paused'), cancelled: t('library', 'Cancelled'), undoing: t('library', 'Undoing…'), undone: t('library', 'Undone'), failed: t('library', 'Failed'), ready: t('library', 'Ready'), applied: t('library', 'Applied'), conflict: t('library', 'Changed or unavailable'), undo_conflict: t('library', 'Undo blocked by later changes'), skipped: t('library', 'Skipped') }
 const rowErrors = { series_required: t('library', 'Assign a series before setting its part.'), unavailable_or_invalid: t('library', 'This book is unavailable or cannot accept the proposed change.'), changed_or_unavailable: t('library', 'The book or its file changed after review. Prepare a new review to continue.') }
+const initialUrl = new URL(window.location.href)
+if (initialUrl.searchParams.get('reviewFinished') === '1') {
+  notice.value = t('library', 'Book reviewed. You reached the end of this queue.')
+  initialUrl.searchParams.delete('reviewFinished')
+  window.history.replaceState(window.history.state, '', initialUrl)
+}
 let controller, generation = 0, timer
 onBeforeUnmount(() => { generation++; controller?.abort(); clearTimeout(timer) })
 function schedule() { clearTimeout(timer); if (tab.value === 'jobs' && job.value && ['preparing', 'applying', 'undoing'].includes(job.value.status)) timer = setTimeout(() => loadJob(job.value.id, job.value.page), 3000) }
