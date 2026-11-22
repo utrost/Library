@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0-alpha.9 — development
+
+- Browse a book in reading mode or open it for editing from Incoming. Resume the pending queue from Home and save, mark reviewed and advance from Details.
+- See scan outcomes and edition matches before making a selection. Compare proposed corrections, inspect a selection across pages and open an eligible Undo from the result.
+- Preview recipient access before sharing and pin saved searches for quick access. Additional focused checks cover backup, Home health, Notes and Unified Search.
+
 ## 0.4.0-alpha.8 — development
 
 - Add Library of Congress as a fourth metadata provider with reviewed individual/bulk lookup, administrator controls and source-labelled receipts. Share bounded SRU/MARC parsing with DNB while retaining separate identities, caches and pacing. Live LoC verification remains pending endpoint availability.
