@@ -197,7 +197,7 @@ function stage() {
       <p v-if="notice" role="status" class="library-full-details-feedback">{{ notice }}</p>
       <p v-if="searched && !results.length" role="status">{{ t('library', 'No matching editions found. Try the title and author search or edit the book directly.') }}</p>
       <p v-if="searched && results.length" role="status">{{ n('library', '%n matching edition found. Choose one to compare.', '%n matching editions found. Choose one to compare.', results.length) }}</p>
-      <LookupCandidates v-if="results.length" :results="results" :edition-page="editionPage" :disabled="busy || disabled || staged" :compare-label="t('library', 'Compare edition')" @choose="choose" @editions="browseEditions" />
+      <LookupCandidates v-if="results.length" :results="results" :book-languages="draft.language" :book-isbns="(draft.identifiers || []).filter(id => id.scheme === 'isbn').map(id => id.displayValue)" :edition-page="editionPage" :disabled="busy || disabled || staged" :compare-label="t('library', 'Compare edition')" @choose="choose" @editions="browseEditions" />
       <div v-if="edition" class="library-metadata-lookup-review">
         <h3>{{ t('library', 'Selected edition') }} · {{ edition.editionId }}</h3>
         <p>{{ t('library', 'Compare this edition with your current book details. Select only fields you want to stage.') }} <a :href="edition.url" target="_blank" rel="noopener noreferrer">{{ t('library', 'View source at {provider}', { provider: providerName }) }}</a></p>

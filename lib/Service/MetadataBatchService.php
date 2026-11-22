@@ -339,17 +339,18 @@ final class MetadataBatchService {
     }
 
     /** One editor Save, one transaction. Modified staged values become manual edits. */
-    public function saveEditor(string $uid,int $itemId,array $approval,array $draft,string $revision,?array $links): void {
+    public function saveEditor(string $uid,int $itemId,array $approval,array $draft,string $revision,?array $links, ?string $reviewRevision = null): ?string {
         $this->expire();
-        $this->transaction(function() use($uid,$itemId,$approval,$draft,$revision,$links) {
+        return $this->transaction(function() use($uid,$itemId,$approval,$draft,$revision,$links,$reviewRevision) {
             if (!is_string($approval['jobId'] ?? null) || !is_int($approval['reviewVersion'] ?? null) || !is_array($approval['fields'] ?? null) || !array_is_list($approval['fields']) || count($approval['fields'])>20) throw new \InvalidArgumentException('lookup_approval');
             $job=$this->read($uid,$approval['jobId'],true);
             if (($job['payload']['mode'] ?? '')!=='editor' || count($job['payload']['rows'])!==1 || $job['payload']['rows'][0]['id']!==$itemId) throw new \OutOfBoundsException('not_found');
             $row=&$job['payload']['rows'][0];
             $hash=hash('sha256',json_encode([$approval,$draft,$revision,$links],JSON_THROW_ON_ERROR));
-            if ($row['status']==='applied' && hash_equals($row['editorHash'] ?? '',$hash)) return;
+            if ($row['status']==='applied' && hash_equals($row['editorHash'] ?? '',$hash)) return $row['editorReviewRevision'] ?? null;
             if ($row['status']!=='ready' || $approval['reviewVersion']!==$row['reviewVersion']) throw new MetadataConflictException('lookup_changed');
             $current=$this->assertCurrent($uid,$row,null,true);
+            if ($reviewRevision !== null && !hash_equals(CurationInboxService::revision($current), $reviewRevision)) throw new MetadataConflictException('metadata_changed');
             if (!hash_equals($revision,$current['metadataRevision'])) throw new MetadataConflictException('metadata_changed');
             $allowed=array_column($this->proposals($job,$row),'key');
             if (array_diff($approval['fields'],$allowed)) throw new \InvalidArgumentException('lookup_approval');
@@ -373,13 +374,16 @@ final class MetadataBatchService {
                     if ($actual===$expected) $before[$field]=$current[$field] ?? null;
                 }
             }
-            $this->commitChanges($uid,$job,$row,$current,$draft,$before,$links,$cover);
+            $after = $this->commitChanges($uid,$job,$row,$current,$draft,$before,$links,$cover);
+            $token = CurationInboxService::revision($after);
+            $row['editorReviewRevision'] = $token;
             $row['editorHash']=$hash; $row['reviewVersion']++;
             unset($row); $this->save($job);
+            return $token;
         });
     }
 
-    private function commitChanges(string $uid,array $job,array &$row,array $current,array $changes,array $before,?array $links,bool $cover): void {
+    private function commitChanges(string $uid,array $job,array &$row,array $current,array $changes,array $before,?array $links,bool $cover): array {
         $provider=$row['provider'] ?? $job['payload']['provider'];
         $sources=array_fill_keys(array_keys($before),'provider:'.$provider);
         $coverReceipt=null;
@@ -401,12 +405,13 @@ final class MetadataBatchService {
         $this->items->updateItem($uid,$row['id'],$changes,$current['metadataRevision'],$links,$sources);
         if ($cover) $this->restoreCover($uid,$row['id'],$content,$row['cover']['image']['mime'],'provider:'.$provider);
         $after=$this->items->findItem($uid,$row['id']);
-        if (!$before && !$cover) { unset($row['receipt']); $row['status']='applied'; return; }
+        if (!$before && !$cover) { unset($row['receipt']); $row['status']='applied'; return $after; }
         $row['receipt']=['version'=>1,'provider'=>$provider,'editionId'=>$row['editionId'],'url'=>$row['edition']['url'] ?? '',
             'appliedAt'=>time(),'expiresAt'=>time()+7776000,'before'=>$before,'beforeSources'=>array_intersect_key($current['fieldSources'] ?? [],$before),
             'after'=>array_intersect_key($after,$before),'afterRevision'=>$after['metadataRevision']];
         if ($coverReceipt!==null) $row['receipt']['cover']=$coverReceipt+['afterRevision'=>$after['coverCacheRevision']];
         $row['status']='applied';
+        return $after;
     }
 
     private function restoreCover(string $uid,int $itemId,?string $content,?string $mime,?string $source,string $url=''): void {
@@ -517,6 +522,7 @@ final class MetadataBatchService {
             $row['reviewVersion']=(int)($row['reviewVersion'] ?? 0);
             $row['proposals']=$this->proposals($job,$row);
             $row['languageReview']=$this->languageReview($row);
+            $row['bookIsbns'] = $this->fieldValue($row['before'], 'isbn');
             $row['strongMissingFields']=$this->strongMissingFields($job,$row);
             if (isset($row['cover'])) $row['cover']=['expiresAt'=>$row['cover']['expiresAt']];
             if (isset($row['receipt']['cover'])) $row['receipt']['cover']=['changed'=>true];

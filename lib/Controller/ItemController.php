@@ -164,11 +164,16 @@ final class ItemController extends Controller {
                 }
                 $rawApproval=$this->request->getParam('lookupApproval','');
                 if (!is_string($rawApproval) || strlen($rawApproval)>4096) throw new \InvalidArgumentException('lookup_approval');
+                $reviewRevision = $this->request->getParam('reviewRevision');
+                if ($reviewRevision !== null && !is_string($reviewRevision)) throw new \InvalidArgumentException('review_revision');
                 if ($rawApproval!=='') {
                     $approval=json_decode($rawApproval,true);
                     if (!is_array($approval)) throw new \InvalidArgumentException('lookup_approval');
-                    ($this->lookups ?? \OC::$server->get(\OCA\Library\Service\MetadataBatchService::class))->saveEditor($user->getUID(),$itemId,$approval,$draft,$revision,$links);
-                } else $this->itemService->updateItem($user->getUID(), $itemId, $draft, $revision, $links);
+                    $savedReviewRevision = ($this->lookups ?? \OC::$server->get(\OCA\Library\Service\MetadataBatchService::class))->saveEditor($user->getUID(),$itemId,$approval,$draft,$revision,$links,$reviewRevision);
+                } else {
+                    $saved = $this->itemService->updateItem($user->getUID(), $itemId, $draft, $revision, $links, reviewRevision: $reviewRevision);
+                    $savedReviewRevision = $saved ? \OCA\Library\Service\CurationInboxService::revision($saved) : null;
+                }
             } catch (\OutOfBoundsException $e) {
                 return $metadataAutosave
                     ? new JSONResponse(['saved' => false, 'error' => 'Publication not found.'], 404, ['Cache-Control' => 'private, no-store'])
@@ -213,7 +218,7 @@ final class ItemController extends Controller {
         $returnTo = (string)$this->request->getParam('returnTo', '');
         if ($metadataAutosave) {
             $saved = $this->itemService->findItem($user->getUID(), $itemId);
-            return new JSONResponse(['saved' => true, 'metadataRevision' => $saved['metadataRevision'] ?? null], 200, [
+            return new JSONResponse(['saved' => true, 'reviewRevision' => $savedReviewRevision, 'metadataRevision' => $saved['metadataRevision'] ?? null], 200, [
                 'Cache-Control' => 'private, no-store',
             ]);
         }

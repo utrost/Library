@@ -27,3 +27,18 @@ it('requires an explicit provider and offers only its applicable fields', async 
   const body = JSON.parse(fetch.mock.calls[1][1].body)
   expect(body).toMatchObject({ ids: [7], provider: 'dnb', policy: 'missing', fields: ['title', 'language'] })
 })
+
+it('compares candidate evidence against the batch snapshot, including language aliases', async () => {
+  const id = 'b'.repeat(32)
+  const respond = data => ({ ok: true, json: async () => data })
+  const job = { id, status: 'review', provider: 'openlibrary', fields: ['language'], rows: [{
+    id: 8, selected: [], title: 'Fixture title', status: 'matches', languageReview: { current: 'DE' },
+    bookIsbns: ['9780140328721'], results: [{ editionId: 'OL1M', title: 'Example', languages: ['ger'], isbn: ['9780306406157'] }],
+  }] }
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(respond({ options: { providers: [], limit: 50 }, jobs: [{ id, status: 'review' }] })).mockResolvedValueOnce(respond(job)))
+  const wrapper = mount(MetadataBatchLookup, { props: { requestToken: 'fixture' } })
+  await flushPromises()
+  await wrapper.get('li button').trigger('click')
+  await flushPromises()
+  expect(wrapper.get('.library-metadata-lookup-results').text()).toContain('ISBN differs · Language matches')
+})

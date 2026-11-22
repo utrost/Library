@@ -15,7 +15,9 @@ import WriteBack from './WriteBack.vue'
 import ClassificationPicker from './ClassificationPicker.vue'
 import MetadataLookup from './MetadataLookup.vue'
 import { formatFileSize } from '../file-size.js'
-import { detailsReturnContext } from '../details-return.js'
+import { curationRequest } from '../curation-api.js'
+import { readCurationContext } from '../curation-context.js'
+import { bookDetailsUrl, detailsReturnContext } from '../details-return.js'
 import { bookNeighbors } from '../details-neighbors.js'
 import { confirmAction } from '../confirm-action.js'
 
@@ -85,6 +87,46 @@ const dirty = computed(() => savedDraft.value !== '' && (JSON.stringify(draft) !
 const itemId = computed(() => /^[1-9]\d{0,9}$/.test(props.itemId) && Number(props.itemId) <= 2147483647 ? props.itemId : '')
 const itemBase = computed(() => `${props.catalogueUrl.replace(/\/$/, '')}/items/${itemId.value}`)
 const returnContext = computed(() => detailsReturnContext(props.catalogueUrl, window.location.href))
+const incoming = computed(() => {
+  const source = new URL(returnContext.value.url, window.location.origin)
+  const state = readCurationContext(source.search)
+  return source.searchParams.get('curation') === '1' && state.tab === 'inbox' && state.filter === 'pending' ? state : null
+})
+const reviewing = ref(false)
+const reviewController = new AbortController()
+onBeforeUnmount(() => reviewController.abort())
+
+async function finishReview() {
+  if (!incoming.value || busy.value || reviewing.value) return
+  if (dirty.value && !document.getElementById('library-full-details-metadata-form')?.reportValidity()) return
+  reviewing.value = true
+  error.value = ''
+  try {
+    const revision = dirty.value ? await saveMetadata(true) : item.value.reviewRevision
+    if (!revision) return
+    const { signal } = reviewController
+    await curationRequest(`/inbox/${itemId.value}`, props.requestToken, { revision, state: 'done' }, signal)
+    feedback.value = t('library', 'Review state saved.')
+    let before = Number(itemId.value)
+    const { day, rootId } = incoming.value
+    const source = new URL(returnContext.value.url, window.location.origin)
+    while (before > 0) {
+      const page = await curationRequest('/inbox', props.requestToken, { before, filter: 'pending', day, rootId }, signal)
+      if (page.rows.length) {
+        window.location.assign(bookDetailsUrl(props.catalogueUrl, page.rows[0].id, source.href))
+        return
+      }
+      if (!page.next || page.next >= before) break
+      before = page.next
+    }
+    source.searchParams.set('reviewFinished', '1')
+    window.location.assign(source.href)
+  } catch (cause) {
+    if (cause.name !== 'AbortError') error.value = cause.message
+  } finally {
+    reviewing.value = false
+  }
+}
 const neighbors = ref({ previous: null, next: null })
 const neighborsBusy = ref(false)
 let neighborsController = null
@@ -577,12 +619,13 @@ async function markBookForDeletion(marked) {
   finally { busy.value = false }
 }
 
-async function saveMetadata() {
+async function saveMetadata(forReview = false) {
   const body = new FormData()
   body.set('requesttoken', props.requestToken)
   body.set('metadataAutosave', '1')
   body.set('metadataRevision', item.value?.metadataRevision || '')
   body.set('simpleEditor', '1')
+  if (forReview === true) body.set('reviewRevision', item.value.reviewRevision)
   if (lookupApproval.value) body.set('lookupApproval', JSON.stringify(lookupApproval.value))
   body.set('editorLinks', JSON.stringify({
     beforeAuthors: (item.value.canonicalAuthors || []).map(author => Number(author.id)),
@@ -619,8 +662,16 @@ async function saveMetadata() {
     const response = await fetch(item.value.updateUrl, { method: 'POST', body, credentials: 'same-origin' })
     const result = await response.json()
     if (!response.ok || !result.saved) throw new Error(result.error || t('library', 'Metadata was not saved.'))
+    if (forReview === true) {
+      // The write succeeded even if refreshing or marking the book later fails.
+      lookupApproval.value = null
+      savedDraft.value = JSON.stringify(draft)
+    }
     if (!await load({ silent: true })) throw new Error(t('library', 'Metadata was saved, but details could not be reloaded.'))
     feedback.value = t('library', 'Book details saved')
+    if (forReview === true && result.reviewRevision !== item.value.reviewRevision)
+      throw new Error(t('library', 'The book changed. Review its current details before continuing.'))
+    return result.reviewRevision
   } catch (cause) { error.value = cause.message || t('library', 'Metadata was not saved.') }
   finally { busy.value = false }
 }
@@ -721,7 +772,7 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
     <p v-if="feedback" role="status" class="library-full-details-feedback">{{ feedback }}</p>
     <p v-if="item?.markedForDeletionAt" role="status" class="library-full-details-feedback">{{ t('library', 'Marked for deletion in Library. The file remains in Nextcloud Files.') }} <button type="button" class="button secondary" :disabled="busy" @click="markBookForDeletion(false)">{{ t('library', 'Undo mark') }}</button></p>
     <template v-if="item && context">
-      <header class="library-full-details-hero">
+      <header class="library-full-details-hero" :inert="reviewing">
         <div class="library-full-details-cover" @paste="pastedCover">
           <div class="library-full-details-cover-frame">
             <button type="button" class="library-full-details-cover-paste-target" :disabled="busy" :title="t('library', 'Paste a copied image as cover')" :aria-label="t('library', 'Paste a copied image as cover')" @click="prepareCoverPaste"><img :src="`${item.coverUrl}${item.coverUrl.includes('?') ? '&' : '?'}view=${coverRevision}${coverRefreshRequested ? '&refresh=1' : ''}`" alt=""><span class="library-full-details-cover-paste-cue" aria-hidden="true">⎘</span></button>
@@ -739,15 +790,16 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
         <div class="library-full-details-summary"><p class="library-muted">{{ item.publicationType || t('library', 'Publication / periodical') }} · {{ (item.extension || '').toUpperCase() }}</p><h1><bdi dir="auto">{{ item.title || t('library', 'Untitled publication') }}</bdi></h1><p v-if="!item.canonicalAuthors?.length"><bdi dir="auto">{{ item.creators }}</bdi></p><p v-if="item.canonicalAuthors?.length" class="library-full-details-links"><a v-for="author in item.canonicalAuthors" :key="author.id" :href="`${catalogueUrl}?authors=1&authorId=${author.id}`">{{ author.name }}</a></p><p v-if="item.canonicalSeries?.length" class="library-full-details-links"><a v-for="series in item.canonicalSeries" :key="series.id" :href="`${catalogueUrl}?series=1&seriesId=${series.id}`">{{ series.name }}<span v-if="series.part"> · {{ series.part }}</span></a></p><div class="library-full-details-actions"><a class="button primary" :href="item.openUrl" target="_blank" rel="noopener" @click="recordOpen">{{ t('library', 'Open') }}</a><a class="button secondary" :href="item.filesUrl">{{ t('library', 'Show in Files') }}</a><a class="button secondary" :href="item.downloadUrl">{{ t('library', 'Download source') }}</a><DeleteBook v-if="item.scanStatus !== 'missing'" :url="`${itemBase}/deletion`" :request-token="requestToken" :disabled="busy" :marked="!!item.markedForDeletionAt" @deleted="bookDeleted" @mark-requested="markBookForDeletion(true)" /><button v-if="!item.markedForDeletionAt" type="button" class="button secondary" :disabled="busy" @click="markBookForDeletion(true)">{{ t('library', 'Mark for deletion') }}</button></div><div class="library-full-details-personal"><button type="button" class="button secondary" :aria-pressed="!!item.starred" :disabled="busy" @click="post(context.actions.star, { starred: item.starred ? '0' : '1' })">{{ item.starred ? '★' : '☆' }} {{ t('library', 'Favorite') }}</button><label>{{ t('library', 'Reading status') }} <select :value="item.workflowStatus || ''" :disabled="busy" @change="post(context.actions.workflowStatus, { workflowStatus: $event.target.value })"><option v-for="status in workflowOptions" :key="status.value" :value="status.value">{{ status.label }}</option></select></label></div><AddToList :item-ids="[Number(itemId)]" :request-token="requestToken" :lists-url="`${catalogueUrl}?lists=1`" /></div>
       </header>
 
-      <div v-if="dirty" class="library-full-details-savebar" role="group" :aria-label="t('library', 'Book changes')">
-        <span role="status">{{ t('library', 'Unsaved book changes') }}</span>
+      <div v-if="dirty || incoming" class="library-full-details-savebar" role="group" :aria-label="t('library', 'Book changes')">
+        <span v-if="dirty" role="status">{{ t('library', 'Unsaved book changes') }}</span>
         <div class="library-full-details-savebar-actions">
-          <button type="button" class="button secondary" :disabled="busy" @click="discardBookChanges">{{ t('library', 'Discard changes') }}</button>
-          <button type="submit" form="library-full-details-metadata-form" class="button primary" :disabled="busy">{{ busy ? t('library', 'Saving…') : t('library', 'Save book details') }}</button>
+          <button v-if="dirty" type="button" class="button secondary" :disabled="busy || reviewing" @click="discardBookChanges">{{ t('library', 'Discard changes') }}</button>
+          <button v-if="dirty" type="submit" form="library-full-details-metadata-form" class="button" :class="incoming ? 'secondary' : 'primary'" :disabled="busy || reviewing">{{ busy ? t('library', 'Saving…') : t('library', 'Save book details') }}</button>
+          <button v-if="incoming" type="button" class="button primary" :disabled="busy || reviewing" @click="finishReview">{{ reviewing ? t('library', 'Updating…') : dirty ? t('library', 'Save, mark reviewed and next') : t('library', 'Mark reviewed and next') }}</button>
         </div>
       </div>
 
-      <div class="library-full-details-columns">
+      <div class="library-full-details-columns" :inert="reviewing">
         <div class="library-full-details-main">
           <section class="library-full-details-card" aria-labelledby="library-full-details-metadata"><h2 id="library-full-details-metadata">{{ t('library', 'Book details') }}</h2><form id="library-full-details-metadata-form" @submit.prevent="saveMetadata"><div class="library-full-details-fields"><label>{{ t('library', 'Title') }}<input v-model="draft.title" required></label><label>{{ t('library', 'Subtitle') }}<input v-model="draft.subtitle"></label><label>{{ t('library', 'Type') }}<select v-model="draft.publicationType"><option v-for="type in publicationTypes" :key="type.value" :value="type.value">{{ type.label }}</option></select></label><label>{{ t('library', 'Publication / periodical') }}<input v-model="draft.publication"></label><label :title="t('library', 'Use YYYY, YYYY-MM, or YYYY-MM-DD.')">{{ t('library', 'Publication date') }}<input v-model="draft.publicationDate"></label><EntityPicker v-model="draft.publisher" :label="t('library', 'Publisher')" :search="searchPublishers" :disabled="busy" @choose="draft.publisher = $event.label" /><MetadataValuePicker v-model="draft.language" kind="language" :disabled="busy" /><MetadataValuePicker v-model="draft.subjects" kind="subject" :disabled="busy" /><ClassificationPicker v-model="draft.classifications" :request-token="requestToken" :disabled="busy" /><StarRating :model-value="draft.personalRating" :disabled="busy" @update:model-value="draft.personalRating = $event" /><label class="library-full-details-wide">{{ t('library', 'Description') }}<textarea v-model="draft.description" rows="8"></textarea></label></div><fieldset><legend>{{ t('library', 'Identifiers') }}</legend><div v-for="(identifier, index) in draft.identifiers" :key="index" class="library-full-details-identifier"><select v-model="identifier.scheme" :aria-label="t('library', 'Scheme')"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="issn">{{ t('library', 'ISSN') }}</option><option value="asin">{{ t('library', 'ASIN') }}</option><option value="ggkey">{{ t('library', 'GGKEY') }}</option></select><input v-model="identifier.displayValue" :aria-label="t('library', 'Identifier value')"><span v-if="identifier.displayValue && identifier.valid === false && identifier.scheme === identifier.originalScheme && identifier.displayValue === identifier.originalDisplayValue" role="status">{{ ['isbn', 'issn'].includes(identifier.scheme) ? t('library', 'Invalid identifier checksum') : t('library', 'Invalid identifier format') }}</span><button type="button" class="button secondary" :aria-label="t('library', 'Remove identifier')" @click="draft.identifiers.splice(index, 1)">×</button></div><button type="button" class="button secondary" @click="draft.identifiers.push({ scheme: 'isbn', displayValue: '' })">{{ t('library', 'Add identifier') }}</button></fieldset></form></section>
           <MetadataLookup :item="item" :draft="draft" :base-url="itemBase" :request-token="requestToken" :disabled="busy" :staged="lookupApproval !== null" @stage="stageLookup" />

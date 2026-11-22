@@ -1,9 +1,13 @@
 <script setup>
 import GoogleBooksAttribution from './GoogleBooksAttribution.vue'
+import { normalizeLanguageCode, validLanguageCode } from '../language-code.js'
+import { validIsbn } from '../path-inference.js'
 import { nextTick, ref, watch } from 'vue'
 import { t } from '@nextcloud/l10n'
 
 const props = defineProps({
+  bookLanguages: { type: String, default: '' },
+  bookIsbns: { type: Array, default: () => [] },
   results: { type: Array, default: () => [] },
   editionPage: { type: Object, default: null },
   disabled: { type: Boolean, default: false },
@@ -24,6 +28,36 @@ function evidence(candidate) {
   return [candidate.authors?.join(', '), candidate.publisher, candidate.year, candidate.format,
     candidate.languages?.join(', ')].filter(Boolean).join(' · ')
 }
+const languageNames = typeof Intl.DisplayNames === 'function'
+  ? new Intl.DisplayNames([document.documentElement.lang || 'en'], { type: 'language' })
+  : null
+function languageLabel(codes) {
+  return codes.split(', ').map(code => languageNames?.of(code) || code).join(', ')
+}
+function languageSet(value) {
+  const codes = String(value || '').split(/[;,\n]/).map(code => code.trim()).filter(Boolean).map(normalizeLanguageCode)
+  return codes.length && codes.every(validLanguageCode) ? [...new Set(codes)].sort().join(', ') : ''
+}
+function comparableIsbn(value) {
+  const isbn = String(value).replace(/[\s-]/g, '').toUpperCase()
+  if (!validIsbn(isbn)) return ''
+  // Compare edition identifiers without the check digit, including ISBN-10 equivalents.
+  return isbn.length === 10 ? '978' + isbn.slice(0, 9) : isbn.slice(0, 12)
+}
+function summary(candidate) {
+  const parts = []
+  const saved = props.bookIsbns.map(comparableIsbn).filter(Boolean)
+  const offered = (candidate.isbn || []).map(comparableIsbn).filter(Boolean)
+  if (saved.length && offered.length) {
+    parts.push(saved.some(id => offered.includes(id)) ? t('library', 'ISBN matches') : t('library', 'ISBN differs'))
+  }
+  const current = languageSet(props.bookLanguages)
+  const proposed = languageSet(candidate.languages)
+  if (current && proposed) {
+    parts.push(current === proposed ? t('library', 'Language matches') : t('library', 'Language differs ({current} → {proposed})', { current: languageLabel(current), proposed: languageLabel(proposed) }))
+  }
+  return parts.join(' · ')
+}
 function reason(candidate) {
   if (candidate.match === 'isbn_mismatch') return t('library', 'The searched ISBN is not listed for this result. Do not treat it as an exact match.')
   if (candidate.match === 'isbn') return t('library', 'This provider edition contains the searched ISBN. Check its language, format and publication date before choosing.')
@@ -38,9 +72,13 @@ function browse(workId, offset = 0) { requestedFocus = candidateRoot.value?.cont
     <ul class="library-metadata-lookup-results" :aria-label="t('library', 'Matching editions')">
       <li v-for="(candidate, index) in results" :key="candidate.editionId">
         <strong>{{ candidate.title }}</strong>
+        <span class="library-muted">{{ [candidate.authors?.join(', '), candidate.year].filter(Boolean).join(' · ') }}</span>
+        <span class="library-lookup-evidence">{{ summary(candidate) }}</span>
+        <details><summary>{{ t('library', 'Edition evidence') }}</summary>
         <span class="library-muted">{{ evidence(candidate) }}</span>
         <span>{{ t('library', 'ISBN') }}: {{ candidate.isbn?.join(', ') || '—' }}</span>
         <small>{{ reason(candidate) }}</small>
+        </details>
         <div class="library-lookup-candidate-actions">
           <a :href="candidate.url" target="_blank" rel="noopener noreferrer">{{ t('library', 'Provider source') }}</a>
           <button type="button" class="button secondary" :disabled="disabled" :aria-label="`${compareLabel || t('library', 'Review this edition')} ${candidate.editionId}: ${candidate.title}`" @click="emit('choose', candidate)">{{ compareLabel || t('library', 'Review this edition') }}</button>
@@ -55,9 +93,13 @@ function browse(workId, offset = 0) { requestedFocus = candidateRoot.value?.cont
       <ul>
         <li v-for="candidate in editionPage.results" :key="candidate.editionId">
           <strong>{{ candidate.title }}</strong>
+          <span class="library-muted">{{ [candidate.authors?.join(', '), candidate.year].filter(Boolean).join(' · ') }}</span>
+        <span class="library-lookup-evidence">{{ summary(candidate) }}</span>
+          <details><summary>{{ t('library', 'Edition evidence') }}</summary>
           <span class="library-muted">{{ evidence(candidate) }}</span>
           <span>{{ t('library', 'ISBN') }}: {{ candidate.isbn?.join(', ') || '—' }}</span>
           <small>{{ reason(candidate) }}</small>
+          </details>
           <div class="library-lookup-candidate-actions">
             <a :href="candidate.url" target="_blank" rel="noopener noreferrer">{{ t('library', 'Provider source') }}</a>
             <button type="button" class="button secondary" :disabled="disabled" :aria-label="`${compareLabel || t('library', 'Review this edition')} ${candidate.editionId}: ${candidate.title}`" @click="emit('choose', candidate)">{{ compareLabel || t('library', 'Review this edition') }}</button>
@@ -78,6 +120,7 @@ function browse(workId, offset = 0) { requestedFocus = candidateRoot.value?.cont
 .library-lookup-candidates, .library-lookup-candidates ul, .library-lookup-candidates li, .library-lookup-edition-page { display: grid; gap: .5rem; min-width: 0; }
 .library-lookup-candidates ul { list-style: none; margin: 0; padding: 0; }
 .library-lookup-candidates li { padding: .75rem 0; border-bottom: 1px solid var(--color-border); overflow-wrap: anywhere; }
+.library-lookup-candidates span:empty { display: none; }
 .library-lookup-candidates p, .library-lookup-candidates h4 { margin: 0; }
 .library-lookup-candidate-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
 .library-lookup-candidate-actions button { white-space: normal; max-width: 100%; }

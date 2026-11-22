@@ -12,6 +12,22 @@ function service(string $name): object { return \OC::$server->get('OCA\\Library\
 $mode=$argv[1] ?? 'seed';
 if($mode==='worker') { for($i=0;$i<12;$i++) service('CurationJobService')->advance(); echo "curation_worker_complete=true\n";exit; }
 $files=\OC::$server->get(\OCP\Files\IRootFolder::class)->getUserFolder($uid);
+if ($mode === 'scan-report') {
+    $name = 'Mixed scan ' . bin2hex(random_bytes(4));
+    $folder = $files->newFolder($name);
+    $folder->newFile('existing.pdf', file_get_contents('/tmp/library-fixture.pdf'));
+    $root = service('RootService')->saveRoot($uid, '/' . $name, $name, true);
+    $scanner = service('LibraryScanner');
+    $scanner->scan($uid, (int)$root['id']);
+    $folder->newFile('mixed.rar', 'Test archive');
+    $folder->newFile('existing.opf', '<package><metadata/></package>');
+    $bad = $folder->newFile('unreadable.cbz', 'Test broken archive');
+    $jobs = service('ScanJobService');
+    $job = $jobs->startJob($uid, 'root', (int)$root['id']);
+    $jobs->finishJob($uid, $job['id'], $scanner->scan($uid, (int)$root['id']));
+    echo json_encode(['job' => $job['id'], 'fileId' => $bad->getId()], JSON_THROW_ON_ERROR);
+    exit;
+}
 if($mode==='seed') {
     if(!$files->nodeExists('IncomingPilot')) {
         $folder=$files->newFolder('IncomingPilot');$pdf=file_get_contents('/tmp/library-fixture.pdf');

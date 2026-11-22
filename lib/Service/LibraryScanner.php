@@ -139,6 +139,7 @@ final class LibraryScanner {
             ? $this->journal()->page($userId) : null;
         $indexed = 0;
         $summary = $this->emptyChangeSummary();
+        $summary['unsupportedArchives'] = 0;
         $errors = [];
         $scopeRootId = $onlyRootId;
         $roots = $this->filterRootsForScope($userId, $scopeRootId);
@@ -378,7 +379,7 @@ final class LibraryScanner {
                 continue;
             }
 
-            if (!$node instanceof File || !$this->isSupported($node)) {
+            if (!$node instanceof File || !$this->includeInTraversal($node, $summary)) {
                 continue;
             }
 
@@ -429,7 +430,7 @@ final class LibraryScanner {
                 $path = $this->displayPath($node,$userId);
                 if ($progress) $progress($indexed,$traversalUnits,$path);
                 if (!$node->isReadable()) throw new \RuntimeException('Source access changed during scan');
-                if (!$node instanceof File || !$this->isSupported($node)) continue;
+                if (!$node instanceof File || !$this->includeInTraversal($node, $summary)) continue;
                 $expectedId = $node->getId();
                 $relative = $folder->getRelativePath($node->getPath());
                 if ($relative === null) throw new \RuntimeException('Search result outside root');
@@ -580,7 +581,7 @@ final class LibraryScanner {
                 $indexedFile['previousMetadataInputFingerprint']??null,$revision,$indexedFile['previousMetadataExtractorRevision']??null,
                 fn()=>$this->itemService->hasItemForLibraryFile($userId,(int)$indexedFile['id']))) {
                 $this->fileIndexService->markScanError($userId,(int)$indexedFile['id'],$indexedFile['previousScanError'],$fingerprint,$revision);
-                if ($summary!==null) $summary['metadataErrors']++;
+                if ($summary!==null) $this->recordMetadataError($summary, $node);
                 $this->metrics['fingerprintSkips']++;
                 $this->metrics['cachedWarningSkips']++;
                 return true;
@@ -614,7 +615,7 @@ final class LibraryScanner {
             $metadataError = $this->metadataService->getLastError();
             if ($metadataError !== null) {
                 if ($summary !== null) {
-                    $summary['metadataErrors']++;
+                    $this->recordMetadataError($summary, $node);
                 }
                 $cacheable=MetadataFastPathDecision::deterministicWarning($metadataError)
                     && MetadataFastPathDecision::shouldMarkProcessed($fingerprint,$postExtractionFingerprint,null);
@@ -627,7 +628,7 @@ final class LibraryScanner {
             throw $e;
         } catch (Throwable $e) {
             if ($summary !== null) {
-                $summary['metadataErrors']++;
+                $this->recordMetadataError($summary, $node);
             }
             $diagnostic = SafeDiagnostics::fromThrowable(
                 'metadata_extraction_failed',
@@ -695,6 +696,22 @@ final class LibraryScanner {
             $this->reconciliationRoots[$key] = $this->fileIndexService->hasFilesForRoot($userId, $rootId);
         }
         return $this->reconciliationRoots[$key];
+    }
+
+    private function recordMetadataError(array &$summary, File $file): void {
+        $summary['metadataErrors']++;
+        if (count($summary['errorSamples'] ?? []) < 10) {
+            $summary['errorSamples'][] = ['fileId' => (int)$file->getId(), 'name' => $file->getName()];
+        }
+    }
+
+    private function includeInTraversal(File $file, array &$summary): bool {
+        if ($this->isSupported($file)) return true;
+        $extension = strtolower(pathinfo($file->getName(), PATHINFO_EXTENSION));
+        if (isset($summary['unsupportedArchives']) && in_array($extension, ScanSearchQuery::ARCHIVE_EXTENSIONS, true)) {
+            $summary['unsupportedArchives']++;
+        }
+        return false;
     }
 
     private function isSupported(File $file): bool {

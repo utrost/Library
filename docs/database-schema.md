@@ -148,3 +148,5 @@ The additive `Version000400Date20261108100000` migration adds ten tables:
 `library_genres.parent_id` is nullable; the owner/parent/id index supports child lookup. `library_files` gains an owner/first-indexed/id index. `library_items` gains an owner/user-edited/updated-at/id index. `library_list_entries` gains nullable `unavailable_title` and permits null item/file references for restored unavailable entries; original IDs never identify an unrelated destination book.
 
 The XML reference includes these fields/indexes. Physical schema checks and a populated alpha.5 upgrade have **not** run for this checkpoint. Rollback requires the old package plus its database/appdata backup; explicit source writes additionally require Files/original backups. See [curation recovery](curation-alpha6.md#upgrade-and-rollback).
+
+Completed full scans store the count of unsupported archives in the nullable `library_scan_jobs.unsupported_archives` column. Older or targeted scans leave this count unknown. Metadata errors can overlap with new and existing books. The nullable `error_samples` field holds up to ten filenames and Nextcloud file IDs from the job for the owner to inspect.
