@@ -42,3 +42,28 @@ it('compares candidate evidence against the batch snapshot, including language a
   await flushPromises()
   expect(wrapper.get('.library-metadata-lookup-results').text()).toContain('ISBN differs · Language matches')
 })
+
+it('opens a receipt from the apply result and identifies a later edit that blocks Undo', async () => {
+  window.history.replaceState({}, '', '/apps/library/?metadataLookup=1')
+  const id = 'c'.repeat(32)
+  const ready = { id: 12, title: 'Synthetic book', provider: 'openlibrary', status: 'ready', reviewVersion: 2, selected: ['publisher'],
+    edition: { fields: { title: 'Synthetic book' } }, results: [], proposals: [{ key: 'publisher', before: 'Old', after: 'New' }] }
+  const job = row => ({ id, status: 'review', provider: 'openlibrary', fields: ['publisher'], rows: [row] })
+  const applied = { ...ready, status: 'applied', receipt: { before: { publisher: 'Old' }, after: { publisher: 'New' } } }
+  const ok = data => ({ ok: true, json: async () => data })
+  const fetch = vi.fn().mockResolvedValueOnce(ok({ options: { providers: [], limit: 50 }, jobs: [{ id, status: 'review' }] }))
+    .mockResolvedValueOnce(ok(job(ready))).mockResolvedValueOnce(ok(job(applied)))
+    .mockResolvedValueOnce({ ok: false, json: async () => ({ error: 'undo_conflict', bookId: 12, fields: ['publisher'] }) })
+  vi.stubGlobal('fetch', fetch)
+  const wrapper = mount(MetadataBatchLookup, { attachTo: document.body, props: { requestToken: 'fixture' } })
+  await flushPromises()
+  await wrapper.get('li button').trigger('click'); await flushPromises()
+  expect(wrapper.get('.field-change').text()).toContain('Replace')
+  await wrapper.findAll('button').find(b => b.text() === 'Apply now').trigger('click'); await flushPromises()
+  const outcome = wrapper.get('section[aria-live="polite"]')
+  expect(outcome.text()).toContain('Books changed: 1')
+  await outcome.findAll('button').find(b => b.text() === 'View receipt').trigger('click'); await flushPromises()
+  expect(wrapper.get('#lookup-receipt-12').element.open).toBe(true)
+  await outcome.findAll('button').find(b => b.text() === 'Undo').trigger('click'); await flushPromises()
+  expect(wrapper.get('[role=alert]').text()).toContain('Cannot undo changes to Synthetic book. Changed since approval: Publisher.')
+})

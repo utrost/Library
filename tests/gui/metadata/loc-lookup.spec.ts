@@ -17,7 +17,7 @@ async function journey(page, testInfo) {
     return route.fulfill({ json: { provider: 'Library of Congress', results: [{ provider: 'Library of Congress', editionId: '2025000001', title: 'LOC fixture book', url: 'https://lccn.loc.gov/2025000001', authors: ['Example Writer'], isbn: [], languages: ['ger'], match: 'title_author' }] } })
   })
   await page.route(`**${base}/metadata-lookup/edition`, route => route.fulfill({ json: fixture.edition }))
-  await page.goto(`/apps/library/?details=${fixture.itemId}`)
+  await page.goto(`/apps/library/?details=${fixture.itemId}&edit=1`)
   const lookup = page.locator('.library-metadata-lookup')
   await lookup.locator('summary').click()
   await lookup.getByRole('combobox', { name: 'Provider', exact: true }).selectOption('loc')

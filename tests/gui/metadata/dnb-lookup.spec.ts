@@ -17,7 +17,7 @@ async function journey(page, testInfo) {
     return route.fulfill({ json: { provider: 'DNB', results: [{ provider: 'DNB', editionId: '123456789X', title: 'DNB fixture book', url: 'https://d-nb.info/123456789X', authors: ['Example Writer'], isbn: [], languages: ['ger'], match: 'title_author' }] } })
   })
   await page.route(`**${base}/metadata-lookup/edition`, route => route.fulfill({ json: fixture.edition }))
-  await page.goto(`/apps/library/?details=${fixture.itemId}`)
+  await page.goto(`/apps/library/?details=${fixture.itemId}&edit=1`)
   const lookup = page.locator('.library-metadata-lookup')
   await lookup.locator('summary').click()
   await lookup.getByRole('combobox', { name: 'Provider', exact: true }).selectOption('dnb')

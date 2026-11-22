@@ -1,4 +1,6 @@
 <script setup>
+import { undoConflictText } from '../undo-conflict.js'
+import FieldChange from './FieldChange.vue'
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { t, n } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
@@ -11,6 +13,7 @@ import CurationEntityPicker from './CurationEntityPicker.vue'
 const props = defineProps({ requestToken: String, itemIds: { type: Array, default: () => [] } })
 const emit = defineEmits(['close', 'lookup', 'changed'])
 const initial = readCurationContext()
+let resuming = new URLSearchParams(window.location.search).get('resumeIncoming') === '1'
 const day = ref(initial.day), rootId = ref(initial.rootId), roots = ref([])
 const tab = ref(props.itemIds.length && !new URLSearchParams(window.location.search).has('curationTab') ? 'jobs' : initial.tab)
 const filter = ref(initial.filter), inbox = ref([]), next = ref(null), before = ref(initial.before), pages = ref(initial.pages), selected = ref(initial.selected), jobs = ref([]), job = ref(null), busy = ref(false), error = ref(''), notice = ref(''), scanned = ref(0)
@@ -38,13 +41,26 @@ async function run(work) {
 }
 function loadInbox(cursor = 0, history = pages.value, resetSelection = false) { return run(async (signal, token) => {
   let data, examined = 0, windowCursor = cursor
-  // Skip empty filtered windows, but cap each interaction at 200 examined records.
-  for (let attempt = 0; attempt < 4; attempt++) {
-    data = await curationRequest('/inbox', props.requestToken, { before: windowCursor, filter: filter.value, day: day.value, rootId: rootId.value }, signal)
+  // Browse up to four windows per page. Resume follows the same descending cursor until it finds work.
+  for (let attempt = 0; resuming || attempt < 4; attempt++) {
+    data = await curationRequest('/inbox', props.requestToken, { before: windowCursor, filter: filter.value, day: day.value, rootId: rootId.value, remember: true }, signal)
     if (token !== generation) return
     examined += data.scanned || 0
-    if (data.rows.length || !data.next || data.next === windowCursor) break
+    if (resuming) {
+      const nextBook = data.rows.find(row => row.state !== 'done')
+      if (nextBook) {
+        before.value = windowCursor
+        window.location.assign(bookUrl(nextBook.id))
+        return
+      }
+    }
+    if ((!resuming && data.rows.length) || !data.next || (windowCursor > 0 && data.next >= windowCursor)) break
     windowCursor = data.next
+  }
+  if (resuming) {
+    resuming = false
+    notice.value = t('library', 'You reached the end of this review session.')
+    persistContext()
   }
   inbox.value = data.rows; next.value = data.next; before.value = cursor; pages.value = history; scanned.value = examined
   if (data.roots) roots.value = data.roots
@@ -85,11 +101,11 @@ function clearBatch() { day.value = ''; rootId.value = 0; resetInbox() }
 function comparison(row, after) {
   const key = job.value.spec.field
   const values = after ? row.proposed : row.before
-  if (!values) return '—'
-  const raw = after && !entityFieldFor(key) ? values.metadata[key] : entityFieldFor(key) || key === 'part' ? values.links?.[key] : values[key]
+  if (!values) return ''
+  const raw = entityFieldFor(key) || key === 'part' ? values.links?.[key] : after ? values.metadata?.[key] : values[key]
   const names = row.names || {}
-  if (Array.isArray(raw)) return raw.map(id => names[key]?.[id] || `#${id}`).join('; ') || '—'
-  return key === 'series' ? names.series?.[raw] || (raw ? `#${raw}` : '—') : String(raw || '—')
+  if (Array.isArray(raw)) return raw.map(id => names[key]?.[id] || `#${id}`).join('; ')
+  return key === 'series' ? names.series?.[raw] || (raw ? `#${raw}` : '') : String(raw ?? '')
 }
 const entityFieldFor = key => ['authors', 'genres', 'series'].includes(key)
 watch(field, () => { entities.value = []; value.value = ''; mode.value = ['authors', 'genres'].includes(field.value) ? 'add' : 'set'; requestId.value = '' })
@@ -125,8 +141,12 @@ onMounted(() => { if (tab.value === 'jobs' && initial.job) loadJob(initial.job, 
         <h3>{{ fieldLabels[job.spec.field] }} · {{ statuses[job.status] }}</h3><p>{{ job.prepared }} / {{ job.count }} · {{ t('library', 'Receipts available until') }} {{ new Date(job.expiresAt * 1000).toLocaleDateString() }}</p>
         <p v-if="['preparing', 'applying', 'undoing'].includes(job.status)" role="status">{{ t('library', 'The background worker continues while you leave this page. Updates appear automatically.') }}</p>
         <p v-for="count in job.counts" :key="count.status">{{ statuses[count.status] }}: {{ count.n }}</p>
-        <div class="actions"><button v-if="job.status === 'review'" type="button" :disabled="busy" @click="control('approve')">{{ t('library', 'Apply reviewed changes') }}</button><button v-if="['preparing', 'applying'].includes(job.status)" type="button" :disabled="busy" @click="control('pause')">{{ t('library', 'Pause') }}</button><button v-if="['paused', 'failed'].includes(job.status)" type="button" :disabled="busy" @click="control('resume')">{{ t('library', 'Resume') }}</button><button v-if="!['complete', 'undone', 'cancelled'].includes(job.status)" type="button" :disabled="busy" @click="control('cancel')">{{ t('library', 'Cancel job') }}</button><button v-if="['complete', 'cancelled'].includes(job.status)" type="button" :disabled="busy" @click="control('undo')">{{ t('library', 'Undo') }}</button><button v-if="['complete', 'cancelled', 'undone', 'review'].includes(job.status)" type="button" :disabled="busy" @click="control('delete')">{{ t('library', 'Delete job') }}</button><button type="button" :disabled="busy" @click="allJobs">{{ t('library', 'All jobs') }}</button></div>
-        <div class="table-wrap"><table role="table"><thead role="rowgroup"><tr role="row"><th role="columnheader">{{ t('library', 'Book') }}</th><th role="columnheader">{{ t('library', 'Before') }}</th><th role="columnheader">{{ t('library', 'Proposed value') }}</th><th role="columnheader">{{ t('library', 'Status') }}</th></tr></thead><tbody role="rowgroup"><tr v-for="row in job.rows" :key="row.id" role="row"><td role="cell"><span class="mobile-label" aria-hidden="true">{{ t('library', 'Book') }}</span><a :href="bookUrl(row.id)">{{ row.title || t('library', 'Unavailable book') }}</a></td><td role="cell"><span class="mobile-label" aria-hidden="true">{{ t('library', 'Before') }}</span>{{ comparison(row, false) }}</td><td role="cell"><span class="mobile-label" aria-hidden="true">{{ t('library', 'Proposed value') }}</span>{{ comparison(row, true) }}</td><td role="cell"><span class="mobile-label" aria-hidden="true">{{ t('library', 'Status') }}</span>{{ statuses[row.status] }}<p v-if="row.error">{{ rowErrors[row.error] || t('library', 'Could not complete the operation. Check your input and try again.') }}</p> <button v-if="job.status === 'review' && ['ready', 'skipped'].includes(row.status)" type="button" :disabled="busy" @click="control(row.status === 'ready' ? 'skip' : 'include', row.id)">{{ row.status === 'ready' ? t('library', 'Skip') : t('library', 'Include') }}</button></td></tr></tbody></table></div>
+        <div class="actions"><button v-if="['preparing', 'applying'].includes(job.status)" type="button" :disabled="busy" @click="control('pause')">{{ t('library', 'Pause') }}</button><button v-if="['paused', 'failed'].includes(job.status)" type="button" :disabled="busy" @click="control('resume')">{{ t('library', 'Resume') }}</button><button v-if="!['complete', 'undone', 'cancelled'].includes(job.status)" type="button" :disabled="busy" @click="control('cancel')">{{ t('library', 'Cancel job') }}</button><button v-if="['complete', 'cancelled'].includes(job.status) && job.counts.some(row => row.status === 'applied' && Number(row.n) > 0)" type="button" :disabled="busy" @click="control('undo')">{{ t('library', 'Undo') }}</button><button v-if="['complete', 'cancelled', 'undone', 'review'].includes(job.status)" type="button" :disabled="busy" @click="control('delete')">{{ t('library', 'Delete job') }}</button><button type="button" :disabled="busy" @click="allJobs">{{ t('library', 'All jobs') }}</button></div>
+        <p v-if="['complete','cancelled','undone'].includes(job.status)">{{ t('library', 'Books changed: {count}', { count: job.counts.filter(row => ['applied','undo_conflict'].includes(row.status)).reduce((sum,row) => sum + Number(row.n), 0) }) }}
+          <a href="#organisation-receipt">{{ t('library', 'View receipt') }}</a>
+        </p>
+        <div id="organisation-receipt" tabindex="-1" class="table-wrap"><table role="table"><thead role="rowgroup"><tr role="row"><th role="columnheader">{{ t('library', 'Book') }}</th><th role="columnheader">{{ fieldLabels[job.spec.field] }}</th><th role="columnheader">{{ t('library', 'Status') }}</th></tr></thead><tbody role="rowgroup"><tr v-for="row in job.rows" :key="row.id" role="row"><td role="cell"><span class="mobile-label" aria-hidden="true">{{ t('library', 'Book') }}</span><a :href="bookUrl(row.id)">{{ row.title || t('library', 'Unavailable book') }}</a></td><td role="cell"><FieldChange v-if="row.proposed" :before="comparison(row, false)" :after="comparison(row, true)" /><span v-else>—</span></td><td role="cell"><span class="mobile-label" aria-hidden="true">{{ t('library', 'Status') }}</span>{{ statuses[row.status] }}<p v-if="row.undoFields">{{ undoConflictText(row.title, row.undoFields, fieldLabels) }}</p><p v-else-if="row.error">{{ rowErrors[row.error] || t('library', 'Could not complete the operation. Check your input and try again.') }}</p> <button v-if="job.status === 'review' && ['ready', 'skipped'].includes(row.status)" type="button" :disabled="busy" @click="control(row.status === 'ready' ? 'skip' : 'include', row.id)">{{ row.status === 'ready' ? t('library', 'Skip') : t('library', 'Include') }}</button></td></tr></tbody></table></div>
+        <button v-if="job.status === 'review'" type="button" :disabled="busy" @click="control('approve')">{{ t('library', 'Apply reviewed changes') }}</button>
         <nav :aria-label="t('library', 'Pagination')"><button :disabled="busy || job.page === 1" @click="loadJob(job.id, job.page - 1)">{{ t('library', 'Previous') }}</button><span>{{ t('library', 'Page') }} {{ job.page }}</span><button :disabled="busy || !job.hasNext" @click="loadJob(job.id, job.page + 1)">{{ t('library', 'Next') }}</button></nav>
       </template>
       <ul v-else><li v-for="row in jobs" :key="row.id"><button type="button" :disabled="busy" @click="loadJob(row.id)">{{ new Date(row.created_at * 1000).toLocaleString() }} · {{ statuses[row.status] }}</button></li></ul>

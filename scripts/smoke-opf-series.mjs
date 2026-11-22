@@ -27,13 +27,13 @@ try {
     page.on('pageerror', e => errors.push(e.message))
     const row = page.locator('[aria-labelledby="library-full-details-series-heading"]')
     for (const item of fixture.items) {
-      await page.goto(`${base}/apps/library/?details=${item.id}`)
+      await page.goto(`${base}/apps/library/?details=${item.id}&edit=1`)
       await expect(row.getByRole('link', { name: item.series_name, exact: true })).toBeVisible()
       await expect(row.getByLabel('Part in series', { exact: true })).toHaveValue(item.series_number)
       await row.screenshot({ path: `${out}/${engine}-${item.title.split(' ')[0]}.png` })
     }
     const edited = fixture.items[0]
-    await page.goto(`${base}/apps/library/?details=${edited.id}`)
+    await page.goto(`${base}/apps/library/?details=${edited.id}&edit=1`)
     await row.getByRole('button', { name: 'Change series', exact: true }).click()
     await row.getByRole('combobox', { name: 'Choose a series' }).fill('My corrected series')
     await row.getByRole('button', { name: 'Create and choose series', exact: true }).click()

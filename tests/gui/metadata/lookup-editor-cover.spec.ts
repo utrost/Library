@@ -12,7 +12,7 @@ async function journey(page, testInfo) {
   await page.route(`**${base}/metadata-lookup`, route => route.fulfill({ json: { results: [{ editionId: 'OL1M', title: 'Example edition' }] } }))
   await page.route(`**${base}/metadata-lookup/edition`, route => route.fulfill({ json: fixture.edition }))
   await page.route(`**/api/metadata-batches/${fixture.job.id}/books/${fixture.itemId}/cover-preview`, route => route.fulfill({ json: fixture.job }))
-  await page.goto(`/apps/library/?details=${fixture.itemId}`)
+  await page.goto(`/apps/library/?details=${fixture.itemId}&edit=1`)
   const lookup = page.locator('.library-metadata-lookup')
   await lookup.locator('summary').click()
   await lookup.getByRole('button', { name: 'Search Open Library', exact: true }).click()

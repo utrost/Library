@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 namespace OCA\Library\Service;
+use OCA\Library\Exception\UndoConflict;
 use OCP\IDBConnection;
 use OCP\Lock\ILockingProvider;
 use OCA\Library\Exception\MetadataConflictException;
@@ -79,7 +80,7 @@ final class CurationJobService {
         $job=$this->job($uid,$id);$page=max(1,min(100,$page));
         $counts=$this->rows('SELECT status,COUNT(*) AS n FROM *PREFIX*library_curation_rows WHERE job_id=? AND user_id=? GROUP BY status',[$id,$uid]);
         $rows=$this->rows('SELECT id,item_id,status,payload FROM *PREFIX*library_curation_rows WHERE job_id=? AND user_id=? ORDER BY id LIMIT 50 OFFSET '.(($page-1)*50),[$id,$uid]);
-        foreach ($rows as &$row) { $p=json_decode($row['payload'],true,64,JSON_THROW_ON_ERROR);$row=['id'=>(int)$row['item_id'],'status'=>$row['status'],'title'=>$p['title'] ?? '', 'before'=>isset($p['before']) ? (in_array($job['data']['spec']['field'],['authors','genres','series','part'],true) ? ['links'=>array_intersect_key($p['before']['links'],[$job['data']['spec']['field']=>true])] : array_intersect_key($p['before'],[$job['data']['spec']['field']=>true])) : null,'proposed'=>isset($p['links']) ? ['metadata'=>$p['metadata'],'links'=>array_intersect_key($p['links'],array_flip(['authors','series','part','genres']))] : null,'error'=>$p['error'] ?? null,'names'=>$p['names'] ?? []]; }
+        foreach ($rows as &$row) { $p=json_decode($row['payload'],true,64,JSON_THROW_ON_ERROR);$row=['id'=>(int)$row['item_id'],'status'=>$row['status'],'title'=>$p['title'] ?? '', 'before'=>isset($p['before']) ? (in_array($job['data']['spec']['field'],['authors','genres','series','part'],true) ? ['links'=>array_intersect_key($p['before']['links'],[$job['data']['spec']['field']=>true])] : array_intersect_key($p['before'],[$job['data']['spec']['field']=>true])) : null,'proposed'=>isset($p['links']) ? ['metadata'=>$p['metadata'],'links'=>array_intersect_key($p['links'],array_flip(['authors','series','part','genres']))] : null,'error'=>$p['error'] ?? null,'undoFields'=>$p['undoFields'] ?? null,'names'=>$p['names'] ?? []]; }
         return ['id'=>$id,'status'=>$job['status'],'spec'=>$job['data']['spec'],'count'=>count($job['data']['ids']),'prepared'=>(int)$job['work_cursor'],'counts'=>$counts,'rows'=>$rows,'page'=>$page,'hasNext'=>$page*50<(int)$job['work_cursor'],'expiresAt'=>(int)$job['expires_at']];
     }
     public function list(string $uid): array { return $this->rows('SELECT id,status,created_at,expires_at FROM *PREFIX*library_curation_jobs WHERE user_id=? AND expires_at>? ORDER BY created_at DESC LIMIT 20',[$uid,time()]); }
@@ -128,9 +129,16 @@ final class CurationJobService {
                     {
                         $this->db->executeStatement('UPDATE *PREFIX*library_items SET id=id WHERE user_id=? AND id=?',[$uid,$itemId]);
                         $item=$this->access->require($uid,$itemId);
-                        if ((int)$item['fileId']!==(int)$p['fileId'] || $item['liveEtag']!==$p['etag'] || $item['metadataRevision']!==($undo ? $p['afterRevision'] : $p['revision'])) throw new MetadataConflictException('metadata_changed');
                         if ($undo) {
-                            if ($this->history->snapshot($item)!==$p['after']) throw new MetadataConflictException('relationships_changed');
+                            $current = $this->history->snapshot($item);
+                            $fields = UndoConflict::changedKeys(array_diff_key($p['after'], ['links'=>true]), $current);
+                            $fields = array_merge($fields, UndoConflict::changedKeys($p['after']['links'], $current['links']));
+                            if ((int)$item['fileId'] !== (int)$p['fileId'] || $item['liveEtag'] !== $p['etag']) $fields[] = 'file';
+                            if ($fields || $current !== $p['after'] || $item['metadataRevision'] !== $p['afterRevision']) throw new UndoConflict($itemId, $fields);
+                        } elseif ((int)$item['fileId'] !== (int)$p['fileId'] || $item['liveEtag'] !== $p['etag'] || $item['metadataRevision'] !== $p['revision']) {
+                            throw new MetadataConflictException('metadata_changed');
+                        }
+                        if ($undo) {
                             $metadata=$p['before'];$links=$metadata['links'];$metadata=array_diff_key($metadata,array_flip(['links','starred','workflowStatus','markedForDeletionAt','coverRevision']));
                             foreach ($this->history->links($item) as $key=>$v) $links['before'.ucfirst($key)]=$v;
                             $this->items->updateItem($uid,$itemId,$metadata,$item['metadataRevision'],$links,$p['beforeSources'],'undo');
@@ -151,6 +159,7 @@ final class CurationJobService {
                 if (hash_equals($token,$current['lease_token'])) {
                     if ($failedRow && ($e instanceof MetadataConflictException || $e instanceof \OutOfBoundsException || $e instanceof \InvalidArgumentException || $e instanceof \DomainException)) {
                         $p=json_decode($failedRow['payload'],true,64,JSON_THROW_ON_ERROR);$p['error']='changed_or_unavailable';
+                        if ($e instanceof UndoConflict) $p['undoFields']=$e->fields;
                         $this->db->executeStatement('UPDATE *PREFIX*library_curation_rows SET status=?,payload=? WHERE id=?',[$current['status']==='undoing' ? 'undo_conflict' : 'conflict',json_encode($p,JSON_THROW_ON_ERROR),$failedRow['id']]);
                     } else {
                         $current['data']['resume']=$current['status'];

@@ -18,7 +18,7 @@ export function readCurationContext(search = window.location.search) {
 }
 export function curationContextUrl(href, state) {
   const url = new URL(href, window.location.origin)
-  for (const key of [...curationKeys, 'metadataLookup', 'lookupJob', 'details', 'returnTo']) url.searchParams.delete(key)
+  for (const key of [...curationKeys, 'metadataLookup', 'lookupJob', 'details', 'returnTo', 'resumeIncoming']) url.searchParams.delete(key)
   const values = { curation: 1, curationTab: state.tab, inboxFilter: state.filter, inboxDay: state.day, inboxRoot: state.rootId, inboxBefore: state.before, inboxPages: state.pages.join(','), inboxSelected: state.selected.join(','), curationJob: state.job, curationPage: state.job ? state.page : '' }
   for (const [key, value] of Object.entries(values)) if (value !== '' && value !== 0) url.searchParams.set(key, String(value))
   return url

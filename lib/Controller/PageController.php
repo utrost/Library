@@ -437,6 +437,7 @@ class PageController extends Controller {
         $roots = $this->rootService->listRoots($userId);
         return [
             'surface' => 'home',
+            'savedCollections' => $userId === '' ? [] : $this->savedCollectionsPending($userId),
             'language' => $this->l10nFactory->findLanguage(Application::APP_ID),
             'direction' => $this->l10nFactory->getLanguageDirection($this->l10nFactory->findLanguage(Application::APP_ID)),
             'items' => [],

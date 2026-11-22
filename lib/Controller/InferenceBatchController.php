@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 namespace OCA\Library\Controller;
+use OCA\Library\Exception\UndoConflict;
 use OCA\Library\Service\InferenceBatchService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -16,6 +17,7 @@ final class InferenceBatchController extends Controller {
         try { $data = $uid === null ? [] : $operation($uid); if ($uid === null) $status = 401; }
         catch (\InvalidArgumentException $e) { $data = ['error' => $e->getMessage()]; $status = 422; }
         catch (\OutOfBoundsException $e) { $data = ['error' => $e->getMessage()]; $status = 404; }
+        catch (UndoConflict $e) { $data = $e->outcome(); $status = 409; }
         catch (\DomainException $e) { $data = ['error' => $e->getMessage()]; $status = 409; }
         return new JSONResponse($data, $status, ['Cache-Control' => 'private, no-store']);
     }

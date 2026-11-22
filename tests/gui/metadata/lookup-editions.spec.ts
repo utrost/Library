@@ -25,7 +25,7 @@ for (const suffix of ['', ' @mobile']) test('single-book alternative edition pag
     return route.fulfill({ json: offset === 0 ? data.page : data.lastPage })
   })
   await page.route(`**${base}/metadata-lookup/edition`, route => route.fulfill({ json: data.edition }))
-  await page.goto(`/apps/library/?details=${data.itemId}`)
+  await page.goto(`/apps/library/?details=${data.itemId}&edit=1`)
   const lookup = page.locator('.library-metadata-lookup')
   await lookup.locator('summary').click()
   await lookup.getByRole('button', { name: 'Search Open Library', exact: true }).click()

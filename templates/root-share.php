@@ -115,6 +115,10 @@ $messages = [
             <p class="library-muted"><?php p($grant['filesMode'] === 'library_only'
                 ? $l->t('Only the selected books and their publication details will be available through Library. The recipient can download their files. Personal reading details and lists remain private.')
                 : $l->t('Library shows only indexed books and their publication details. Existing Files access may also expose every file and subfolder in this shelf, including unindexed files. Personal reading details and lists remain private.')); ?></p>
+            <p><?php p($grant['filesMode'] === 'library_only'
+                ? $l->t('Adding books to the list or shelf later does not add them to this share.')
+                : $l->t('Newly indexed books in this shelf become available to browse and download while the recipient has read access.')); ?></p>
+            <p><?php p($l->t('Revoking this grant ends access through this Library share. Separate Files shares and copies already downloaded remain available.')); ?></p>
             <form method="post" action="<?php p((string)$_['grantUrl']); ?>" class="library-shared-form">
                 <input type="hidden" name="requesttoken" value="<?php p($_['requesttoken'] ?? ''); ?>">
                 <input type="hidden" name="rootId" value="<?php p((string)$grant['rootId']); ?>">

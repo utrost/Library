@@ -34,6 +34,7 @@ test('owner can revoke and regrant without changing the Files share', async ({ p
     await recipientPage.goto('/apps/library/shares')
     await expect(recipientPage.getByText('No shared libraries yet.')).toBeVisible()
 
+    await page.getByRole('combobox', { name: 'Shelf', exact: true }).selectOption({ label: 'Lifecycle fixture' })
     const picker = page.getByRole('combobox', { name: 'Nextcloud user' })
     await picker.fill('li')
     await expect(page.getByRole('listbox')).toHaveCount(0)
@@ -44,6 +45,8 @@ test('owner can revoke and regrant without changing the Files share', async ({ p
     await page.getByRole('button', { name: 'Review sharing' }).click()
     await expect(page.getByRole('heading', { name: 'Review read-only sharing' })).toBeVisible()
     await expect(page.getByText('Use the recipient’s existing read-only Files access.')).toBeVisible()
+    await expect(page.getByText('Newly indexed books in this shelf', { exact: false })).toBeVisible()
+    await expect(page.getByText('Revoking this grant ends access', { exact: false })).toBeVisible()
     await page.getByRole('button', { name: 'Share read-only' }).click()
     await expect(page.getByRole('status')).toContainText('Library access was shared')
     await expect(page.getByRole('button', { name: /Remove access for.*library-recipient.*Lifecycle fixture/ })).toBeVisible()

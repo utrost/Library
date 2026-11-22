@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OCA\Library\Service;
 
 use OCP\IDBConnection;
+use OCP\IConfig;
 
 final class SavedCollectionService {
     private const ALLOWED_FILTERS = [
@@ -36,6 +37,7 @@ final class SavedCollectionService {
 
     public function __construct(
         private IDBConnection $db,
+        private IConfig $config,
     ) {
     }
 
@@ -50,9 +52,10 @@ final class SavedCollectionService {
             ->orderBy('name', 'ASC')
             ->executeQuery();
 
+        $pins = array_flip($this->config->getUserKeys($userId, 'library'));
         $collections = [];
         while ($row = $result->fetch()) {
-            $collections[] = $this->normalizeRow($row);
+            $collections[] = $this->normalizeRow($row) + ['pinned' => isset($pins['pinned_collection_' . $row['id']])];
         }
         $result->closeCursor();
         return $collections;
@@ -93,7 +96,19 @@ final class SavedCollectionService {
         return $this->findByName($userId, $name) ?? ['id' => 0, 'name' => $name, 'filters' => $filters, 'createdAt' => $now, 'updatedAt' => $now];
     }
 
+    public function pin(string $uid, int $id, bool $pinned): bool {
+        $result = $this->db->executeQuery('SELECT id FROM *PREFIX*library_saved_collections WHERE user_id=? AND id=?', [$uid, $id]);
+        $owned = (bool)$result->fetch();
+        $result->closeCursor();
+        if (!$owned) return false;
+        $key = 'pinned_collection_' . $id;
+        if ($pinned) $this->config->setUserValue($uid, 'library', $key, '1');
+        else $this->config->deleteUserValue($uid, 'library', $key);
+        return true;
+    }
+
     public function deleteCollection(string $userId, int $collectionId): void {
+        $this->config->deleteUserValue($userId, 'library', 'pinned_collection_' . $collectionId);
         $qb = $this->db->getQueryBuilder();
         $qb->delete('library_saved_collections')
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($collectionId)))

@@ -85,3 +85,12 @@ it('saves Done without leaving the queue and retains another checked book', asyn
   expect(w.get('input[type=checkbox]').element.checked).toBe(true)
   expect(window.location.search).toContain('curation=1')
 })
+
+it('reports the end when all books at the saved position have been reviewed', async () => {
+  window.history.replaceState({}, '', '/apps/library/?curation=1&resumeIncoming=1&inboxRoot=7&inboxBefore=100')
+  request.mockReset().mockResolvedValueOnce(page([], 50)).mockResolvedValueOnce(page([]))
+  const w = create(); await flushPromises()
+  expect(w.text()).toContain('You reached the end of this review session.')
+  expect(request.mock.calls.map(call => call[2].before)).toEqual([100, 50])
+  expect(window.location.search).not.toContain('resumeIncoming')
+})

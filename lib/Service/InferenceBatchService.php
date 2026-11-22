@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace OCA\Library\Service;
 
+use OCA\Library\Exception\UndoConflict;
 use OCP\IDBConnection;
 use OCP\Files\IRootFolder;
 use OCP\Files\File;
@@ -212,7 +213,16 @@ final class InferenceBatchService {
             foreach ($payload['entries'] as &$entry) {
                 $live = $this->snapshot($uid, $entry['id'], true);
                 $expected = $undo ? $entry['after'] : $entry['before'];
-                if (!hash_equals(InferenceChangeSet::fingerprint($expected), InferenceChangeSet::fingerprint($live))) throw new \DomainException('stale_preview');
+                if (!hash_equals(InferenceChangeSet::fingerprint($expected), InferenceChangeSet::fingerprint($live))) {
+                    if (!$undo) throw new \DomainException('stale_preview');
+                    $changed = UndoConflict::changedKeys($expected['state'], $live['state']);
+                    $fields = [];
+                    foreach (InferenceChangeSet::FIELDS as $field => [$column]) {
+                        if (in_array($column, $changed, true)) $fields[] = $field;
+                    }
+                    if ($expected['file'] !== $live['file']) $fields[] = 'file';
+                    throw new UndoConflict((int)$entry['id'], $fields);
+                }
                 $write = $undo ? array_intersect_key($entry['before']['state'], $entry['write']) : $entry['write'];
                 $this->items->writeInferenceState($uid, $entry['id'], $write);
                 if (!$undo) $entry['after'] = $this->snapshot($uid, $entry['id']);

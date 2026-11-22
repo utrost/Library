@@ -23,7 +23,7 @@ try {
   await page.screenshot({ path: out + '/appstore-catalogue.png', animations: 'disabled' })
   await cards.first().locator('.library-cover-link').click()
   await expect(page.getByRole('heading', { name: 'Book details', exact: true })).toBeVisible()
-  await expect(page.locator('#library-full-details-metadata-form')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Edit details' })).toBeVisible()
   await page.screenshot({ path: out + '/appstore-details.png', animations: 'disabled' })
   await page.goto(base + '/apps/library/?authors=1')
   await expect(page.getByRole('heading', { name: 'Authors', exact: true })).toBeVisible()

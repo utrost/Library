@@ -1,4 +1,6 @@
 <script setup>
+import FieldChange from './FieldChange.vue'
+import { reviewOrder } from '../review-order.js'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
@@ -126,17 +128,17 @@ onMounted(loadPatterns)
           <select :id="`worklist-pattern-${row.id}`" :value="row.choiceId" :disabled="disabled || loading" @change="setChoice(row, $event.target.value)"><option value="">{{ t('library', 'Choose a pattern') }}</option><option v-for="entry in choices" :key="entry.id" :value="entry.id">{{ entry.name }}</option></select>
           <small v-if="row.suggested">{{ t('library', 'Suggested') }}</small><small v-else-if="row.ambiguous">{{ t('library', 'Several patterns match; choose one.') }}</small>
           <small v-if="row.choiceId">{{ statuses[row.result.status] }}</small>
-          <button v-if="row.choiceId && isCompleteMatch(row.result)" class="button secondary library-inference-row-apply" :aria-label="t('library', 'Apply selected changes for {file}', { file: row.path })" :disabled="disabled || loading || quickBusy || !selected.some(key => key.startsWith(`${row.id}:`))" @click="applyRow(row)">{{ quickBusy && quickRowId === row.id ? t('library', 'Applying…') : t('library', 'Apply now') }}</button><small v-if="rowNoticeId === row.id" role="status">{{ t('library', 'Changes applied to this file.') }}</small><small v-if="quickRowId === row.id && rowError" role="alert">{{ rowError }}</small>
         </div>
         <div role="cell" class="library-inference-worklist-fields">
           <template v-if="isCompleteMatch(row.result)">
-            <label v-for="change in row.result.changes.filter(entry => ['ready', 'conflict'].includes(entry.status))" :key="change.field" class="library-inference-worklist-field">
+            <label v-for="change in reviewOrder(row.result.changes).filter(entry => ['ready', 'conflict'].includes(entry.status))" :key="change.field" class="library-inference-worklist-field">
               <input type="checkbox" :checked="selected.includes(`${row.id}:${change.field}`)" :disabled="disabled" @change="toggle(row, change.field, $event.target.checked)">
-              <span><strong>{{ labels[change.field] }}</strong>: {{ change.before || '—' }} → {{ change.value }} <small v-if="change.status === 'conflict'">{{ t('library', 'Replaces an existing value') }}</small></span>
+              <span><strong>{{ labels[change.field] }}</strong><FieldChange :before="change.before" :after="change.value" /></span>
             </label>
             <small v-if="!row.result.changes.some(entry => ['ready', 'conflict'].includes(entry.status))">{{ t('library', 'No changes') }}</small>
           </template>
           <small v-else>{{ row.choiceId ? statuses[row.result.status] : t('library', 'Choose a pattern') }}</small>
+          <button v-if="row.choiceId && isCompleteMatch(row.result)" class="button secondary library-inference-row-apply" :aria-label="t('library', 'Apply selected changes for {file}', { file: row.path })" :disabled="disabled || loading || quickBusy || !selected.some(key => key.startsWith(`${row.id}:`))" @click="applyRow(row)">{{ quickBusy && quickRowId === row.id ? t('library', 'Applying…') : t('library', 'Apply now') }}</button><small v-if="rowNoticeId === row.id" role="status">{{ t('library', 'Changes applied to this file.') }}</small><small v-if="quickRowId === row.id && rowError" role="alert">{{ rowError }}</small>
         </div>
       </div>
     </div>

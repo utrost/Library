@@ -1,7 +1,7 @@
 import { expect, type Page } from '@playwright/test'
 
 export async function openBookDetails(page: Page, itemId: number): Promise<void> {
-  const response = await page.goto(`/apps/library/?details=${itemId}`)
+  const response = await page.goto(`/apps/library/?details=${itemId}&edit=1`)
   expect(response?.ok(), `Book details returned ${response?.status()}`).toBeTruthy()
   await expect(page.locator('.library-full-details').getByRole('heading', { name: 'Book details' })).toBeVisible()
 }

@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 namespace OCA\Library\Controller;
+use OCA\Library\Exception\UndoConflict;
 use OCA\Library\Service\MetadataBatchService;
 use OCA\Library\Exception\MetadataConflictException;
 use OCP\AppFramework\Controller;
@@ -55,7 +56,11 @@ final class MetadataBatchController extends Controller {
             $uid=$this->session->getUser()?->getUID();
             if ($uid===null) throw new \OutOfBoundsException('not_found');
             return new JSONResponse($work($uid),200,['Cache-Control'=>'private, no-store']);
-        } catch (MetadataConflictException) { $error='stale_book'; $status=409; }
+        } catch (MetadataConflictException $e) {
+            $conflict = $e->getPrevious();
+            if ($conflict instanceof UndoConflict) return new JSONResponse($conflict->outcome(),409,['Cache-Control'=>'private, no-store']);
+            $error='stale_book'; $status=409;
+        }
         catch (\OutOfBoundsException) { $error='not_found'; $status=404; }
         catch (\InvalidArgumentException) { $error='invalid_request'; $status=400; }
         catch (\DomainException $e) { $error=$e->getMessage(); $status=409; }

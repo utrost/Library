@@ -92,6 +92,25 @@ const incoming = computed(() => {
   const state = readCurationContext(source.search)
   return source.searchParams.get('curation') === '1' && state.tab === 'inbox' && state.filter === 'pending' ? state : null
 })
+const originParams = new URL(returnContext.value.url, window.location.origin).searchParams
+const editingDetails = ref(originParams.get('curation') === '1' || new URLSearchParams(window.location.search).get('edit') === '1')
+async function openEditor() {
+  editingDetails.value = true
+  const url = new URL(window.location.href)
+  url.searchParams.set('edit', '1')
+  window.history.replaceState(window.history.state, '', url)
+  await nextTick()
+  document.querySelector('#library-full-details-metadata-form input')?.focus()
+}
+async function readSummary() {
+  if (dirty.value || busy.value) return
+  editingDetails.value = false
+  const url = new URL(window.location.href)
+  url.searchParams.delete('edit')
+  window.history.replaceState(window.history.state, '', url)
+  await nextTick()
+  document.getElementById('library-edit-details')?.focus()
+}
 const reviewing = ref(false)
 const reviewController = new AbortController()
 onBeforeUnmount(() => reviewController.abort())
@@ -111,7 +130,7 @@ async function finishReview() {
     const { day, rootId } = incoming.value
     const source = new URL(returnContext.value.url, window.location.origin)
     while (before > 0) {
-      const page = await curationRequest('/inbox', props.requestToken, { before, filter: 'pending', day, rootId }, signal)
+      const page = await curationRequest('/inbox', props.requestToken, { before, filter: 'pending', day, rootId, remember: true }, signal)
       if (page.rows.length) {
         window.location.assign(bookDetailsUrl(props.catalogueUrl, page.rows[0].id, source.href))
         return
@@ -148,6 +167,7 @@ function navigateBook(direction) {
   window.removeEventListener('beforeunload', warnUnsaved)
   const url = new URL(props.catalogueUrl, location.origin)
   url.searchParams.set('details', String(target.id))
+  if (editingDetails.value) url.searchParams.set('edit', '1')
   url.searchParams.set('returnTo', returnContext.value.url)
   url.searchParams.set('navigationFrom', target.returnTo)
   window.location.assign(url.pathname + url.search)
@@ -800,8 +820,16 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
       </div>
 
       <div class="library-full-details-columns" :inert="reviewing">
-        <div class="library-full-details-main">
+        <section v-if="!editingDetails" class="library-full-details-card">
+          <h2>{{ t('library', 'Book details') }}</h2>
+          <p v-if="item.subtitle"><strong>{{ item.subtitle }}</strong></p>
+          <p v-if="item.description" style="white-space: pre-line">{{ item.description }}</p>
+          <p v-if="item.publisher || item.publicationDate">{{ [item.publisher, item.publicationDate].filter(Boolean).join(' · ') }}</p>
+          <button id="library-edit-details" type="button" @click="openEditor">{{ t('library', 'Edit details') }}</button>
+        </section>
+        <div v-else class="library-full-details-main">
           <section class="library-full-details-card" aria-labelledby="library-full-details-metadata"><h2 id="library-full-details-metadata">{{ t('library', 'Book details') }}</h2><form id="library-full-details-metadata-form" @submit.prevent="saveMetadata"><div class="library-full-details-fields"><label>{{ t('library', 'Title') }}<input v-model="draft.title" required></label><label>{{ t('library', 'Subtitle') }}<input v-model="draft.subtitle"></label><label>{{ t('library', 'Type') }}<select v-model="draft.publicationType"><option v-for="type in publicationTypes" :key="type.value" :value="type.value">{{ type.label }}</option></select></label><label>{{ t('library', 'Publication / periodical') }}<input v-model="draft.publication"></label><label :title="t('library', 'Use YYYY, YYYY-MM, or YYYY-MM-DD.')">{{ t('library', 'Publication date') }}<input v-model="draft.publicationDate"></label><EntityPicker v-model="draft.publisher" :label="t('library', 'Publisher')" :search="searchPublishers" :disabled="busy" @choose="draft.publisher = $event.label" /><MetadataValuePicker v-model="draft.language" kind="language" :disabled="busy" /><MetadataValuePicker v-model="draft.subjects" kind="subject" :disabled="busy" /><ClassificationPicker v-model="draft.classifications" :request-token="requestToken" :disabled="busy" /><StarRating :model-value="draft.personalRating" :disabled="busy" @update:model-value="draft.personalRating = $event" /><label class="library-full-details-wide">{{ t('library', 'Description') }}<textarea v-model="draft.description" rows="8"></textarea></label></div><fieldset><legend>{{ t('library', 'Identifiers') }}</legend><div v-for="(identifier, index) in draft.identifiers" :key="index" class="library-full-details-identifier"><select v-model="identifier.scheme" :aria-label="t('library', 'Scheme')"><option value="isbn">{{ t('library', 'ISBN') }}</option><option value="issn">{{ t('library', 'ISSN') }}</option><option value="asin">{{ t('library', 'ASIN') }}</option><option value="ggkey">{{ t('library', 'GGKEY') }}</option></select><input v-model="identifier.displayValue" :aria-label="t('library', 'Identifier value')"><span v-if="identifier.displayValue && identifier.valid === false && identifier.scheme === identifier.originalScheme && identifier.displayValue === identifier.originalDisplayValue" role="status">{{ ['isbn', 'issn'].includes(identifier.scheme) ? t('library', 'Invalid identifier checksum') : t('library', 'Invalid identifier format') }}</span><button type="button" class="button secondary" :aria-label="t('library', 'Remove identifier')" @click="draft.identifiers.splice(index, 1)">×</button></div><button type="button" class="button secondary" @click="draft.identifiers.push({ scheme: 'isbn', displayValue: '' })">{{ t('library', 'Add identifier') }}</button></fieldset></form></section>
+          <button v-if="!originParams.has('curation') && !dirty" type="button" :disabled="busy" @click="readSummary">{{ t('library', 'Reading summary') }}</button>
           <MetadataLookup :item="item" :draft="draft" :base-url="itemBase" :request-token="requestToken" :disabled="busy" :staged="lookupApproval !== null" @stage="stageLookup" />
           <div class="library-full-details-card library-identity-panel">
           <section class="library-identity-row" aria-labelledby="library-full-details-authors-heading">
@@ -894,7 +922,7 @@ onBeforeUnmount(() => { window.removeEventListener('beforeunload', warnUnsaved);
         </dl>
       </details>
       <details class="library-full-details-card library-full-details-provenance"><summary>{{ t('library', 'Imported metadata and scan suggestions') }}</summary><dl class="library-full-details-source-values"><dt>{{ t('library', 'Creator credit in file') }}</dt><dd>{{ item.creators || '—' }}</dd><dt>{{ t('library', 'Series in file') }}</dt><dd>{{ item.series || '—' }}<span v-if="item.seriesNumber"> · {{ item.seriesNumber }}</span></dd><dt>{{ t('library', 'Genre in file') }}</dt><dd>{{ item.genre || '—' }}</dd></dl><p class="library-muted">{{ t('library', 'Scanner suggestions never replace your edits automatically.') }}</p><div v-if="differences.length" class="library-full-details-differences"><article v-for="row in differences" :key="row.field"><h3>{{ row.label }}</h3><p>{{ t('library', 'Current') }}: <bdi dir="auto">{{ row.current || '—' }}</bdi></p><p>{{ t('library', 'Scanner candidate') }}: <bdi dir="auto">{{ row.candidate || '—' }}</bdi></p><button type="button" class="button secondary" :disabled="busy || row.rejected" :title="row.rejected ? t('library', 'This source value exceeds field limits. Edit the field instead.') : ''" @click="post(context.actions.resetField, { field: row.field })">{{ t('library', 'Reset to scanner') }}</button></article></div><p v-else>{{ t('library', 'No scanner differences for this item.') }}</p><details><summary>{{ t('library', 'Show all scanner provenance') }}</summary><div class="library-full-details-differences"><article v-for="row in provenance" :key="row.field"><h3>{{ row.label }}</h3><p>{{ t('library', 'Scanner source') }}: {{ row.source || '—' }}</p><p>{{ t('library', 'Current') }}: <bdi dir="auto">{{ row.current || '—' }}</bdi></p><p>{{ t('library', 'Scanner candidate') }}: <bdi dir="auto">{{ row.candidate || '—' }}</bdi></p><p v-if="row.sourceOriginal">{{ t('library', 'Original source value') }}: <bdi dir="auto">{{ row.sourceOriginal }}</bdi></p></article></div></details><button v-if="differences.length" type="button" class="button secondary" :disabled="busy || rejectedFields.length > 0" :title="rejectedFields.length ? t('library', 'This source value exceeds field limits. Edit the field instead.') : ''" @click="post(context.actions.resetFields)">{{ t('library', 'Reset all fields to scanner') }}</button></details>
-      <WriteBack :item-id="item.id" :revision="item.metadataRevision" :request-token="requestToken" :disabled="busy || dirty" @changed="load({ silent: true })" />
+      <WriteBack v-if="editingDetails" :item-id="item.id" :revision="item.metadataRevision" :request-token="requestToken" :disabled="busy || dirty" @changed="load({ silent: true })" />
       <BookActivity :item-id="item.id" :revision="item.metadataRevision" :request-token="requestToken" :disabled="busy || dirty" @changed="load({ silent: true })" />
       <details class="library-full-details-card library-full-details-file"><summary>{{ t('library', 'File metadata') }}</summary><dl class="library-full-details-source-values"><dt>{{ t('library', 'Location') }}</dt><dd><a v-if="item.filesUrl" :href="item.filesUrl" :title="t('library', 'Show in Files')"><bdi dir="ltr">{{ item.cachedPath }}</bdi></a><bdi v-else dir="ltr">{{ item.cachedPath }}</bdi></dd><dt>{{ t('library', 'File size') }}</dt><dd :title="exactFileSize">{{ fileSize }}</dd><dt>{{ t('library', 'Format') }}</dt><dd>{{ (item.extension || '').toUpperCase() }}</dd><dt>{{ t('library', 'Scan status') }}</dt><dd>{{ item.scanStatus || '—' }}</dd><dt>{{ t('library', 'Metadata source') }}</dt><dd>{{ item.metadataSource || '—' }}</dd><dt v-if="item.scanError">{{ t('library', 'Scan error') }}</dt><dd v-if="item.scanError">{{ item.scanError }}</dd><dt>{{ t('library', 'File ID') }}</dt><dd>{{ context.file.fileId || '—' }}</dd><dt>{{ t('library', 'MIME type') }}</dt><dd>{{ context.file.mimeType || '—' }}</dd><dt v-if="item.shelf">{{ t('library', 'Shelf') }}</dt><dd v-if="item.shelf">{{ item.shelf }}</dd></dl><button v-if="item.scanStatus === 'missing'" type="button" class="button secondary" :disabled="busy" @click="forgetMissing">{{ t('library', 'Forget missing publication') }}</button></details>
     </template>

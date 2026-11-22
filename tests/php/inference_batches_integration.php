@@ -55,7 +55,12 @@ $items->resetFieldToScannerCandidate($user,$id,'creators');
 $p = $batches->prepare($user,[$proposal($id,['series'=>'Before later edit'])],'undo conflict');
 $batches->mutate($user,$p['id'],false);
 $items->applyBatchMetadataEdit($user,[$id],'genre','Later manual edit after Apply');
-rejected(fn()=>$batches->mutate($user,$p['id'],true),DomainException::class);
+try {
+    $batches->mutate($user,$p['id'],true);
+    throw new RuntimeException('Undo accepted later genre edit');
+} catch (\OCA\Library\Exception\UndoConflict $e) {
+    ensure($e->bookId === $id && in_array('genre',$e->fields,true),'Undo identifies the later genre edit');
+}
 ensure($items->findItem($user,$id)['genre']==='Later manual edit after Apply','Later edit preserved');
 $stale = $proposal($id,['series'=>'Stale proposal']);
 $items->applyBatchMetadataEdit($user,[$id],'series','Changed after preview');

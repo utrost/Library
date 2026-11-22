@@ -5,6 +5,12 @@ use OCP\{IConfig,IDBConnection,IURLGenerator};
 final class HomeDashboardService {
     private const WIDGETS=['recent','upNext','changed','finished','rediscover','health'];
     public function __construct(private ItemService $items,private PersonalListService $lists,private LibraryHealthService $health,private IConfig $config,private IDBConnection $db,private IURLGenerator $urls,private HomeHealthSnapshot $summary) {}
+    public function rememberInbox(string $uid, int $before, string $filter, string $day, int $rootId): void {
+        // Only validated queue coordinates are stored, never selected titles or request URLs.
+        $this->config->setUserValue($uid, 'library', 'incoming_checkpoint', json_encode([
+            'before' => max(0, $before), 'filter' => $filter, 'day' => $day, 'rootId' => $rootId,
+        ], JSON_THROW_ON_ERROR));
+    }
     public function preferences(string $uid): array {
         $p=json_decode($this->config->getUserValue($uid,'library','dashboard_preferences','{}'),true);
         $listId=max(0,(int)($p['listId'] ?? 0));
@@ -50,7 +56,7 @@ final class HomeDashboardService {
             foreach ($ids as $id) { $item=$books[$id] ?? null;if ($item && empty($item['markedForDeletionAt']) && $item['scanStatus']!=='missing') $rows[$key][]=$this->card($item); }
         }
         $r=$this->db->executeQuery("SELECT id,status,created_at FROM *PREFIX*library_curation_jobs WHERE user_id=? AND expires_at>? AND status IN ('preparing','applying','failed','paused') ORDER BY created_at DESC LIMIT 8",[$uid,time()]);$jobs=$r->fetchAll();$r->closeCursor();
-        return ['summary'=>in_array('health',$prefs['widgets'],true) ? $this->summary->read($uid) : null,'preferences'=>$prefs,'rows'=>$rows,'lists'=>$this->lists->lists($uid),'health'=>in_array('health',$prefs['widgets'],true) ? $this->health->cachedImportHealthSummary($uid) : null,'jobs'=>$jobs];
+        return ['incoming'=>json_decode($this->config->getUserValue($uid,'library','incoming_checkpoint','null'),true),'summary'=>in_array('health',$prefs['widgets'],true) ? $this->summary->read($uid) : null,'preferences'=>$prefs,'rows'=>$rows,'lists'=>$this->lists->lists($uid),'health'=>in_array('health',$prefs['widgets'],true) ? $this->health->cachedImportHealthSummary($uid) : null,'jobs'=>$jobs];
     }
     public function card(array $item): array { return ['id'=>(int)$item['id'],'title'=>$item['title'],'creators'=>$item['creators'],'url'=>$this->urls->linkToRouteAbsolute('library.page.index').'?details='.(int)$item['id'],'cover'=>$this->urls->linkToRouteAbsolute('library.cover.show',['itemId'=>$item['id']])]; }
 }

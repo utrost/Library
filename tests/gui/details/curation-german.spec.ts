@@ -11,7 +11,7 @@ for (const suffix of ['', ' @mobile']) test('German curation controls wrap with 
   await Promise.all([page.waitForURL(url => !url.pathname.endsWith('/login')), page.locator('button[type="submit"]').click()]); await page.waitForLoadState('networkidle')
   assertKnownNextcloudLoginFailuresAndClear(failures)
   const cases = [
-    [`?details=${fixture.bookId}`, labels['Book details']],
+    [`?details=${fixture.bookId}&edit=1`, labels['Book details']],
     [`?curation=1&curationTab=jobs&curationJob=${fixture.germanJobId}`, labels['Review and organise']],
     ['?genres=1', labels['Genres']],
   ]

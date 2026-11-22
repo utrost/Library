@@ -35,7 +35,7 @@ try {
     page.on('request', request => {
       if (request.method() === 'POST' && new URL(request.url()).pathname.endsWith(`/apps/library/items/${itemId}`)) writes.push(request.url())
     })
-    await page.goto(`${upstream}/apps/library/?details=${itemId}`)
+    await page.goto(`${upstream}/apps/library/?details=${itemId}&edit=1`)
     const title = page.getByRole('textbox', { name: 'Title', exact: true })
     await expect(title).toBeVisible()
     const original = await title.inputValue()

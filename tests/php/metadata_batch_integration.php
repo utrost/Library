@@ -26,7 +26,7 @@ $migration->changeSchema($output,static fn()=>$schema,[]);
 $beforeSchema=serialize($schema->getWrappedSchema());
 $migration->changeSchema($output,static fn()=>$schema,[]);
 check(serialize($schema->getWrappedSchema())===$beforeSchema,'migration schema rerun is idempotent');
-$uid='library-smoke'; $user=\OC::$server->get(IUserManager::class)->get($uid);
+$uid=getenv('LIBRARY_LOOKUP_FIXTURE_USER') ?: 'library-smoke'; $user=\OC::$server->get(IUserManager::class)->get($uid);
 \OC::$server->get(IUserSession::class)->setUser($user);
 $home=\OC::$server->get(IRootFolder::class)->getUserFolder($uid);
 $items=\OC::$server->get(ItemService::class);
@@ -128,7 +128,13 @@ review($service,$uid,$job['id'],$ids[0],'undo',[]);
 check($items->findItem($uid,$ids[0])['publisher']==='' && !$items->findItem($uid,$ids[0])['identifiers'],'undo restores selected values');
 review($service,$uid,$job['id'],$ids[0],'undo',[]);
 $items->updateItem($uid,$ids[2],['description'=>'Keep later correction']);
-rejects(MetadataConflictException::class,fn()=>review($service,$uid,$job['id'],$ids[2],'undo',[]));
+try {
+    review($service,$uid,$job['id'],$ids[2],'undo',[]);
+    throw new RuntimeException('Undo accepted changed metadata');
+} catch (MetadataConflictException $e) {
+    $reason = $e->getPrevious();
+    check($reason instanceof \OCA\Library\Exception\UndoConflict && $reason->bookId === $ids[2] && in_array('description',$reason->fields,true),'Undo identifies the later description edit');
+}
 review($service,$uid,$job['id'],$ids[3],'skip',[]);
 check($service->get($uid,$job['id'])['rows'][3]['status']==='skipped','skip persists');
 $service->control($uid,$job['id'],'cancel'); check(!$service->advance(),'cancel stops new work');
