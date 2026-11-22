@@ -4,14 +4,14 @@
 
 ## Current developer checkpoint
 
-**0.4.0-alpha.8** is installed on developer NC34. The exact archive checksum, source commit, upgrade/rollback rehearsal and live desktop/mobile results are recorded in [signed-package delivery](providers-alpha8-verification.md). Use disposable books for source-write and sharing trials. EPUB write-back supports local filesystem storage only; remote/encrypted writes are refused. The stable Store remains 0.3.0.
+**0.4.0-alpha.9** is installed on developer NC34. Start in All publications to check the reading summary, or open a pending book from Incoming to review and advance. Use Home to resume that queue. The [field handbook](v0.4-field-test-handbook.md) covers selections, pins, review and sharing. The [signed-package verification record](ux-alpha9-verification.md) lists the exact build and checks. Use disposable local files for write-back trials.
 
 When repeating browser checks after restarting disposable containers, refresh their assigned port and trusted-domain configuration. Seed at least one **To read** book before asserting a populated native Dashboard. New test accounts may show Nextcloud's welcome dialog; dismiss it for those accounts and use Library as their landing page, leaving instance-wide settings unchanged. For repeated EPUB restores, wait for the active operation to finish and compare original bytes; an older “Original restored” entry is insufficient.
 
 ## Development: selected-book metadata lookup
 
-Alpha.8 is installed on developer NC34. See the
-[current signed-package verification record](providers-alpha8-verification.md) and the
+Alpha.9 is installed on developer NC34. See the
+[current signed-package verification record](ux-alpha9-verification.md) and the
 [workflow and limitations](bulk-metadata-lookup.md). On a disposable catalogue,
 select two books and open **Find book details**; repeat from a personal list.
 Verify the default is **Fill missing fields**, providers reflect configuration,
@@ -35,13 +35,12 @@ reviewable with the saved value and original evidence visible. In Home, check
 duplicate and stalled-job counts after the background snapshot completes; each
 link should lead to its matching review view. In Nextcloud Unified Search, check
 owned-book and author results, pagination and account isolation with Text both
-enabled and disabled. These source-package checks do not change the installed
-alpha.8 checkpoint or complete 0.4 release certification.
+enabled and disabled. These refinements are included in alpha.9. The linked record describes the focused source checks.
 
 
 ### Lookup refinements retained in alpha.6
 
-These checks target the installed alpha.8 build; the stable App Store release remains 0.3.0.
+These checks target the installed alpha.9 build; the stable App Store release remains 0.3.0.
 
 - Refine one row’s title/author/ISBN and switch an enabled provider; check no
   request until Search, old approvals cleared only for that row, and stale-tab
@@ -90,7 +89,7 @@ These checks target the installed alpha.8 build; the stable App Store release re
 
 ### 0.4 provider lookup preview
 
-On the alpha.8 development build, open **Administration settings → Library → Book metadata lookup**. Confirm Open Library needs no key, Google Books shows whether a key is configured without showing it, a blank Save preserves a stored key, and explicit removal disables keyed lookup. Enter a disposable restricted key to try Google Books; never put it in screenshots or notes. Then open a disposable book's **Find book details** section. Select Open Library, search by a valid ISBN, compare an edition and stage one field, then Discard. Repeat with Google Books; check that the query is sent only after Search, the volume link identifies Google Books, and a matching ISBN is shown for an ISBN search. Select the GGKEY separately, Save on a disposable book and confirm it survives reload. Try a wrong ISBN, missing Google key, provider switch during a pending search, sparse results and provider failure; none should change saved book data. Check keyboard, mobile and screen-reader labels. These checks do not certify provider terms, attribution or the full NC33–35 matrix.
+On the alpha.9 development build, open **Administration settings → Library → Book metadata lookup**. Confirm Open Library needs no key, Google Books shows whether a key is configured without showing it, a blank Save preserves a stored key, and explicit removal disables keyed lookup. Enter a disposable restricted key to try Google Books; never put it in screenshots or notes. Then open a disposable book's **Find book details** section. Select Open Library, search by a valid ISBN, compare an edition and stage one field, then Discard. Repeat with Google Books; check that the query is sent only after Search, the volume link identifies Google Books, and a matching ISBN is shown for an ISBN search. Select the GGKEY separately, Save on a disposable book and confirm it survives reload. Try a wrong ISBN, missing Google key, provider switch during a pending search, sparse results and provider failure; none should change saved book data. Check keyboard, mobile and screen-reader labels. These checks do not certify provider terms, attribution or the full NC33–35 matrix.
 
 #### DNB lookup — alpha.8 addition
 

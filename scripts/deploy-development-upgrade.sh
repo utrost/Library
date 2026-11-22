@@ -17,6 +17,23 @@ case "$version" in
     0.4.0-alpha.9) from_version=0.4.0-alpha.8 ;;
     *) echo "Unsupported development upgrade: $version" >&2; exit 2 ;;
 esac
+# A container can keep running after its published interface disappears, then fail on restart.
+docker_endpoint="${DOCKER_HOST:-$(docker context inspect --format '{{.Endpoints.docker.Host}}')}"
+if [[ "$docker_endpoint" == unix://* ]]; then
+    python3 - "$(docker inspect --format '{{json .HostConfig.PortBindings}}' "$app")" <<'PY'
+import json, socket, sys
+for bindings in (json.loads(sys.argv[1]) or {}).values():
+    for binding in bindings or []:
+        host = binding.get('HostIp')
+        if not host or host in ('0.0.0.0', '::'):
+            continue
+        with socket.socket(socket.AF_INET6 if ':' in host else socket.AF_INET) as probe:
+            try:
+                probe.bind((host, 0))
+            except OSError as exc:
+                sys.exit(f'Cannot restart with the configured Docker host address {host}: {exc}')
+PY
+fi
 archive="$repo/dist/library-$version.tar.gz"
 checksum="$(sha256sum "$archive" | cut -d ' ' -f 1)"
 [[ "${LIBRARY_UPGRADE_VERIFIED_SHA256:?Set the checksum that passed the disposable upgrade smoke}" == "$checksum" ]]
