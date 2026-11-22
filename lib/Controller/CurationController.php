@@ -41,7 +41,14 @@ final class CurationController extends Controller {
     public function noteFiles(): JSONResponse { return $this->respond(fn($uid)=>$this->notes->browse($uid,$this->text('path'))); }
     #[NoAdminRequired]
     public function inbox(): JSONResponse { return $this->respond(function($uid) {
-        $page=$this->inbox->page($uid,(int)$this->request->getParam('before',0),$this->text('filter',16) ?: 'pending',$this->text('day',10),(int)$this->request->getParam('rootId',0));
+        $before=(int)$this->request->getParam('before',0);
+        $filter=$this->text('filter',16) ?: 'pending';
+        $day=$this->text('day',10);
+        $rootId=(int)$this->request->getParam('rootId',0);
+        $page=$this->inbox->page($uid,$before,$filter,$day,$rootId);
+        if ($this->request->getParam('remember') === true && $filter !== 'done') {
+            $this->home->rememberInbox($uid,$before,$filter,$day,$rootId);
+        }
         $page['roots']=array_map(static fn(array $root):array=>['id'=>(int)$root['id'],'label'=>$root['label'],'path'=>$root['path']],$this->roots->listRoots($uid));
         return $page;
     }); }

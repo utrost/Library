@@ -1,4 +1,6 @@
 <script setup>
+import FieldChange from './FieldChange.vue'
+import { reviewOrder } from '../review-order.js'
 import GoogleBooksAttribution from './GoogleBooksAttribution.vue'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import LookupCover from './LookupCover.vue'
@@ -205,7 +207,7 @@ function stage() {
         <p v-if="languageDiffers" role="status">{{ t('library', 'The suggested language differs from this book. Check that the selected edition is the same language before approving a replacement.') }}</p>
         <p class="library-muted">{{ [edition.isbn?.length ? `ISBN ${edition.isbn.join(', ')}` : '', edition.languages?.length ? `${t('library', 'Language')}: ${edition.languages.join(', ')}` : ''].filter(Boolean).join(' · ') }}</p>
         <p v-if="!fields.length" role="status">{{ t('library', 'This edition has no different supported details to suggest.') }}</p>
-        <div v-for="row in fields" :key="row.key" class="library-metadata-lookup-field"><label><input v-model="selectedFields" type="checkbox" :value="row.key" :disabled="disabled"><strong>{{ row.label }}<template v-if="row.key.startsWith('isbn:') || row.key.startsWith('ggkey:')"> {{ row.suggested }}</template></strong></label><div><small>{{ t('library', 'Current draft') }}</small><p>{{ row.current || '—' }}</p></div><div><small>{{ t('library', 'Suggested') }}</small><p>{{ row.suggested }}</p></div></div>
+        <div v-for="row in reviewOrder(fields)" :key="row.key" class="library-metadata-lookup-field"><label><input v-model="selectedFields" type="checkbox" :value="row.key" :disabled="disabled"><strong>{{ row.label }}<template v-if="row.key.startsWith('isbn:') || row.key.startsWith('ggkey:')"> {{ row.suggested }}</template></strong></label><FieldChange :before="row.current" :after="row.suggested" /></div>
         <LookupCover v-if="edition.coverId && edition.lookup" :job-id="edition.lookup.jobId" :item-id="item.id" :review-version="edition.lookup.reviewVersion" :request-token="requestToken" :disabled="disabled || staged" :selected="selectedFields.includes('cover')" @version="coverVersion" @select="selectedFields = $event ? [...selectedFields, 'cover'] : selectedFields.filter(f => f !== 'cover')" />
         <p v-if="provider === 'googlebooks'">{{ t('library', 'Saving covers from Google Books is not supported.') }}</p>
         <button v-if="fields.length || edition.coverId" type="button" class="button secondary" :disabled="disabled || !selectedFields.length" @click="stage">{{ t('library', 'Stage selected details') }}</button>
@@ -220,7 +222,7 @@ function stage() {
 .library-metadata-lookup-form { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; }
 .library-metadata-lookup-form label { display: grid; gap: .25rem; min-width: min(100%, 13rem); flex: 1; }
 .library-metadata-lookup-review { display: grid; gap: .75rem; }
-.library-metadata-lookup-field { display: grid; grid-template-columns: minmax(8rem, .8fr) repeat(2, minmax(0, 1fr)); gap: .75rem; padding: .65rem 0; border-top: 1px solid var(--color-border); }
+.library-metadata-lookup-field { display: grid; grid-template-columns: minmax(8rem, .8fr) minmax(0, 2fr); gap: .75rem; padding: .65rem 0; border-top: 1px solid var(--color-border); }
 .library-metadata-lookup-field p { white-space: pre-wrap; overflow-wrap: anywhere; }
 .library-metadata-lookup-field label { display: flex; align-items: start; gap: .4rem; }
 @media (max-width: 650px) { .library-metadata-lookup-field { grid-template-columns: 1fr; gap: .25rem; } }

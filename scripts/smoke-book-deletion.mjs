@@ -32,7 +32,7 @@ try {
     page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error') consoleErrors.push(m.text()) })
     page.on('request', r => { if (r.method() === 'POST' && /\/items\/\d+(?:\/(?:update|metadata))?$/.test(new URL(r.url()).pathname)) metadataWrites++ })
     const id = state.items[`browser-${engine}`], returnTo = '/apps/library/?q=Deletion&sort=title'
-    await page.goto(`${base}/apps/library/?details=${id}&returnTo=${encodeURIComponent(returnTo)}`)
+    await page.goto(`${base}/apps/library/?details=${id}&edit=1&returnTo=${encodeURIComponent(returnTo)}`)
     await expect(page.locator('.library-full-details #library-full-details-metadata')).toBeVisible()
     await page.waitForLoadState('networkidle')
     const title = page.locator('#library-full-details-metadata-form').getByLabel('Title', { exact: true })

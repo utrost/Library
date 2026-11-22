@@ -96,7 +96,7 @@ test('stages book fields and linked names, saves once, and rejects a stale tab @
   assertKnownNextcloudLoginFailuresAndClear(failures)
 
   const itemId = requiredPositiveIntegerEnvironment('PW_ITEM_ID')
-  const detailsUrl = `/apps/library/?details=${itemId}`
+  const detailsUrl = `/apps/library/?details=${itemId}&edit=1`
   const response = await page.goto(detailsUrl)
   expect(response?.ok(), `Full details returned ${response?.status()}`).toBeTruthy()
   await expect(page.getByRole('heading', { name: 'Book details' })).toBeVisible()
@@ -242,7 +242,7 @@ test('compact identities wrap, select directly and discard on phones @details @m
     }
     return route.continue()
   })
-  await page.goto(`/apps/library/?details=${itemId}`)
+  await page.goto(`/apps/library/?details=${itemId}&edit=1`)
   const panel = page.locator('.library-identity-panel')
   const authors = panel.locator('[aria-labelledby="library-full-details-authors-heading"]')
   const series = panel.locator('[aria-labelledby="library-full-details-series-heading"]')

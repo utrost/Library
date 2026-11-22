@@ -11,7 +11,7 @@ for (const suffix of ['', ' @mobile']) test('complex EPUB fields identify the co
   const failures = collectBrowserFailures(page)
   await login(page)
   assertKnownNextcloudLoginFailuresAndClear(failures)
-  await page.goto(`/apps/library/?details=${fixture.complexBookId}`)
+  await page.goto(`/apps/library/?details=${fixture.complexBookId}&edit=1`)
   const source = page.getByRole('link', { name: 'Download source', exact: true })
   const sourceURL = (await source.getAttribute('href'))!
   const sourceHash = async () => {

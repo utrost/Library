@@ -83,6 +83,7 @@ test('failed author lookup offers Retry without claiming no matches @ux @details
   await login(page)
   const itemId = Number(requiredEnvironment('PW_ITEM_ID'))
   await page.goto(`/apps/library/?details=${itemId}`)
+  await page.getByRole('button', { name: 'Edit details', exact: true }).click()
   await expect(page.locator('.library-identity-panel')).toBeVisible()
   let attempts = 0
   await page.route('**/apps/library/api/authors?*', async route => {

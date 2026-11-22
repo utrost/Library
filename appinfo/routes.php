@@ -135,6 +135,7 @@ return [
         ['name' => 'personal_list#create', 'url' => '/api/lists', 'verb' => 'POST'],
         ['name' => 'personal_list#show', 'url' => '/api/lists/{listId}', 'verb' => 'GET', 'requirements' => ['listId' => '[1-9][0-9]*']],
         ['name' => 'personal_list#action', 'url' => '/api/lists/{listId}/actions', 'verb' => 'POST', 'requirements' => ['listId' => '[1-9][0-9]*']],
+        ['name' => 'saved_collection#pin', 'url' => '/collections/{collectionId}/pin', 'verb' => 'POST'],
         ['name' => 'saved_collection#delete', 'url' => '/collections/{collectionId}/delete', 'verb' => 'POST'],
         ['name' => 'tag#batchassign', 'url' => '/bulk/tags', 'verb' => 'POST'],
         ['name' => 'tag#batchremove', 'url' => '/bulk/tags/remove', 'verb' => 'POST'],

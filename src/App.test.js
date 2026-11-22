@@ -144,6 +144,13 @@ afterEach(async () => {
   vi.unstubAllGlobals()
 })
 
+// Home widgets have their own endpoint and tests. Give App a representative dashboard response.
+vi.mock('./curation-api.js', async importOriginal => {
+  const original = await importOriginal()
+  return { ...original, curationRequest: (path, ...args) => path === '/dashboard'
+    ? Promise.resolve({ rows: { recent: [] }, jobs: [], lists: [], preferences: { widgets: ['recent'], listId: 0 } })
+    : original.curationRequest(path, ...args) }
+})
 describe('Library catalogue Vue app', () => {
   it('shows a dedicated Series destination', () => {
     const wrapper = mount(App, { props: { state } })
@@ -247,7 +254,8 @@ describe('Library catalogue Vue app', () => {
     expect(deleteAction.attributes('aria-label')).toContain('Delete collection')
   })
 
-  it('renders server-backed Home rows independently from catalogue items', () => {
+  it('renders server-backed Home rows independently from catalogue items', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ needsAttentionCount: 3, homeShelves: [] }) }))
     const homeItem = {
       ...state.items[0],
       id: 41,
@@ -271,7 +279,7 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.text()).toContain('Server Home Publication')
     expect(wrapper.text()).not.toContain('Catalogue Page Only')
     expect(wrapper.text()).toContain('Continue reading')
-    expect(wrapper.text()).toContain('Recently added')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Recently added'))
     expect(wrapper.text()).toContain('Shelves')
     expect(wrapper.text()).toContain('Needs attention')
     expect(wrapper.find('[aria-labelledby="library-home-shelves-heading"] > header a').attributes('href')).toBe(state.shelvesUrl)
@@ -787,7 +795,6 @@ describe('Library catalogue Vue app', () => {
     const coverButtons = wrapper.findAll('.library-home-card .library-cover-link')
     expect(coverButtons.map((button) => button.attributes('aria-label'))).toEqual([
       'Details: Example Book',
-      'Details: New Book',
     ])
   })
 
@@ -2880,4 +2887,23 @@ describe('Library catalogue Vue app', () => {
     expect(wrapper.find(`a[href="${state.catalogueRootUrl}?format=pdf"]`).exists()).toBe(true)
     expect(wrapper.find('.library-filter-empty-state .button.primary').exists()).toBe(false)
   })
+})
+
+it('preserves an explicit selection across pages and removes one off-page exception', async () => {
+  const first = state.items[0], second = { ...first, id: 8, title: 'Second book' }
+  const pageTwo = { ...state, items: [second], cataloguePagination: { ...state.cataloguePagination, page: 2 } }
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => pageTwo }))
+  const wrapper = mount(App, { props: { state: {
+    ...state, cataloguePagination: { ...state.cataloguePagination, nextUrl: '/apps/library/?page=2' },
+  } } })
+  await wrapper.get('.library-item-selection input').setValue(true)
+  await wrapper.get('.library-pagination--top a').trigger('click', { button: 0 })
+  await vi.waitFor(() => expect(wrapper.get('.library-item-selection input').attributes('aria-label')).toContain(second.title))
+  expect(wrapper.get('.library-select-visible input').element.checked).toBe(false)
+  await wrapper.get('.library-select-visible input').setValue(true)
+  const tray = wrapper.get('.library-list-selection details')
+  expect(tray.findAll('li').map(row => row.get('bdi').text())).toEqual([first.title, second.title])
+  await tray.get('li button').trigger('click')
+  expect(tray.findAll('li').map(row => row.get('bdi').text())).toEqual([second.title])
+  expect(wrapper.get('.library-select-visible input').element.checked).toBe(true)
 })

@@ -1,4 +1,7 @@
 <script setup>
+import { undoConflictText } from '../undo-conflict.js'
+import FieldChange from './FieldChange.vue'
+import { reviewOrder } from '../review-order.js'
 import GoogleBooksAttribution from './GoogleBooksAttribution.vue'
 import LookupCover from './LookupCover.vue'
 import LookupCandidates from './LookupCandidates.vue'
@@ -87,6 +90,10 @@ async function request(path = '', body = {}) {
   })
   let data
   try { data = await response.json() } catch { throw new Error(failure('operation_failed')) }
+  if (data.error === 'undo_conflict') {
+    const title = job.value?.rows.find(row => row.id === data.bookId)?.title || String(data.bookId)
+    throw new Error(undoConflictText(title, data.fields, labels))
+  }
   if (!response.ok) throw new Error(failure(data.error))
   return data
 }
@@ -131,9 +138,22 @@ async function load() {
 function create() { act(async () => { setJob(await request('/create', { requestId: createKey, ids: selectedIds, provider: provider.value, policy: policy.value, fields: selectedValidFields.value })); notice.value = t('library', 'Lookup queued. Background processing depends on your server’s cron schedule. You can leave and return here.'); }) }
 function open(id) { act(async () => { outcomes.value = []; setJob(await request(`/${id}`)) }) }
 function control(action) { act(async () => { job.value = await request(`/${job.value.id}/control`, { action }) }) }
+function eligibleUndo(row) {
+  return row?.status === 'applied' && row.receipt && (!row.receipt.expiresAt || row.receipt.expiresAt * 1000 > Date.now())
+}
+const outcomeRows = computed(() => outcomes.value.map(outcome => ({
+  ...outcome, book: job.value?.rows.find(row => row.id === outcome.id),
+})))
+async function showReceipt(row) {
+  pinnedRow.value = row.id
+  await nextTick()
+  const receipt = document.getElementById(`lookup-receipt-${row.id}`)
+  if (receipt) { receipt.open = true; receipt.querySelector('summary')?.focus() }
+}
 function rowAction(row, action, extra = {}) {
   act(async () => {
     job.value = await request(`/${job.value.id}/books/${row.id}`, { action, reviewVersion: row.reviewVersion, ...extra })
+    if (action === 'apply') outcomes.value = [{ id: row.id, status: 'applied' }]
     if (action === 'editions') notice.value = t('library', 'Other editions queued. Previous edition approvals were cleared; other books are unchanged.')
     if (['apply', 'undo'].includes(action)) emit('changed')
     if (['apply', 'undo', 'skip', 'editions'].includes(action)) { pinnedRow.value = row.id; await nextTick(); document.getElementById(`lookup-book-${row.id}`)?.focus({ preventScroll: true }) }
@@ -228,14 +248,19 @@ onBeforeUnmount(() => { disposed = true; generation++; clearTimeout(timer) })
       </div>
       <p v-if="job.status !== 'archived'" role="status">{{ n('library', '%n book selected', '%n books selected', selectedCount) }} · {{ n('library', '%n field selected', '%n fields selected', selectedFields) }} — {{ t('library', 'Across all filters') }}</p>
       <button v-if="job.status !== 'archived'" type="button" class="button primary" :disabled="busy || !selectedCount" @click="applySelected">{{ n('library', 'Apply selected fields in %n book', 'Apply selected fields in %n books', selectedCount) }}</button>
-      <ul v-if="outcomes.length" aria-live="polite"><li v-for="outcome in outcomes" :key="outcome.id">{{ job.rows.find(row => row.id === outcome.id)?.title }}: {{ outcome.status === 'applied' ? t('library', 'Applied') : t('library', 'Not applied; review this book again.') }}</li></ul>
+      <section v-if="outcomes.length" aria-live="polite">
+        <strong>{{ t('library', 'Books changed: {count}', { count: outcomeRows.filter(row => row.status === 'applied' && row.book?.receipt && row.book.status !== 'undone').length }) }}</strong>
+        <ul><li v-for="row in outcomeRows" :key="row.id">{{ row.book?.title }} · {{ row.status === 'applied' ? states[row.book?.status] : t('library', 'Not applied; review this book again.') }}
+          <button v-if="row.book?.receipt" type="button" @click="showReceipt(row.book)">{{ t('library', 'View receipt') }}</button>
+          <button v-if="eligibleUndo(row.book)" type="button" :disabled="busy" @click="rowAction(row.book, 'undo')">{{ t('library', 'Undo') }}</button>
+        </li></ul>
+      </section>
       <p v-if="!visibleRows.length">{{ t('library', 'No books match this filter.') }}</p>
       <article v-for="row in visibleRows" :key="row.id" class="library-batch-book">
         <header class="library-batch-toolbar">
           <img :src="generateUrl(`/apps/library/items/${row.id}/cover`)" alt="" loading="lazy" width="40" height="56">
           <h3 :id="`lookup-book-${row.id}`" tabindex="-1">{{ row.title }}</h3><span>{{ states[row.status] }}</span><span class="library-muted">{{ providerName(row.provider) }}</span>
-          <button v-if="row.status === 'ready'" type="button" class="button primary" :disabled="busy || !row.selected.length" @click="rowAction(row, 'apply')">{{ t('library', 'Apply now') }}</button>
-          <button v-if="row.status === 'applied'" type="button" :disabled="busy" @click="rowAction(row, 'undo')">{{ t('library', 'Undo') }}</button>
+          <button v-if="eligibleUndo(row)" type="button" :disabled="busy" @click="rowAction(row, 'undo')">{{ t('library', 'Undo') }}</button>
           <button v-if="['failed', 'no_match', 'skipped'].includes(row.status) && !['paused', 'cancelled', 'archived'].includes(job.status)" type="button" :disabled="busy" @click="rowAction(row, 'retry')">{{ t('library', 'Retry') }}</button>
           <button v-if="!['applied', 'undone', 'skipped'].includes(row.status)" type="button" :disabled="busy" @click="rowAction(row, 'skip')">{{ t('library', 'Skip') }}</button>
           <button v-if="!['applied', 'undone'].includes(row.status) && !['paused', 'cancelled', 'archived'].includes(job.status)" type="button" :disabled="busy" @click="refine(row)">{{ t('library', 'Refine search') }}</button>
@@ -254,16 +279,17 @@ onBeforeUnmount(() => { disposed = true; generation++; clearTimeout(timer) })
         </form>
         <p v-if="row.phase === 'editions' && ['queued', 'working'].includes(row.status)" role="status">{{ t('library', 'Loading other editions…') }}</p>
         <p v-if="row.retryAt > Date.now() / 1000 && row.status === 'queued'">{{ t('library', 'Retry after {time}', { time: new Date(row.retryAt * 1000).toLocaleString() }) }}</p>
-        <p v-if="row.applyError" role="alert">{{ failure(row.applyError) }}</p>
+        <p v-if="row.undoFields" role="alert">{{ undoConflictText(row.title, row.undoFields, labels) }}</p>
+        <p v-else-if="row.applyError" role="alert">{{ failure(row.applyError) }}</p>
         <p v-if="row.error">{{ failure(row.error) }}</p>
         <details v-if="row.results.length && ['matches', 'ready'].includes(row.status)" :open="row.status === 'matches'">
           <summary>{{ t('library', 'Edition matches') }}</summary>
           <LookupCandidates :results="row.results" :book-languages="row.languageReview?.current" :book-isbns="row.bookIsbns" :edition-page="row.editionPage || null" :disabled="busy || ['paused', 'cancelled'].includes(job.status)" @choose="rowAction(row, 'choose', { editionId: $event.editionId })" @editions="rowAction(row, 'editions', $event)" />
         </details>
-        <details v-if="row.receipt">
+        <details v-if="row.receipt" :id="`lookup-receipt-${row.id}`">
           <summary>{{ t('library', 'Change receipt') }}</summary>
           <a :href="row.receipt.url" target="_blank" rel="noopener noreferrer">{{ t('library', 'Provider source') }}</a>
-          <div v-for="(value, field) in row.receipt.after" :key="field" class="library-batch-proposal"><span><strong>{{ labels[field] }}</strong><span class="library-batch-values"><span>{{ t('library', 'Before') }}: {{ display(row.receipt.before[field]) || '—' }}</span><span>{{ t('library', 'After') }}: {{ display(value) }}</span></span></span></div>
+          <div v-for="(value, field) in row.receipt.after" :key="field" class="library-batch-proposal"><span><strong>{{ labels[field] }}</strong><FieldChange :before="display(row.receipt.before[field])" :after="display(value)" /></span></div>
         </details>
         <template v-if="row.status === 'ready'">
           <LookupCover v-if="row.edition.coverId && job.fields.includes('cover')" :job-id="job.id" :item-id="row.id" :review-version="row.reviewVersion" :request-token="requestToken" :disabled="busy" :selected="row.selected.includes('cover')" @version="coverVersion" @select="toggle(row, 'cover', $event)" />
@@ -273,10 +299,11 @@ onBeforeUnmount(() => { disposed = true; generation++; clearTimeout(timer) })
           <p v-if="row.languageReview?.candidateConflict" role="status">{{ t('library', 'The match and selected edition report different languages. Review the edition before applying language.') }}</p>
           <p><a :href="row.edition.url" target="_blank" rel="noopener noreferrer">{{ t('library', 'Provider source') }} · {{ row.edition.fields.title || row.editionId }}</a></p>
           <p v-if="!row.proposals.length">{{ t('library', 'No changes for the selected fields and update policy.') }}</p>
-          <label v-for="proposal in row.proposals.filter(proposal => proposal.key !== 'cover')" :key="proposal.key" class="library-batch-proposal">
+          <label v-for="proposal in reviewOrder(row.proposals).filter(proposal => proposal.key !== 'cover')" :key="proposal.key" class="library-batch-proposal">
             <input type="checkbox" :checked="row.selected.includes(proposal.key)" :disabled="busy" @change="toggle(row, proposal.key, $event.target.checked)">
-            <span><strong>{{ labels[proposal.key] }}</strong><span class="library-batch-values"><span>{{ t('library', 'Before') }}: {{ display(proposal.before) || '—' }}</span><span>{{ t('library', 'After') }}: {{ display(proposal.after) }}</span></span></span>
+            <span><strong>{{ labels[proposal.key] }}</strong><FieldChange :before="display(proposal.before)" :after="display(proposal.after)" /></span>
           </label>
+          <button v-if="row.status === 'ready'" type="button" class="button primary" :disabled="busy || !row.selected.length" @click="rowAction(row, 'apply')">{{ t('library', 'Apply now') }}</button>
         </template>
       </article>
     </template>

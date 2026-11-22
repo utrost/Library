@@ -8,6 +8,7 @@ use OCA\Library\Service\SavedCollectionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\RedirectResponse;
+use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 use OCP\IURLGenerator;
 use OCP\IUserSession;
@@ -38,6 +39,15 @@ final class SavedCollectionController extends Controller {
             }
         }
         return new RedirectResponse($this->urlGenerator->linkToRoute('library.page.index'));
+    }
+
+    #[NoAdminRequired]
+    public function pin(int $collectionId): JSONResponse {
+        $uid = $this->userSession->getUser()?->getUID();
+        $pinned = $this->request->getParam('pinned');
+        if (!is_bool($pinned)) return new JSONResponse([], 400);
+        if ($uid === null || !$this->savedCollectionService->pin($uid, $collectionId, $pinned)) return new JSONResponse([], 404);
+        return new JSONResponse(['pinned' => $pinned]);
     }
 
     #[NoAdminRequired]

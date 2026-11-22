@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace OCA\Library\Service;
 
+use OCA\Library\Exception\UndoConflict;
 use OCP\IDBConnection;
 use OCP\IConfig;
 use OCP\Lock\ILockingProvider;
@@ -201,15 +202,15 @@ final class MetadataBatchService {
             if (($action==='apply' && $row['status']==='applied') || ($action==='undo' && $row['status']==='undone')) return $this->present($job);
             if (($data['reviewVersion'] ?? 0)!==(int)($row['reviewVersion'] ?? 0)) throw new \DomainException('review_changed');
             if ($job['status']==='archived' && $action!=='undo') throw new \DomainException('invalid_transition');
-            unset($row['applyError']);
+            unset($row['applyError'], $row['undoFields']);
             if ($action==='undo') {
                 if ($row['status']==='undone') return $this->present($job);
-                if ($row['status']!=='applied') throw new \DomainException('invalid_transition');
+                if ($row['status']!=='applied' || !isset($row['receipt'])) throw new \DomainException('invalid_transition');
                 if (($row['receipt']['expiresAt'] ?? $row['receipt']['appliedAt']+7776000)<=time()) throw new \DomainException('receipt_expired');
                 $this->assertCurrent($uid,$row,$row['receipt']['afterRevision'],true);
                 if (isset($row['receipt']['cover'])) {
                     $current=$this->items->findItem($uid,$itemId);
-                    if (!hash_equals($row['receipt']['cover']['afterRevision'],$current['coverCacheRevision'])) throw new MetadataConflictException('cover_changed');
+                    if (!hash_equals($row['receipt']['cover']['afterRevision'],$current['coverCacheRevision'])) throw new MetadataConflictException('cover_changed', 0, new UndoConflict($itemId, ['cover']));
                     $original=$row['receipt']['cover']['before'];
                     $content=$original===null ? null : $this->covers()->read($uid,$job['id'],$original);
                 }
@@ -279,7 +280,12 @@ final class MetadataBatchService {
             if (in_array($action,['apply','undo'],true)) {
                 try { $this->transaction(function() use($uid,$id,$itemId,$error) {
                     $job=$this->read($uid,$id,true);
-                    foreach ($job['payload']['rows'] as &$row) if ($row['id']===$itemId) $row['applyError']=$error instanceof MetadataConflictException ? 'stale_book' : 'operation_failed';
+                    foreach ($job['payload']['rows'] as &$row) {
+                        if ($row['id'] !== $itemId) continue;
+                        $row['applyError'] = $error instanceof MetadataConflictException ? 'stale_book' : 'operation_failed';
+                        $reason = $error->getPrevious();
+                        if ($reason instanceof UndoConflict) $row['undoFields'] = $reason->fields;
+                    }
                     unset($row); $this->save($job);
                 }); } catch (\Throwable) { /* Deleted/expired run or unavailable storage: the original failure remains authoritative. */ }
             }
@@ -461,7 +467,14 @@ final class MetadataBatchService {
     private function assertCurrent(string $uid,array $row,?string $revision=null,bool $lock=false): array {
         $snapshot=$this->snapshots->snapshot($uid,$row['id'],$lock);
         $item=$this->items->findItem($uid,$row['id']) ?? throw new \OutOfBoundsException('not_found');
-        if ($snapshot['file']!==$row['file'] || !hash_equals($revision ?? $row['revision'],$item['metadataRevision'])) throw new MetadataConflictException('metadata_changed');
+        if ($snapshot['file']!==$row['file'] || !hash_equals($revision ?? $row['revision'],$item['metadataRevision'])) {
+            if ($revision !== null && isset($row['receipt'])) {
+                $fields = UndoConflict::changedKeys($row['receipt']['after'] + $row['before'], $item);
+                if ($snapshot['file'] !== $row['file']) $fields[] = 'file';
+                throw new MetadataConflictException('metadata_changed', 0, new UndoConflict((int)$row['id'], $fields));
+            }
+            throw new MetadataConflictException('metadata_changed');
+        }
         return $item;
     }
     private function proposals(array $job,array $row): array {

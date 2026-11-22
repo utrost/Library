@@ -3,6 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { curationRequest } from '../curation-api.js'
+import { curationContextUrl } from '../curation-context.js'
 import { bookDetailsUrl } from '../details-return.js'
 const props = defineProps({ requestToken: String, settingsUrl: String })
 const data = ref(null), busy = ref(false), error = ref(''), widgets = ref([]), listId = ref(0), configure = ref(false)
@@ -12,9 +13,14 @@ const labels = { recent: t('library', 'Recently added'), upNext: t('library', 'U
 async function load(save = false) {
   if (busy.value) return
   busy.value = true; error.value = ''; controller = new AbortController(); const token = ++generation
-  try { const result = await curationRequest('/dashboard', props.requestToken, save ? { action: 'save', widgets: widgets.value, listId: Number(listId.value) } : {}, controller.signal); if (token !== generation) return; data.value = result; widgets.value = [...result.preferences.widgets]; listId.value = result.preferences.listId; if (save) configure.value = false }
+  try { const result = await curationRequest('/dashboard', props.requestToken, save ? { action: 'save', widgets: widgets.value, listId: Number(listId.value) } : {}, controller.signal); if (token !== generation) return; widgets.value = [...result.preferences.widgets]; listId.value = result.preferences.listId; data.value = result; if (save) configure.value = false }
   catch (e) { if (token === generation && e.name !== 'AbortError') error.value = e.message }
   finally { if (token === generation) busy.value = false }
+}
+function resumeUrl(checkpoint) {
+  const url = curationContextUrl(generateUrl('/apps/library/'), { ...checkpoint, tab: 'inbox', selected: [], pages: [] })
+  url.searchParams.set('resumeIncoming', '1')
+  return url.href
 }
 const url = id => bookDetailsUrl(generateUrl('/apps/library/'), id)
 onMounted(() => load())
@@ -25,6 +31,7 @@ onMounted(() => load())
     <form v-if="configure && data" @submit.prevent="load(true)"><fieldset><legend>{{ t('library', 'Show on Home') }}</legend><label v-for="(label, key) in labels" :key="key"><input v-model="widgets" type="checkbox" :value="key">{{ label }}</label></fieldset><label>{{ t('library', 'Up next from') }}<select :aria-label="t('library', 'Up next from')" v-model="listId"><option :value="0">{{ t('library', 'To-read books') }}</option><option v-for="list in data.lists" :key="list.id" :value="list.id">{{ list.name }}</option></select></label><button type="submit" :disabled="busy">{{ t('library', 'Save') }}</button></form>
     <p v-if="busy" role="status">{{ t('library', 'Loading…') }}</p><p v-if="error" role="alert">{{ error }} <button type="button" :disabled="busy" @click="load()">{{ t('library', 'Retry') }}</button></p>
     <template v-if="data">
+      <a v-if="data.incoming" :href="resumeUrl(data.incoming)">{{ t('library', 'Resume Incoming review') }}</a>
       <section v-for="(books, key) in data.rows" :key="key"><h3>{{ labels[key] }}</h3><div class="cards"><article v-for="book in books" :key="book.id"><a :href="url(book.id)"><img :src="book.cover" alt="" loading="lazy" @error="$event.target.hidden = true"><span>{{ book.title }}</span></a><p>{{ book.creators }}</p></article></div><p v-if="!books.length">{{ t('library', 'No books in this section yet.') }}</p></section>
       <section v-if="data.health"><h3>{{ labels.health }}</h3><p v-if="data.summary?.counts">{{ t('library', 'Snapshot from') }} {{ new Date(data.summary.at * 1000).toLocaleString() }} · {{ t('library', 'Missing details') }}: {{ data.summary.counts.unidentified }} · {{ t('library', 'Missing files') }}: {{ data.summary.counts.missing }} · {{ t('library', 'Suggested updates') }}: {{ data.summary.counts.suggestions }}</p><p v-if="data.summary?.pending" role="status">{{ t('library', 'Health counts are queued for background refresh.') }} <button type="button" :disabled="busy" @click="load()">{{ t('library', 'Refresh') }}</button></p><template v-if="data.health.cacheStatus === 'cached'"><p>{{ t('library', 'Snapshot from') }} {{ new Date(data.health.generatedAt * 1000).toLocaleString() }}</p><p>{{ t('library', 'Indexed files') }}: {{ data.health.totalFiles }} · {{ t('library', 'Metadata errors') }}: {{ data.health.metadataErrorReview?.total || 0 }}</p></template><p v-else>{{ t('library', 'No health snapshot yet. Open Settings to refresh the overview.') }}</p><nav class="health-links" :aria-label="t('library', 'Library health')"><a :href="generateUrl('/apps/library/') + '?needsMetadata=1'">{{ t('library', 'Missing details') }} <span v-if="data.summary?.counts">({{ data.summary.counts.unidentified }})</span></a><a :href="generateUrl('/apps/library/') + '?status=missing'">{{ t('library', 'Missing files') }} <span v-if="data.summary?.counts">({{ data.summary.counts.missing }})</span></a><a :href="generateUrl('/apps/library/') + '?scannerConflicts=1'">{{ t('library', 'Suggested updates') }} <span v-if="data.summary?.counts">({{ data.summary.counts.suggestions }})</span></a><a :href="generateUrl('/apps/library/') + '?duplicates=1'">{{ t('library', 'Possible duplicates') }} <span v-if="data.summary?.counts?.duplicates !== undefined">({{ data.summary.counts.duplicates }})</span></a><a :href="generateUrl('/apps/library/') + '?curation=1'">{{ t('library', 'Review unfinished organisation jobs') }} <span v-if="data.summary?.counts?.stalled !== undefined">({{ data.summary.counts.stalled }})</span></a><a :href="settingsUrl">{{ t('library', 'Open diagnostics') }}</a></nav></section>
       <p v-if="!data.health && data.jobs.length"><a :href="generateUrl('/apps/library/') + '?curation=1'">{{ t('library', 'Review unfinished organisation jobs') }} ({{ data.jobs.length }})</a></p>

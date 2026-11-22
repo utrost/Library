@@ -872,20 +872,42 @@ const needsAttention = computed(() => catalogueState.needsAttention || { count: 
 const selectedItemIds = ref([])
 const selectedItemIdSet = computed(() => new Set(selectedItemIds.value))
 
+const selectionTitles = reactive(new Map())
+const visibleSelectedCount = computed(() => items.value.filter(item => selectedItemIdSet.value.has(Number(item.id))).length)
 function toggleItemSelection(itemId, checked) {
-  const next = new Set(selectedItemIds.value)
-  if (checked) next.add(Number(itemId))
-  else next.delete(Number(itemId))
-  selectedItemIds.value = [...next]
+  const id = Number(itemId)
+  if (checked) {
+    const item = items.value.find(item => Number(item.id) === id)
+    if (item) selectionTitles.set(id, item.title)
+    if (!selectedItemIdSet.value.has(id)) selectedItemIds.value.push(id)
+  } else {
+    selectedItemIds.value = selectedItemIds.value.filter(value => value !== id)
+    selectionTitles.delete(id)
+  }
 }
-
+function clearSelection() {
+  selectedItemIds.value = []
+  selectionTitles.clear()
+}
 function selectVisibleItems(event) {
-  selectedItemIds.value = event.currentTarget.checked ? items.value.map((item) => Number(item.id)) : []
+  const selected = new Set(selectedItemIds.value)
+  for (const item of items.value) {
+    const id = Number(item.id)
+    if (event.currentTarget.checked) {
+      selected.add(id)
+      selectionTitles.set(id, item.title)
+    } else {
+      selected.delete(id)
+      selectionTitles.delete(id)
+    }
+  }
+  selectedItemIds.value = [...selected]
 }
-
-function reconcileSelectedItems() {
-  const visible = new Set(items.value.map((item) => Number(item.id)))
-  selectedItemIds.value = selectedItemIds.value.filter((id) => visible.has(id))
+function pageCatalogue(event) {
+  if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return
+  event.preventDefault()
+  catalogueRequestController?.abort()
+  submitFiltersAjax(null, { params: new URL(event.currentTarget.href).searchParams, historyMode: 'push' })
 }
 
 function appendSelectedItemIds(event) {
@@ -1514,7 +1536,6 @@ async function fetchPublicationSuggestions(query, generation) {
 
 function applyCatalogueState(nextState) {
   catalogueItems.splice(0, catalogueItems.length, ...((nextState.items || []).map((item) => ({ ...item }))))
-  reconcileSelectedItems()
   const deferredKeys = new Set(nextState.facetsDeferred ? [
     'shelves', 'formats', 'publicationTypes', 'publishers', 'publications', 'publicationSummaries', 'publicationIssueContext',
     'publicationYears', 'publicationYearLandingUrls', 'creators', 'creatorLandingUrls', 'scanStatuses', 'workflowStatuses',
@@ -2052,8 +2073,27 @@ function smartViewUrl(filters) {
   return query ? `?${query}` : '?'
 }
 
+const pinBusy = ref(false)
+const pinError = ref('')
+async function togglePin(collection) {
+  if (pinBusy.value) return
+  pinBusy.value = true
+  pinError.value = ''
+  try {
+    const response = await fetch(generateUrl('/apps/library/collections/{id}/pin', { id: collection.id }), {
+      method: 'POST', credentials: 'same-origin',
+      headers: { requesttoken: requestToken.value, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pinned: !collection.pinned }),
+    })
+    if (!response.ok) throw new Error()
+    const result = await response.json()
+    const current = savedCollections.value.find(row => row.id === collection.id)
+    if (current) current.pinned = result.pinned
+  } catch { pinError.value = t('library', 'Could not update the shortcut. Try again.') }
+  finally { pinBusy.value = false }
+}
 function savedCollectionUrl(filters) {
-  return smartViewUrl(filters || {})
+  return catalogueRootUrl.value + '?' + new URLSearchParams(filters || {}).toString()
 }
 
 function collectionMatchesActiveFilters(filters) {
@@ -2449,6 +2489,14 @@ async function toggleStar(item, event) {
       <p class="library-muted library-catalogue-eyebrow">{{ t('library', 'Your library') }}</p>
       <h2 id="library-home-heading">{{ t('library', 'Home') }}</h2>
     </header>
+    <section v-if="savedCollections.some(row => row.pinned)">
+      <h2>{{ t('library', 'Pinned collections') }}</h2>
+      <ul><li v-for="collection in savedCollections.filter(row => row.pinned)" :key="collection.id">
+        <a :href="savedCollectionUrl(collection.filters)">{{ collection.name }}</a>
+        <button type="button" :disabled="pinBusy" @click="togglePin(collection)">{{ t('library', 'Unpin') }}</button>
+      </li></ul>
+      <p v-if="pinError" role="alert">{{ pinError }}</p>
+    </section>
     <HomeDashboard :request-token="requestToken" :settings-url="settingsUrl" />
 
 
@@ -2572,7 +2620,9 @@ async function toggleStar(item, event) {
     </details>
         <details v-if="canSaveCurrentView || savedCollections.length || collectionsExpanded" :open="collectionsExpanded" @toggle="collectionsExpanded = $event.target.open" id="library-collections" class="library-saved-collections library-save-search">
           <summary>{{ canSaveCurrentView ? t('library', 'Save this search') : t('library', 'Collections') }}</summary>
-          <ul v-if="savedCollections.length"><li v-for="collection in savedCollections" :key="collection.id"><a :href="savedCollectionUrl(collection.filters)">{{ collection.name }}</a></li></ul>
+          <ul v-if="savedCollections.length"><li v-for="collection in savedCollections" :key="collection.id"><a :href="savedCollectionUrl(collection.filters)">{{ collection.name }}</a> <button type="button" :disabled="pinBusy" :aria-pressed="!!collection.pinned" @click="togglePin(collection)">{{ collection.pinned ? t('library', 'Unpin') : t('library', 'Pin to Home') }}</button></li></ul>
+          <p v-if="savedCollections.length">{{ t('library', 'Collections show the books that match their filters now.') }}</p>
+          <p v-if="pinError" role="alert">{{ pinError }}</p>
           <p v-if="!canSaveCurrentView">{{ t('library', 'Choose search terms or filters first, then save them as a custom collection.') }}</p>
           <form v-if="canSaveCurrentView" method="post" :action="savedCollectionSaveUrl" class="library-saved-collection-save-form" :title="!canSaveCurrentView ? t('library', 'Choose search terms or filters first, then save them as a custom collection.') : ''">
             <input type="hidden" name="requesttoken" :value="requestToken">
@@ -2659,13 +2709,13 @@ async function toggleStar(item, event) {
     </section>
 
     <div class="library-catalogue-status-row">
-      <div v-if="items.length" class="library-result-selection"><label class="library-select-visible"><input type="checkbox" :checked="selectedItemIds.length === items.length" @change="selectVisibleItems"><span :title="t('library', 'Select all publications on this page')">{{ t('library', 'Select all') }}</span></label></div>
+      <div v-if="items.length" class="library-result-selection"><label class="library-select-visible"><input type="checkbox" :checked="visibleSelectedCount === items.length" :indeterminate="visibleSelectedCount > 0 && visibleSelectedCount < items.length" @change="selectVisibleItems"><span :title="t('library', 'Select all publications on this page')">{{ t('library', 'Select all') }}</span></label></div>
       <p class="library-muted library-filter-result-summary"><span class="hidden-visually">{{ t('library', 'Showing') }}{{ ' ' }}</span>{{ pagination.from }}–{{ pagination.to }}<template v-if="pagination.total !== null">{{ ' ' }}{{ t('library', 'of') }}{{ ' ' }}{{ pagination.total }}</template>{{ ' ' }}<span class="hidden-visually">{{ t('library', 'catalogue items') }}</span></p>
       <nav class="library-pagination library-pagination--top" :aria-label="t('library', 'Catalogue pagination')">
         <span class="library-pagination-range">{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.visible > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span>
-        <a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a>
+        <a v-if="pagination.previousUrl" :href="pagination.previousUrl" @click="pageCatalogue">{{ t('library', 'Previous') }}</a>
         <span v-else class="library-muted">{{ t('library', 'Previous') }}</span>
-        <a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a>
+        <a v-if="pagination.nextUrl" :href="pagination.nextUrl" @click="pageCatalogue">{{ t('library', 'Next') }}</a>
         <span v-else class="library-muted">{{ t('library', 'Next') }}</span>
       </nav>
     </div>
@@ -2695,7 +2745,12 @@ async function toggleStar(item, event) {
       <div class="library-list-selection-actions">
 
         <template v-if="selectedItemIds.length">
-          <span aria-live="polite">{{ n('library', '%n publication selected', '%n publications selected', selectedItemIds.length) }}</span>
+          <details><summary><span aria-live="polite">{{ n('library', '%n publication selected', '%n publications selected', selectedItemIds.length) }}</span></summary>
+            <ul><li v-for="id in selectedItemIds" :key="id"><bdi>{{ selectionTitles.get(id) || id }}</bdi>
+              <button type="button" :aria-label="t('library', 'Remove {book} from selection', { book: selectionTitles.get(id) || id })" @click="toggleItemSelection(id, false)">×</button>
+            </li></ul>
+            <button type="button" @click="clearSelection">{{ t('library', 'Clear selection') }}</button>
+          </details>
         </template>
         <button type="button" @click="curationOpen = true">{{ t('library', 'Organise selected books') }}</button>
         <button type="button" @click="batchLookupOpen = true">{{ t('library', 'Find book details') }}</button>
@@ -2791,9 +2846,9 @@ async function toggleStar(item, event) {
     <p v-if="duplicateSuggestionsEnabled && (duplicateHintStatus === 'building' || Object.values(duplicateHints).some(entry => entry.status === 'partial'))" class="library-duplicate-page-status" role="status"><LabelHelp :text="t('library', 'Suggestions are incomplete while indexing or when candidate limits are reached.')">{{ t('library', 'Duplicate suggestions updating') }}</LabelHelp></p>
     <nav v-if="items.length > 0" class="library-pagination library-pagination--bottom" :aria-label="t('library', 'Catalogue pagination')">
       <span class="library-pagination-range">{{ t('library', 'Page') }} {{ pagination.page }}<span v-if="pagination.visible > 0"> · {{ pagination.from }}–{{ pagination.to }}</span></span>
-      <a v-if="pagination.previousUrl" :href="pagination.previousUrl">{{ t('library', 'Previous') }}</a>
+      <a v-if="pagination.previousUrl" :href="pagination.previousUrl" @click="pageCatalogue">{{ t('library', 'Previous') }}</a>
       <span v-else class="library-muted">{{ t('library', 'Previous') }}</span>
-      <a v-if="pagination.nextUrl" :href="pagination.nextUrl">{{ t('library', 'Next') }}</a>
+      <a v-if="pagination.nextUrl" :href="pagination.nextUrl" @click="pageCatalogue">{{ t('library', 'Next') }}</a>
       <span v-else class="library-muted">{{ t('library', 'Next') }}</span>
     </nav>
 
