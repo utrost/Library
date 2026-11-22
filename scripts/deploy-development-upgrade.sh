@@ -87,14 +87,19 @@ table_prefix="$(occ config:system:get dbtableprefix)"
 [[ "$table_prefix" =~ ^[a-zA-Z0-9_]+$ ]]
 docker cp "$app:/var/www/html/custom_apps/library" "$backup/library-old" >/dev/null
 tar -xzf "$archive" -C "$backup"
-python3 - "$backup" <<'PY'
+python3 - "$backup" "$version" <<'PY'
 import json, sys
 from pathlib import Path
 r=Path(sys.argv[1]); old=r/'library-old'; new=r/'library'
 a={p.name:p.read_bytes() for p in (old/'lib/Migration').glob('Version*.php')}
 b={p.name:p.read_bytes() for p in (new/'lib/Migration').glob('Version*.php')}
 assert all(b.get(name)==content for name,content in a.items()), 'Existing migrations changed'
-assert a == b, 'This provider/editor upgrade must not add or change migrations'
+added = b.keys() - a.keys()
+expected = {'Version000400Date20261122090000.php'} if sys.argv[2] == '0.4.0-alpha.9' else set()
+assert added == expected, f'Unexpected migration set: {added}'
+if expected:
+    import hashlib
+    assert hashlib.sha256(b['Version000400Date20261122090000.php']).hexdigest() == 'beaa2d4137773bc2e54daeac5548ed7c23195b6219bb0ed7ff8920f99d42e276', 'Scan-results migration changed'
 for app,name in [(old,'old.crt'),(new,'new.crt')]:
     (r/name).write_text(json.loads((app/'appinfo/signature.json').read_text())['certificate'])
 PY
